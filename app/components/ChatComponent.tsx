@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import { useAppSelector, useAppDispatch } from '../Redux/hooks';
@@ -9,7 +9,13 @@ import { SocketAddress } from 'net';
 
 type message = {
     from: string,
-    msg: string
+    msg: string,
+    color: string
+}
+
+type memberType = {
+    user: string,
+    color: string
 }
 
 export default function ChatComponent() {
@@ -21,32 +27,53 @@ export default function ChatComponent() {
     const [email, setEmail] = useState<string>("");
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
     const [messageArr, setMessageArr] = useState<message[]>([]);
-    const [members, setMembers] = useState<string[]>([]);
+    const [membersArr, setMembers] = useState<Set<memberType>>(new Set());
+    const isCalled = useRef(false);
+
+    const colors = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
     useEffect(() => {
         let email = sessionStorage.getItem("email");
         setEmail(email!)
 
         if (socket) {
-            socket.emit("getMembers", meetingCode);
+            if (!isCalled.current) {   
+                socket.emit("getMembers", meetingCode);
+                isCalled.current = true;
+            }
 
-            socket.on("fetchedMembers", (members) => {
-                setMembers(prev => [...prev, members])
-            })
+            const handleMembers = (members: string[]) => {
+                if (Array.isArray(members)) {
+                    setMembers((prev) => {
+                        const updatedSet = new Set(prev);
+                        members.forEach((member) => {
+                            if (!([...updatedSet].some(existingMember => existingMember.user === member))) {
+                                updatedSet.add({ user: member, color: colors[Math.floor(Math.random() * 7)] })
+                            }
+                        });
+                        return updatedSet;
+                    });
+                }
+            }
+
+            socket.on("fetchedMembers", handleMembers);
+
+            return () => {
+                if (socket) {
+                    socket.off("fetchedMembers", handleMembers);
+                }
+            }
         }
 
-    }, [socket])
+    }, [socket, meetingCode])
 
     useEffect(() => {
         if (socket) {
             const handleMessageArrived = (email: string, message: string) => {
-                setMessageArr(prev => [...prev, { from: email, msg: message }]);
-                console.log("message arrived: ", email, message);
-                console.log("messages: ", messageArr);
+                setMessageArr(prev => [...prev, { from: email, msg: message, color: colors[Math.floor(Math.random() * 7)] }]);
             };
             socket.on("messageArrived", handleMessageArrived);
 
-            // Cleanup to avoid duplication
             return () => {
                 socket.off("messageArrived", handleMessageArrived);
             };
@@ -69,24 +96,24 @@ export default function ChatComponent() {
         <>
             <aside className={`${toggle ? 'opacity-100 h-[32rem] z-50' : 'opacity-0 h-0 -z-10'} w-80 bg-white shadow-md shadow-gray-400 absolute top-28 left-5 flex flex-col rounded-2xl overflow-hidden transition-all duration-500`}>
                 <div className='flex justify-between items-center h-[12%] px-4'>
-                    <p className='text-gray-700 font-medium text-xl'> {functionality === 'chat' ? 'Messages' : functionality === "members" ? 'People' : 'Messages'} </p>
+                    <p className='text-gray-700 font-medium text-xl'> {functionality === 'chat' ? 'Messages' : functionality === "users" ? 'People' : 'Messages'} </p>
                     <button onClick={closeSidebar}>
                         <CloseOutlinedIcon className='text-gray-800' />
                     </button>
                 </div>
 
-                <div className='w-full flex-grow px-4'>
+                <div className='w-full h-5/6 overflow-y-scroll flex-grow px-4'>
                     {
                         functionality == "chat" ?
-                            messageArr.map(({ from, msg }, index) => (
-                                <div key={index} className='bg-gray-200 my-3 px-3 py-2 rounded-xl w-fit'>
-                                    <p className='text-gray-600 text-xs font-semibold'> {from} </p>
-                                    <p className='text-gray-700 text-sm font-semibold mt-1'> {msg} </p>
+                            messageArr.map(({ from, msg, color }, index) => (
+                                <div key={index} className={`my-3 px-3 py-2 rounded-xl w-full ${color}`}>
+                                    <p className='text-gray-600 text-[11px] font-semibold'> {from} </p>
+                                    <p className='text-gray-700 text-[13px] font-semibold mt-1'> {msg} </p>
                                 </div>
                             )) :
-                            members.map((user, index) => (
-                                <div key={index} className='bg-gray-200 my-3 px-3 py-2 rounded-xl w-fit'>
-                                    <p className='text-gray-600 text-xs font-semibold'> {user} </p>
+                            [...membersArr].map(({ user, color }, index) => (
+                                <div key={index} className={`my-3 px-3 py-2 rounded-xl w-full ${color}`}>
+                                    <p className='text-gray-800 text-xs font-semibold'> {user} </p>
                                 </div>
                             ))
                     }

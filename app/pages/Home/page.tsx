@@ -23,7 +23,6 @@ export default function HomePage() {
         if (socket) {
             socket.on('roomCreated', (email: string, meetingCode: string) => {
                 dispatch(setMeetingCode(meetingCode));
-                console.log("new meet: ", email, meetingCode);
                 router.push(`./CanvasPage/${meetingCode}`)
             })
 
