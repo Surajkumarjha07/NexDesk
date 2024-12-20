@@ -10,7 +10,6 @@ export const SelectedItemSlice = createSlice({
     reducers: {
         setSelectedItem: (state, action) => {
             state.selectedItem = action.payload;
-            console.log("sel: ", action.payload);            
         }
     }
 })
