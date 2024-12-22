@@ -217,14 +217,11 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
 
     const handleItemMoving = (data: any) => {
       const { id, x, y } = data;
-      console.log("move: ", data);
-      let XPosition = x - XPos.current;
-      let YPosition = y - YPos.current;
 
       setShapes(prevShapes =>
         prevShapes.map(shape => (
           shape.id === id ? {
-            ...shape, x: XPosition, y: YPosition
+            ...shape, x, y
           } : shape
         ))
       )

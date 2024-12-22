@@ -11,10 +11,10 @@ import canvasArrowFeatures from '@/app/Features/canvasArrowFeatures'
 import canvasPencilFeature from '@/app/Features/canvasPencilFeature'
 import UserFeatures from '@/app/components/UserFeatures'
 import ChatComponent from '@/app/components/ChatComponent'
-import { useParams } from 'next/navigation'
-import { useSocket } from '@/app/socketContext'
 import canvasImageFeatures from '@/app/Features/canvasImageFeatures'
 import Image from 'next/image'
+import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
+import { useSocket } from '@/app/socketContext'
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -34,9 +34,12 @@ export default function CanvasPage() {
   const patternType = useAppSelector(state => state.ShapeFeatures.patternType);
   const borderType = useAppSelector(state => state.ShapeFeatures.borderType);
   const opacity = useAppSelector(state => state.ShapeFeatures.opacity);
-  const params = useParams();
+  const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
+  const messageRef = useRef<HTMLDivElement | null>(null);
+  const userJoinedBox = useRef<HTMLDivElement | null>(null);
+  const [toggleBox, setToggleBox] = useState<boolean>(false);
+  const [userJoined, setUserJoined] = useState<string>("");
   const socket = useSocket();
-  const [imageFile, setImageFile] = useState<File | null>(null)
 
   const { settingText, removeInput, inputs, handleTextClick, handleTextMove, handleTextStop, handleTextEraser, handleInputModify } = canvasTextFeatures({
     canvasRef,
@@ -71,9 +74,59 @@ export default function CanvasPage() {
 
   const { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgHeightResize, handleImgResizeStart, handleImgResizeStop, handleImgWidthResize } = canvasImageFeatures({ canvasRef })
 
+  const copyToClipBoard = (e: React.MouseEvent) => {
+    let target = e.target as HTMLSpanElement;
+    if (target) {
+      navigator.clipboard.writeText(target.innerHTML.trim());
+    }
+  }
+
+  const hideMessage = () => {
+    if (messageRef.current) {
+      sessionStorage.removeItem("showBox");
+      messageRef.current.style.visibility = "hidden";
+    }
+  }
+
+  const hideuserJoinedMessage = () => {
+    if (userJoinedBox.current) {
+      setToggleBox(false);
+      userJoinedBox.current.style.visibility = "hidden";
+    }
+  }
+
+  useEffect(() => {
+    let userJoined = localStorage.getItem("userJoined");
+    if (userJoined) {
+      setToggleBox(true);
+      setUserJoined(userJoined);
+      setTimeout(() => {
+        localStorage.removeItem("userJoined");
+        setToggleBox(false);
+      }, 10000);
+    }
+  }, [socket]);
+
   return (
     <>
       <section className='relative w-screen h-screen pr-10'>
+        <div ref={messageRef} className='bg-white w-fit h-fit rounded-md absolute top-4 left-1/2 transform -translate-x-1/2 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
+          <p className='text-gray-600 text-lg font-semibold'> Send this <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {meetingCode} </span> to your team, friends to collaborate </p>
+          <button onClick={hideMessage}>
+            <CloseOutlinedIcon className='text-gray-600' />
+          </button>
+        </div>
+
+        {
+          toggleBox &&
+          <div ref={userJoinedBox} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
+            <p className='text-gray-600 text-base font-semibold'> User <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {userJoined} </span> joined into your team </p>
+            <button onClick={hideuserJoinedMessage}>
+              <CloseOutlinedIcon className='text-gray-600' />
+            </button>
+          </div>
+        }
+
         <UserFeatures />
         <ChatComponent />
         <Sidebar />
@@ -83,13 +136,13 @@ export default function CanvasPage() {
         {
           images.map(image => (
             <div key={image.id}
-            style={{
-              position: 'absolute',
-              top: `${image.y}px`,
-              left: `${image.x}px`,
-              width: "fit-content",
-              height: "fit-content",
-            }} 
+              style={{
+                position: 'absolute',
+                top: `${image.y}px`,
+                left: `${image.x}px`,
+                width: "fit-content",
+                height: "fit-content",
+              }}
             >
               <Image key={image.id} src={image.src} alt='image' height={image.height} width={image.width}
                 style={{

@@ -22,17 +22,18 @@ export default function HomePage() {
 
         if (socket) {
             socket.on('roomCreated', (email: string, meetingCode: string) => {
-                dispatch(setMeetingCode(meetingCode));
-                router.push(`./CanvasPage/${meetingCode}`)
+                dispatch(setMeetingCode(meetingCode.trim()));
+                router.push(`./CanvasPage/${meetingCode.trim()}`)
             })
 
             socket.on("newUserJoined", (email: string, meetingCode: string) => {
+                localStorage.setItem("userJoined", email);
                 console.log("new user joined: ", email, meetingCode);
             })
 
             socket.on("roomJoined", (email: string, meetingCode: string) => {
                 console.log("you are joined the room: ", email, meetingCode);
-                router.push(`./CanvasPage/${meetingCode}`)
+                router.push(`./CanvasPage/${meetingCode.trim()}`);
             })
         }
     }, [socket])

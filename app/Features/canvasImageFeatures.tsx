@@ -40,15 +40,22 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
             dispatch(setImages(updatedArr));
             dispatch(setSelectedItem("image"))
             isModifying.current = true;
+            if (socket) {
+                socket.emit("imageSelect", { meetingCode, id });
+            }
         }
     };
 
     const handleImageModification = () => {
-        let updatedArr = images.map(image =>
-            ({ ...image, brightness: image.id === imageId.current ? imgBrightness : image.brightness, contrast: image.id === imageId.current ? imgContrast : image.contrast, saturation: image.id === imageId.current ? imgSaturation : image.saturation })
-        )
-
-        dispatch(setImages(updatedArr));
+        if (isModifying.current) {
+            let updatedArr = images.map(image =>
+                ({ ...image, brightness: image.id === imageId.current ? imgBrightness : image.brightness, contrast: image.id === imageId.current ? imgContrast : image.contrast, saturation: image.id === imageId.current ? imgSaturation : image.saturation })
+            )
+            dispatch(setImages(updatedArr));
+            if (socket) {
+                socket.emit("imageModify", { meetingCode, id: imageId.current, imgBrightness, imgContrast, imgSaturation })
+            }
+        }
     }
 
     useEffect(() => {
@@ -67,6 +74,9 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
         isModifying.current = false
         isMoving.current = false;
         isResizing.current = false;
+        if (socket) {
+            socket.emit("imageUnSelect", meetingCode)
+        }
     }
 
     const handleImageClick = (e: MouseEvent | React.MouseEvent, id: number) => {
@@ -94,6 +104,9 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
                     { ...image, x: image.id === imageId.current ? XPosition : image.x, y: image.id === imageId.current ? YPosition : image.y }
                 ))
                 dispatch(setImages(updatedArr))
+                if (socket) {
+                    socket.emit("imageMove", { meetingCode, id: imageId.current, x: XPosition, y: YPosition });
+                }
             }
         }
     }
@@ -105,6 +118,9 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
     const handleErase = (id: number) => {
         if (isEraserOpen) {
             dispatch(deleteImage(id));
+            if (socket) {
+                socket.emit("imageErase", { meetingCode, id });
+            }
         }
     }
 
@@ -114,27 +130,33 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
 
     const handleImgWidthResize = (e: MouseEvent | React.MouseEvent) => {
         if (isResizing.current) {
-            let XPosition: number;
+            let newWidth: number;
             if (imageRef.current) {
-                XPosition = (e.clientX - imageRef.current.x);
+                newWidth = (e.clientX - imageRef.current.x);
             }
             let updatedImages = images.map(image => (
-                { ...image, width: image.id === imageId.current ? XPosition : image.width }
+                { ...image, width: image.id === imageId.current ? newWidth : image.width }
             ))
             dispatch(setImages(updatedImages));
+            if (socket) {
+                socket.emit("imageWidthResize", { meetingCode, id: imageId.current, newWidth: newWidth! })
+            }
         }
     }
 
     const handleImgHeightResize = (e: MouseEvent | React.MouseEvent) => {
         if (isResizing.current) {
-            let YPosition: number;
+            let newHeight: number;
             if (imageRef.current) {
-                YPosition = (e.clientY - imageRef.current.y);
+                newHeight = (e.clientY - imageRef.current.y);
             }
             let updatedImages = images.map(image => (
-                { ...image, height: image.id === imageId.current ? YPosition : image.height }
+                { ...image, height: image.id === imageId.current ? newHeight : image.height }
             ))
             dispatch(setImages(updatedImages));
+            if (socket) {
+                socket.emit("imageHeightResize", { meetingCode, id: imageId.current, newHeight: newHeight! })
+            }
         }
     }
 
@@ -144,16 +166,91 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
 
     useEffect(() => {
 
-        if (socket) {
+        const handleImageSelected = (id: number) => {
+            imageId.current = id;
+            imageRef.current = images.find(image => image.id === id) || null;
+            const updatedArr = images.map(image => ({
+                ...image,
+                modify: image.id === id ? true : false
+            })
+            );
 
+            dispatch(setImages(updatedArr));
+            dispatch(setSelectedItem("image"))
+            isModifying.current = true;
+        }
+
+        const handleImageModified = (data: any) => {
+            const { id, imgBrightness, imgContrast, imgSaturation } = data;
+            let updatedArr = images.map(image =>
+                ({ ...image, brightness: image.id === id ? imgBrightness : image.brightness, contrast: image.id === id ? imgContrast : image.contrast, saturation: image.id === id ? imgSaturation : image.saturation })
+            )
+            dispatch(setImages(updatedArr));
+        }
+
+        const handleImageUnSelected = () => {
+            let updatedArray = images.map(image =>
+                ({ ...image, modify: false })
+            )
+            dispatch(
+                setImages(updatedArray)
+            )
+            isModifying.current = false
+            isMoving.current = false;
+            isResizing.current = false;
+        }
+
+        const handleImageMoved = (data: any) => {
+            const { id, x, y } = data;
+
+            let updatedArr = images.map(image => (
+                { ...image, x: image.id === id ? x : image.x, y: image.id === id ? y : image.y }
+            ))
+            dispatch(setImages(updatedArr))
+        }
+
+        const handleImageHeightResize = (data: any) => {
+            const { id, newHeight } = data;
+            let updatedImages = images.map(image => (
+                { ...image, height: image.id === id ? newHeight : image.width }
+            ))
+            dispatch(setImages(updatedImages));
+        }
+
+        const handleImageWidthResize = (data: any) => {
+            const { id, newWidth } = data;
+            let updatedImages = images.map(image => (
+                { ...image, width: image.id === id ? newWidth : image.width }
+            ))
+            dispatch(setImages(updatedImages));
+        }
+
+        const handleImageErased = (id: number) => {
+            dispatch(deleteImage(id));
+        }
+
+        if (socket) {
+            socket.on("imageSelected", handleImageSelected);
+            socket.on("imageModified", handleImageModified);
+            socket.on("imageUnSelected", handleImageUnSelected);
+            socket.on("imageMoved", handleImageMoved);
+            socket.on("imageHeightResized", handleImageHeightResize);
+            socket.on("imageWidthResized", handleImageWidthResize);
+            socket.on("imageErased", handleImageErased);
         }
 
         return () => {
             if (socket) {
-
+                socket.off("imageSelected", handleImageSelected);
+                socket.off("imageModified", handleImageModified);
+                socket.off("imageUnSelected", handleImageUnSelected);
+                socket.off("imageMoved", handleImageMoved);
+                socket.off("imageHeightResized", handleImageHeightResize);
+                socket.off("imageWidthResized", handleImageWidthResize);
+                socket.off("imageErased", handleImageErased);
             }
         }
-    }, [])
+    }, [socket, dispatch, images])
 
 
     useEffect(() => {

@@ -1,5 +1,5 @@
 "use client"
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import Image from 'next/image'
 import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
 import ArrowOutwardOutlinedIcon from '@mui/icons-material/ArrowOutwardOutlined';
@@ -59,13 +59,35 @@ export default function BottomBar() {
                         id: images.length + 1, x: xPosition, y: YPosition, src: result, width: 300, height: 300, brightness: imgBrightness, contrast: imgContrast, saturation: imgSaturation, modify: false
                     }))
                 }
+                if (socket && result) {
+                    socket.emit("imageDraw", { meetingCode, id: images.length + 1, x: xPosition, y: YPosition, src: result, width: 300, height: 300, brightness: imgBrightness, contrast: imgContrast, saturation: imgSaturation, modify: false })
+                }
             }
             reader.readAsDataURL(file);
-            if (socket) {
-                socket.emit("imageDraw", { meetingCode,  id: images.length + 1, x: xPosition, y: YPosition, src: result, width: 300, height: 300, brightness: imgBrightness, contrast: imgContrast, saturation: imgSaturation, modify: false})
-            }
         }
     }
+
+    useEffect(() => {
+
+        const handleImageDrawed = (data: any) => {
+            const { id, x, y, src, width, height, brightness, contrast, saturation, modify } = data;
+            console.log(data);
+            dispatch(setImages({
+                id, x, y, src, width, height, brightness, contrast, saturation, modify
+            })
+            )
+        }
+
+        if (socket) {
+            socket.on("imageDrawed", handleImageDrawed);
+        }
+
+        return () => {
+            if (socket) {
+                socket.off("imageDrawed", handleImageDrawed);
+            }
+        }
+    }, [socket, dispatch, images])
 
     return (
         <>

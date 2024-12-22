@@ -9,7 +9,6 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
     const functionality = useAppSelector(state => state.Functionality.functionality);
     const [notes, setNotes] = useState<note[]>([]);
     const isMoving = useRef(false);
-    const notesId = useRef(0);
     const XPos = useRef(0);
     const YPos = useRef(0);
     const isEraserOpen = useAppSelector(state => state.Eraser.isEraserOpen);
@@ -85,7 +84,7 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
 
     const handleNotesClick = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
         if (functionality === 'hand') {
-            notesId.current = id;
+            noteId.current = id;
             let note = notes.find(note => note.id === id);
             if (note) {
                 XPos.current = e.clientX - note.x;
@@ -101,7 +100,7 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
             let YPosition = e.clientY - YPos.current;
 
             let updatedNotes = notes.map(note =>
-                note.id === notesId.current ?
+                note.id === noteId.current ?
                     { ...note, x: XPosition, y: YPosition } : note
             )
             setNotes(updatedNotes);
@@ -131,7 +130,6 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
 
         const handleNoteText = (data: any) => {
             const { id, value } = data;
-            console.log(data);
             let updatedNotes = notes.map(note =>
                 note.id === id ?
                     { ...note, text: value } : note

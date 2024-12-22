@@ -123,7 +123,6 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
   useEffect(() => {
     const handleTextDrawed = (data: any) => {
       const { id, x, y, text, textColor, textSize, fontFamily, textBrightness, modify, textAlign } = data;
-      console.log(data);
       setInputs(prev => [
         ...prev,
         { id, x, y, text, textColor, textSize, fontFamily, textBrightness, modify, textAlign }
@@ -184,7 +183,6 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
     }
 
     const handleInputErased = (id: number) => {
-      console.log(id);
       setInputs(prevInputs =>
         prevInputs.filter(input =>
           input.id !== id

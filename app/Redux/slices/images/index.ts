@@ -1,6 +1,7 @@
 import React from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import image from "@/app/Interfaces/image";
+import { useSocket } from "@/app/socketContext";
 
 const initialState = {
     images: <image[]>[],
