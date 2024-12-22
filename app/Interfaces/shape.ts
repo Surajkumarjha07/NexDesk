@@ -9,5 +9,5 @@ type shape = {
     patternType?: string,
     borderType?: string,
     opacity: number,
-    resize: boolean
+    modify: boolean
 }

@@ -4,6 +4,7 @@ import canvasTextFeature from '../Interfaces/canvasTextFeatures'
 import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import { textBrightnessMap } from '../ObjectMapping'
 import { setSelectedItem } from '../Redux/slices/selectedItem'
+import { useSocket } from '../socketContext'
 
 export default function canvasTextFeatures({ canvasRef, textColor, textSize, fontFamily, textBrightness, textAlign }: canvasTextFeature) {
   const [inputs, setInputs] = useState<input[]>([]);
@@ -11,9 +12,14 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
   const textId = useRef(0);
   const isMoving = useRef(false);
   const isEraserOpen = useAppSelector(state => state.Eraser.isEraserOpen);
+  const isModified = useRef(false);
   const inputId = useRef<number | null>(null);
   const inputRef = useRef<input | null>(null);
+  const XPos = useRef<number | null>(null);
+  const YPos = useRef<number | null>(null);
   const dispatch = useAppDispatch();
+  const socket = useSocket();
+  const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
 
   const handleInputModify = (id: number) => {
     if (functionality === "arrow") {
@@ -21,6 +27,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
         inputs.forEach(input => input.modify = false);
       }
       inputId.current = id;
+      isModified.current = true;
       let input = inputs.find(input => input.id === id);
       if (input) {
         inputRef.current = input;
@@ -32,31 +39,46 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
         )
       )
       dispatch(setSelectedItem("text"))
+      if (socket) {
+        socket.emit("inputSelect", { meetingCode, id })
+      }
     }
   }
 
   const handleInputModification = () => {
-    setInputs(prevInputs =>
-      prevInputs.map(input =>
-        (input.id === inputId.current && input.modify) ?
-          { ...input, textColor, textSize, fontFamily, textBrightness, textAlign } : input
+    if (isModified.current) {
+      setInputs(prevInputs =>
+        prevInputs.map(input =>
+          (input.id === inputId.current && input.modify) ?
+            { ...input, textColor, textSize, fontFamily, textBrightness, textAlign } : input
+        )
       )
-    )
+      if (socket) {
+        socket.emit("inputModify", { meetingCode, id: inputId.current, textColor, textSize, fontFamily, textBrightness, textAlign })
+      }
+    }
   }
 
   const handleInputModifyStop = () => {
+    isModified.current = false;
     setInputs(prevInputs =>
       prevInputs.map(input =>
         input.id === inputId.current ?
           { ...input, modify: false } : input
       )
     )
+    if (socket) {
+      socket.emit("inputUnSelect", meetingCode)
+    }
   }
 
   const handleTextEraser = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
     if (isEraserOpen) {
-      let updatedInputs = inputs.filter(shape => shape.id !== id);
+      let updatedInputs = inputs.filter(input => input.id !== id);
       setInputs(updatedInputs);
+      if (socket) {
+        socket.emit("inputErase", { meetingCode, id });
+      }
     }
 
   }, [isEraserOpen, inputs])
@@ -64,21 +86,29 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
 
   const handleTextClick = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
     if (functionality === 'hand') {
-      textId.current = id;
+      inputId.current = id;
+      let note = inputs.find(note => note.id === id);
+      if (note) {
+        XPos.current = e.clientX - note.x;
+        YPos.current = e.clientY - note.y;
+      }
       isMoving.current = true;
     }
   }, [functionality, inputs])
 
   const handleTextMove = useCallback((e: MouseEvent | React.MouseEvent) => {
     if (isMoving.current) {
-      let XPosition = e.clientX;
-      let YPosition = e.clientY;
+      let XPosition = e.clientX - XPos.current!;
+      let YPosition = e.clientY - YPos.current!;
 
-      let updatedInputs = inputs.map(input =>
-        input.id === textId.current ?
+      let updatedNotes = inputs.map(input =>
+        input.id === inputId.current ?
           { ...input, x: XPosition, y: YPosition } : input
       )
-      setInputs(updatedInputs);
+      setInputs(updatedNotes);
+      if (socket) {
+        socket.emit("inputMove", { meetingCode, id: inputId.current, x: XPosition, y: YPosition });
+      }
     }
   }, [inputs])
 
@@ -91,6 +121,114 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
   }, [textColor, textSize, fontFamily, textBrightness, textAlign])
 
   useEffect(() => {
+    const handleTextDrawed = (data: any) => {
+      const { id, x, y, text, textColor, textSize, fontFamily, textBrightness, modify, textAlign } = data;
+      console.log(data);
+      setInputs(prev => [
+        ...prev,
+        { id, x, y, text, textColor, textSize, fontFamily, textBrightness, modify, textAlign }
+      ])
+    }
+
+    const handleInputText = (data: any) => {
+      const { id, value } = data;
+      setInputs(prevInputs =>
+        prevInputs.map(input =>
+          input.id === id ?
+            { ...input, text: value } : input
+        )
+      )
+    }
+
+    const handleInputFocusRemove = () => {
+      let filterArr = inputs.filter(input => input.text !== "")
+      setInputs(filterArr);
+    }
+
+    const handleInputSelect = (id: number) => {
+      if (inputs.some(input => input.modify === true)) {
+        inputs.forEach(input => input.modify = false);
+      }
+      inputId.current = id;
+      isModified.current = true;
+      let input = inputs.find(input => input.id === id);
+      if (input) {
+        inputRef.current = input;
+      }
+      setInputs(prevInputs =>
+        prevInputs.map(input =>
+          input.id === id ?
+            { ...input, modify: true } : input
+        )
+      )
+      dispatch(setSelectedItem("text"))
+    }
+
+    const handleInputModify = (data: any) => {
+      const { id, textColor, textSize, fontFamily, textBrightness, textAlign } = data;
+      setInputs(prevInputs =>
+        prevInputs.map(input =>
+          input.id === id ?
+            { ...input, textColor, textSize, fontFamily, textBrightness, textAlign } : input
+        )
+      )
+    }
+
+    const handleInputUnSelect = () => {
+      setInputs(prevInputs =>
+        prevInputs.map(input =>
+          input.modify === true ?
+            { ...input, modify: false } : input
+        )
+      )
+    }
+
+    const handleInputErased = (id: number) => {
+      console.log(id);
+      setInputs(prevInputs =>
+        prevInputs.filter(input =>
+          input.id !== id
+        )
+      )
+    }
+
+    const handleInputMoved = (data: any) => {
+      const { id, x, y } = data;
+      setInputs(prevInputs =>
+        prevInputs.map(input =>
+          input.id === id ?
+            { ...input, x, y } : input
+        )
+      )
+    }
+
+    if (socket) {
+      socket.on("inputDrawed", handleTextDrawed);
+      socket.on("inputTextSetted", handleInputText);
+      socket.on("focusRemoved", handleInputFocusRemove);
+      socket.on("inputSelected", handleInputSelect);
+      socket.on("inputModified", handleInputModify);
+      socket.on("inputUnSelected", handleInputUnSelect);
+      socket.on("inputErased", handleInputErased);
+      socket.on("inputMoved", handleInputMoved);
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("inputDrawed", handleTextDrawed);
+        socket.off("inputTextSetted", handleInputText);
+        socket.off("focusRemoved", handleInputFocusRemove);
+        socket.off("inputSelected", handleInputSelect);
+        socket.off("inputModified", handleInputModify);
+        socket.off("inputUnSelected", handleInputUnSelect);
+        socket.off("inputErased", handleInputErased);
+        socket.off("inputMoved", handleInputMoved);
+      }
+    }
+  }, [socket, dispatch, inputs])
+
+
+  useEffect(() => {
     const handleCanvasClick = (e: MouseEvent) => {
       if (canvasRef.current) {
         const rect = canvasRef.current.getBoundingClientRect();
@@ -101,6 +239,9 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
           ...prev,
           { id: prev.length + 1, x: XPosition, y: YPosition, text: '', textColor, textSize, fontFamily, textBrightness, modify: false, textAlign },
         ]);
+        if (socket && meetingCode && XPosition && YPosition) {
+          socket.emit("inputDraw", { meetingCode, id: inputs.length + 1, x: XPosition, y: YPosition, text: "", textColor, textSize, fontFamily, textBrightness, modify: false, textAlign })
+        }
       }
     };
 
@@ -108,8 +249,6 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
     if (canvasElement) {
       if (functionality === "text" && !inputs.some(input => input.modify === true)) {
         canvasElement.addEventListener("click", handleCanvasClick);
-        canvasElement.addEventListener("mousemove", handleTextMove);
-        canvasElement.addEventListener("mouseup", handleTextStop);
       }
       else {
         canvasElement.addEventListener("click", handleInputModifyStop)
@@ -119,8 +258,6 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
     return () => {
       if (canvasElement) {
         canvasElement.removeEventListener("click", handleCanvasClick);
-        canvasElement.removeEventListener("mousemove", handleTextMove);
-        canvasElement.removeEventListener("mouseup", handleTextStop);
         canvasElement.removeEventListener("click", handleInputModifyStop)
       }
     };
@@ -129,16 +266,21 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
   const removeInput = () => {
     let filterArr = inputs.filter(input => input.text !== "")
     setInputs(filterArr);
+    if (socket) {
+      socket.emit("removeFocus", meetingCode)
+    }
   }
 
   const settingText = (e: React.ChangeEvent, id: number) => {
     let target = e.target as HTMLInputElement;
-
     let updatedInputs = inputs.map(input => (
       input.id === id ?
         { ...input, text: target.value } : input
     ))
     setInputs(updatedInputs)
+    if (socket) {
+      socket.emit("setInputText", { meetingCode, id, value: target.value });
+    }
   };
 
   return { settingText, removeInput, inputs, handleTextClick, handleTextMove, handleTextStop, handleTextEraser, handleInputModify };

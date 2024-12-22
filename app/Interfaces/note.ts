@@ -7,7 +7,7 @@ type note = {
     noteFontFamily: string,
     noteBackgroundColor: string,
     noteTextBrightness: number,
-    resize: boolean,
+    modify: boolean,
     noteTextAlign: string
 }
 

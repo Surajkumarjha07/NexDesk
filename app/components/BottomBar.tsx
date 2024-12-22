@@ -18,6 +18,7 @@ import ChangeHistoryOutlinedIcon from '@mui/icons-material/ChangeHistoryOutlined
 import HexagonOutlinedIcon from '@mui/icons-material/HexagonOutlined';
 import { setEraser } from '../Redux/slices/Eraser';
 import { setImages } from '../Redux/slices/images';
+import { useSocket } from '../socketContext';
 
 export default function BottomBar() {
     const dispatch = useAppDispatch();
@@ -27,6 +28,8 @@ export default function BottomBar() {
     const imgBrightness = useAppSelector(state => state.ImageFeatures.imageBrightness);
     const imgContrast = useAppSelector(state => state.ImageFeatures.imageContrast);
     const imgSaturation = useAppSelector(state => state.ImageFeatures.imageSaturation);
+    const socket = useSocket();
+    const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
 
     const handleActive = (e: React.MouseEvent<HTMLButtonElement>) => {
         let target = e.target as HTMLButtonElement;
@@ -40,16 +43,17 @@ export default function BottomBar() {
     }
 
     const handleImage = (e: React.ChangeEvent) => {
-        let xPosition = Math.floor(Math.random()*500);
-        let YPosition = Math.floor(Math.random()*200);
+        let xPosition = Math.floor(Math.random() * 500);
+        let YPosition = Math.floor(Math.random() * 200);
         dispatch(setFunctionality('images'))
         let target = e.target as HTMLInputElement;
         let file = target.files![0];
+        let result;
         if (file) {
             let reader = new FileReader();
 
             reader.onload = function (e) {
-                let result = e.target!.result;
+                result = e.target!.result;
                 if (typeof result === 'string') {
                     dispatch(setImages({
                         id: images.length + 1, x: xPosition, y: YPosition, src: result, width: 300, height: 300, brightness: imgBrightness, contrast: imgContrast, saturation: imgSaturation, modify: false
@@ -57,6 +61,9 @@ export default function BottomBar() {
                 }
             }
             reader.readAsDataURL(file);
+            if (socket) {
+                socket.emit("imageDraw", { meetingCode,  id: images.length + 1, x: xPosition, y: YPosition, src: result, width: 300, height: 300, brightness: imgBrightness, contrast: imgContrast, saturation: imgSaturation, modify: false})
+            }
         }
     }
 

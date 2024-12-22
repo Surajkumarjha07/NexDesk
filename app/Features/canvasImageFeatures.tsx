@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import image from '../Interfaces/image';
 import { deleteImage, setImageBrightness, setImageContrast, setImages, setImageSaturation } from '../Redux/slices/images';
 import { setSelectedItem } from '../Redux/slices/selectedItem';
+import { useSocket } from '../socketContext';
 
 type imageDependencies = {
     canvasRef: RefObject<HTMLCanvasElement>,
@@ -23,6 +24,8 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
     const imgSaturation = useAppSelector(state => state.ImageFeatures.imageSaturation);
     const isModifying = useRef<boolean>(false);
     const isResizing = useRef<boolean>(false);
+    const socket = useSocket();
+    const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
 
     const handleImageSelect = (id: number) => {
         if (functionality === 'arrow') {
@@ -138,6 +141,20 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
     const handleImgResizeStop = () => {
         isResizing.current = false;
     }
+
+    useEffect(() => {
+
+        if (socket) {
+
+        }
+
+        return () => {
+            if (socket) {
+
+            }
+        }
+    }, [])
+
 
     useEffect(() => {
 

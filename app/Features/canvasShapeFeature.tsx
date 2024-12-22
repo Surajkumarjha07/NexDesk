@@ -22,8 +22,8 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
 
   const handleShapeSelected = (e: React.MouseEvent | MouseEvent, id: number) => {
     if (functionality == "arrow") {
-      if (shapes.some(shape => shape.resize === true)) {
-        shapes.forEach(shape => shape.resize = false);
+      if (shapes.some(shape => shape.modify === true)) {
+        shapes.forEach(shape => shape.modify = false);
       }
       shapeId.current = id;
       let shape = shapes.find(shape => shape.id === id);
@@ -31,7 +31,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
       setShapes(prevShapes =>
         prevShapes.map(shape => ({
           ...shape,
-          resize: shape.id === shapeId.current ? true : false
+          modify: shape.id === shapeId.current ? true : false
         }))
       )
       dispatch(setSelectedItem("shape"));
@@ -46,7 +46,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
     if (isModified.current) {
       setShapes(prevShapes =>
         prevShapes.map(shape =>
-          (shape.id === shapeId.current && shape.resize) ?
+          (shape.id === shapeId.current && shape.modify) ?
             { ...shape, shapeColor, patternType, borderType, opacity } : shape
         )
       )
@@ -106,7 +106,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
     setShapes((prevShapes) =>
       prevShapes.map((shape) =>
         shape.id === shapeId.current
-          ? { ...shape, resize: false }
+          ? { ...shape, modify: false }
           : shape
       )
     );
@@ -162,17 +162,17 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
   }, [shapeColor, borderType, patternType, opacity])
 
   useEffect(() => {
-    const handleItemDraw = (data: shape) => {
-      const { id, x, y, width, height, shapeColor, shapeType, borderType, patternType, opacity, resize } = data;
+    const handleItemDraw = (data: any) => {
+      const { id, x, y, width, height, shapeColor, shapeType, borderType, patternType, opacity, modify } = data;
       setShapes(prev => [
         ...prev,
-        { id, x, y, width, height, shapeColor, shapeType, borderType, patternType, opacity, resize }
+        { id, x, y, width, height, shapeColor, shapeType, borderType, patternType, opacity, modify }
       ])
     }
 
     const handleItemSelected = (id: number) => {
-      if (shapes.some(shape => shape.resize === true)) {
-        shapes.forEach(shape => shape.resize = false);
+      if (shapes.some(shape => shape.modify === true)) {
+        shapes.forEach(shape => shape.modify = false);
       }
       shapeId.current = id;
       let shape = shapes.find(shape => shape.id === id);
@@ -180,7 +180,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
       setShapes(prevShapes =>
         prevShapes.map(shape => ({
           ...shape,
-          resize: shape.id === shapeId.current ? true : false
+          modify: shape.id === shapeId.current ? true : false
         }))
       )
       dispatch(setSelectedItem("shape"));
@@ -190,7 +190,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
       setShapes((prevShapes) =>
         prevShapes.map((shape) =>
           shape.id === shapeId.current
-            ? { ...shape, resize: false }
+            ? { ...shape, modify: false }
             : shape
         )
       );
@@ -274,7 +274,6 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
       }
     }
   }, [socket, dispatch])
-  console.log(shapes);
 
   useEffect(() => {
     const handleCanvasClick = (e: MouseEvent) => {
@@ -285,17 +284,17 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
 
         setShapes((prev) => [
           ...prev,
-          { id: prev.length + 1, x: XPosition, y: YPosition, width: 200, height: 200, shapeColor: shapeColor, shapeType: shapeType, patternType: patternType, borderType: borderType, opacity: opacity, resize: false },
+          { id: prev.length + 1, x: XPosition, y: YPosition, width: 200, height: 200, shapeColor: shapeColor, shapeType: shapeType, patternType: patternType, borderType: borderType, opacity: opacity, modify: false },
         ]);
         if (socket && meetingCode && XPosition && YPosition) {
-          socket.emit("itemDraw", { meetingCode, id: shapes.length + 1, x: XPosition, y: YPosition, width: 200, height: 200, shapeColor, shapeType, patternType, borderType, opacity, resize: false })
+          socket.emit("itemDraw", { meetingCode, id: shapes.length + 1, x: XPosition, y: YPosition, width: 200, height: 200, shapeColor, shapeType, patternType, borderType, opacity, modify: false })
         }
       }
     };
 
     const canvasElement = canvasRef.current;
     if (canvasElement) {
-      if (functionality === "shapes" && !shapes.some(shape => shape.resize === true)) {
+      if (functionality === "shapes" && !shapes.some(shape => shape.modify === true)) {
         canvasElement.addEventListener("click", handleCanvasClick);
       }
       else {
