@@ -69,9 +69,9 @@ export default function CanvasPage() {
     opacity
   })
 
-  const { } = canvasArrowFeatures({ canvasRef })
+  const { arrows, CTX, handleArrowErase } = canvasArrowFeatures({ canvasRef })
 
-  const { } = canvasPencilFeature({ canvasRef })
+  const { lines, LineCTX } = canvasPencilFeature({ canvasRef })
 
   const { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgHeightResize, handleImgResizeStart, handleImgResizeStop, handleImgWidthResize } = canvasImageFeatures({ canvasRef })
 
@@ -102,7 +102,7 @@ export default function CanvasPage() {
         console.log("new user");
         setToggleBox(true);
         setUserJoined(email);
-        if (audioRef.current) { 
+        if (audioRef.current) {
           audioRef.current.play();
         }
         setTimeout(() => {
@@ -111,6 +111,39 @@ export default function CanvasPage() {
       })
     }
   }, [socket]);
+
+  useEffect(() => {
+    let canvas = CTX.current;
+    arrows.forEach(arrow => {
+      if (canvas) {
+        canvas.beginPath();
+        canvas.moveTo(arrow.startX, arrow.startY);
+        canvas.lineTo(arrow.endX, arrow.endY);
+        canvas.lineWidth = arrow.lineWidth;
+        canvas.strokeStyle = arrow.lineColor;
+        canvas.stroke();
+      }
+    });
+
+  }, [arrows, CTX, functionality]);
+
+
+  useEffect(() => {
+    let canvas = LineCTX.current;
+    lines.forEach(line => {
+      if (canvas) {
+        canvas.beginPath();
+        canvas.moveTo(line.startX, line.startY);
+        canvas.lineTo(line.endX, line.endY);
+        canvas.strokeStyle = line.lineColor;
+        canvas.lineWidth = line.lineWidth;
+        canvas.stroke();
+      }
+    })
+
+  }, [functionality,lines, LineCTX])
+
+  console.log(lines);
 
   return (
     <>
@@ -125,7 +158,7 @@ export default function CanvasPage() {
         {
           toggleBox &&
           <>
-            <audio ref={audioRef} src="/sounds/notification.wav" controls autoPlay/>
+            <audio ref={audioRef} src="/sounds/notification.wav" controls autoPlay />
             <div ref={userJoinedBox} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
               <p className='text-gray-600 text-base font-semibold'> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {userJoined} </span> joined into your team </p>
               <button onClick={hideuserJoinedMessage}>
@@ -138,7 +171,7 @@ export default function CanvasPage() {
         <UserFeatures />
         <ChatComponent />
         <Sidebar />
-        <canvas className={`bg-white rounded-md shadow-md w-screen h-screen ${functionality === 'eraser' ? 'cursor-auto' : 'cursor-crosshair'}`} ref={canvasRef}>
+        <canvas className={`bg-white rounded-md shadow-md w-screen h-screen ${functionality === 'eraser' ? 'cursor-auto' : 'cursor-crosshair'}`} ref={canvasRef} >
         </canvas>
 
         {
@@ -170,23 +203,6 @@ export default function CanvasPage() {
             </div>
           ))
         }
-
-        {/* {
-          arrows.map(arrow => (
-            <div key={arrow.id}
-              style={{
-                position: 'absolute',
-                top: `${arrow.y}px`,
-                left: `${arrow.x}px`,
-                width: `${arrow.width}px`,
-                height: `${arrow.height}px`,
-                backgroundColor: `${arrow.arrowColor}`,
-                transform: `rotate(${arrow.rotate}deg)`
-              }}
-              className='rounded-md'
-            />
-          ))
-        } */}
 
         {
           shapes.map(shape => (

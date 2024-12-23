@@ -12,6 +12,10 @@ export default function canvasArrowFeature({ canvasRef }: pencilFeature) {
     const color = useAppSelector(state => state.PencilFeatures.color);
     let currentThickness = useRef(thickness);
     let currentColor = useRef(color);
+    const startX = useRef(0);
+    const startY = useRef(0);
+    const endX = useRef(0);
+    const endY = useRef(0);
     const [arrows, setArrows] = useState<arrow[]>([])
 
     useEffect(() => {
@@ -30,27 +34,41 @@ export default function canvasArrowFeature({ canvasRef }: pencilFeature) {
         isDrawing.current = true;
         let XPosition = e.offsetX;
         let YPosition = e.offsetY;
-        let canvas = CTX.current;
-        if (canvas) {
-            canvas.beginPath();
-            canvas.moveTo(XPosition, YPosition);
-        }
-    }, [])
+        startX.current = XPosition;
+        startY.current = YPosition;
+        // let canvas = CTX.current;
+        // if (canvas) {
+        //     canvas.beginPath();
+        //     canvas.moveTo(XPosition, YPosition);
+        // }
+    }, [arrows])
+    
+    const handleArrowErase = (id: number) => {
+        console.log("id: ", id);        
+        let updatedArrows = arrows.filter(arrow => arrow.id !== id);
+        setArrows(updatedArrows);
+    }
 
     const handleStop = useCallback((e: MouseEvent) => {
         if (isDrawing.current) {
             let XPosition = e.offsetX;
             let YPosition = e.offsetY;
-            let canvas = CTX.current;
-            if (canvas) {
-                canvas.lineTo(XPosition, YPosition);
-                canvas.strokeStyle = `${lineColorMap.get(currentColor.current)}`;
-                canvas.lineWidth = currentThickness.current;
-                canvas.stroke();
-            }
+            endX.current = XPosition;
+            endY.current = YPosition;
+            // let canvas = CTX.current;
+            // if (canvas) {
+            //     canvas.lineTo(XPosition, YPosition);
+            //     canvas.strokeStyle = `${lineColorMap.get(currentColor.current)}`;
+            //     canvas.lineWidth = currentThickness.current;
+            //     canvas.stroke();
+            // }
+            setArrows(prevArrows => [
+                ...prevArrows,
+                { id: prevArrows.length + 1, startX: startX.current, startY: startY.current, endX: endX.current, endY: endY.current, lineColor: "black", lineWidth: 4 }
+            ])
         }
         isDrawing.current = false;
-    }, [])
+    }, [arrows])
 
     useEffect(() => {
         if (canvasRef.current) {
@@ -75,7 +93,7 @@ export default function canvasArrowFeature({ canvasRef }: pencilFeature) {
             canvasElement?.removeEventListener('mouseup', handleStop);
         }
 
-    }, [functionality, handleClick, handleStop])
+    }, [functionality, arrows, handleClick , handleStop])
 
-    return {}
+    return { arrows, CTX, handleArrowErase }
 }

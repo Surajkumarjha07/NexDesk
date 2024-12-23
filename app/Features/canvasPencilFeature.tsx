@@ -2,16 +2,22 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import pencilFeature from '../Interfaces/pencilFeature'
 import { useAppSelector } from '../Redux/hooks'
 import { lineColorMap } from '../ObjectMapping';
+import Line from '../Interfaces/arrow';
 
 export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
   const functionality = useAppSelector(state => state.Functionality.functionality)
   const isDrawing = useRef(false);
-  const CTX = useRef<CanvasRenderingContext2D | null>(null);
+  const LineCTX = useRef<CanvasRenderingContext2D | null>(null);
   const thickness = useAppSelector(state => state.PencilFeatures.thickness);
   const color = useAppSelector(state => state.PencilFeatures.color);
   let currentThickness = useRef(thickness);
   let currentColor = useRef(color);
-  
+  const startX = useRef(0);
+  const startY = useRef(0);
+  const endX = useRef(0);
+  const endY = useRef(0);
+  const [lines, setLines] = useState<Line[]>([])
+
   useEffect(() => {
     if (thickness !== currentThickness.current) {
       currentThickness.current = thickness;
@@ -20,17 +26,19 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
 
     if (color !== currentColor.current) {
       currentColor.current = color;
-      console.log('curr: ', currentColor.current);      
+      console.log('curr: ', currentColor.current);
     }
 
   }, [thickness, color])
-  
 
   const handleClick = useCallback((e: MouseEvent) => {
     isDrawing.current = true;
     let XPosition = e.offsetX;
     let YPosition = e.offsetY;
-    let canvas = CTX.current;
+    startX.current = XPosition;
+    startY.current = YPosition;
+    
+    let canvas = LineCTX.current;
     if (canvas) {
       canvas.beginPath();
       canvas.moveTo(XPosition, YPosition);
@@ -41,7 +49,16 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
     if (isDrawing.current) {
       let XPosition = e.offsetX;
       let YPosition = e.offsetY;
-      let canvas = CTX.current;
+      endX.current = XPosition;
+      endY.current = YPosition;
+
+      setLines(prevLines => [
+        ...prevLines,
+        { id: prevLines.length + 1, startX: startX.current, startY: startY.current, endX: XPosition, endY: YPosition, lineColor: "black", lineWidth: 4 }
+      ]
+      )
+
+      let canvas = LineCTX.current;
       if (canvas) {
         canvas.lineTo(XPosition, YPosition);
         canvas.strokeStyle = `${lineColorMap.get(currentColor.current)}`;
@@ -62,7 +79,7 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
       canvasRef.current.height = window.innerHeight * window.devicePixelRatio;
 
       ctx!.scale(window.devicePixelRatio, window.devicePixelRatio);
-      CTX.current = ctx;
+      LineCTX.current = ctx;
       // canvasRef.current.style.width = `${window.innerWidth}px`;
       // canvasRef.current.style.height = `${window.innerHeight}px`;
     }
@@ -82,5 +99,5 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
 
   }, [functionality, handleClick, handleMove, handleStop])
 
-  return {}
+  return {lines, LineCTX}
 }
