@@ -26,11 +26,6 @@ export default function HomePage() {
                 router.push(`./CanvasPage/${meetingCode.trim()}`)
             })
 
-            socket.on("newUserJoined", (email: string, meetingCode: string) => {
-                localStorage.setItem("userJoined", email);
-                console.log("new user joined: ", email, meetingCode);
-            })
-
             socket.on("roomJoined", (email: string, meetingCode: string) => {
                 console.log("you are joined the room: ", email, meetingCode);
                 router.push(`./CanvasPage/${meetingCode.trim()}`);

@@ -40,6 +40,7 @@ export default function CanvasPage() {
   const [toggleBox, setToggleBox] = useState<boolean>(false);
   const [userJoined, setUserJoined] = useState<string>("");
   const socket = useSocket();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   const { settingText, removeInput, inputs, handleTextClick, handleTextMove, handleTextStop, handleTextEraser, handleInputModify } = canvasTextFeatures({
     canvasRef,
@@ -96,14 +97,18 @@ export default function CanvasPage() {
   }
 
   useEffect(() => {
-    let userJoined = localStorage.getItem("userJoined");
-    if (userJoined) {
-      setToggleBox(true);
-      setUserJoined(userJoined);
-      setTimeout(() => {
-        localStorage.removeItem("userJoined");
-        setToggleBox(false);
-      }, 10000);
+    if (socket) {
+      socket.on("newUserJoined", (email: string, meetingCode: string) => {
+        console.log("new user");
+        setToggleBox(true);
+        setUserJoined(email);
+        if (audioRef.current) { 
+          audioRef.current.play();
+        }
+        setTimeout(() => {
+          setToggleBox(false);
+        }, 10000);
+      })
     }
   }, [socket]);
 
@@ -119,12 +124,15 @@ export default function CanvasPage() {
 
         {
           toggleBox &&
-          <div ref={userJoinedBox} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
-            <p className='text-gray-600 text-base font-semibold'> User <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {userJoined} </span> joined into your team </p>
-            <button onClick={hideuserJoinedMessage}>
-              <CloseOutlinedIcon className='text-gray-600' />
-            </button>
-          </div>
+          <>
+            <audio ref={audioRef} src="/sounds/notification.wav" controls autoPlay/>
+            <div ref={userJoinedBox} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
+              <p className='text-gray-600 text-base font-semibold'> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {userJoined} </span> joined into your team </p>
+              <button onClick={hideuserJoinedMessage}>
+                <CloseOutlinedIcon className='text-gray-600' />
+              </button>
+            </div>
+          </>
         }
 
         <UserFeatures />
