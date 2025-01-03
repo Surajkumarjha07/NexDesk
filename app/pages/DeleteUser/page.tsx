@@ -8,6 +8,42 @@ export default function DeleteUser() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
+  const [visibleContent, setVisibleContent] = useState<boolean>(false);
+
+  useEffect(() => {
+    const cookies = document.cookie.split("; ");
+    const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
+    const mainCookie = cookie ? cookie.split("=")[1] : null;
+
+    const authorized = async () => {
+      if (!mainCookie) {
+        router.push("/");
+      }
+
+      try {
+        const response = await fetch("http://localhost:4000/userAuthenticated", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${mainCookie}`
+          },
+          credentials: "include"
+        })
+
+        if (!response.ok) {
+          router.push("/")
+        }
+        else {
+          setVisibleContent(true);
+        }
+      } catch (error) {
+        console.log("error: ", error);
+        router.push("/")
+      }
+    };
+
+    authorized();
+  }, []);
 
   const DeleteUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -22,7 +58,7 @@ export default function DeleteUser() {
 
       if (response.ok) {
         console.log(response);
-        router.push("./Home");
+        router.push("./Login");
       }
     } catch (error) {
       console.log("Internal Server Error", error);
@@ -36,8 +72,8 @@ export default function DeleteUser() {
     }
   }, [])
 
-
   return (
+    visibleContent &&
     <>
       <section className='w-screen h-screen relative flex justify-center items-center'>
         <form className="w-auto bg-white px-14 py-8 flex flex-col justify-center rounded-md shadow-md" method="post" onSubmit={DeleteUser}>

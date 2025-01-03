@@ -18,12 +18,13 @@ export default function SignUp() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({email,name,password})
+        body: JSON.stringify({email,name,password}),
+        credentials: "include"
       })
 
       if (response.ok) {
         console.log(response);        
-        router.push("./Home");
+        router.push("./Login");
       }
     } catch (error) {
       console.log("Internal Server Error", error);      

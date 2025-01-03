@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import pencilFeature from '../Interfaces/pencilFeature'
 import { useAppSelector } from '../Redux/hooks'
 import { lineColorMap } from '../ObjectMapping';
-import Line from '../Interfaces/arrow';
+import Line from '../Interfaces/line';
 
 export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
   const functionality = useAppSelector(state => state.Functionality.functionality)
@@ -37,7 +37,6 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
     let YPosition = e.offsetY;
     startX.current = XPosition;
     startY.current = YPosition;
-    
     let canvas = LineCTX.current;
     if (canvas) {
       canvas.beginPath();
@@ -47,30 +46,27 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
 
   const handleMove = useCallback((e: MouseEvent) => {
     if (isDrawing.current) {
-      let XPosition = e.offsetX;
-      let YPosition = e.offsetY;
-      endX.current = XPosition;
-      endY.current = YPosition;
-
-      setLines(prevLines => [
-        ...prevLines,
-        { id: prevLines.length + 1, startX: startX.current, startY: startY.current, endX: XPosition, endY: YPosition, lineColor: "black", lineWidth: 4 }
-      ]
-      )
-
+      endX.current = e.offsetX;
+      endY.current = e.offsetY;
       let canvas = LineCTX.current;
       if (canvas) {
-        canvas.lineTo(XPosition, YPosition);
+        canvas.lineTo(e.offsetX, e.offsetY);
         canvas.strokeStyle = `${lineColorMap.get(currentColor.current)}`;
         canvas.lineWidth = currentThickness.current;
         canvas.stroke();
       }
     }
   }, [])
+  console.log("lines: ", lines);
+
 
   const handleStop = useCallback(() => {
     isDrawing.current = false;
   }, [])
+
+  const handleLineErase = (id: number) => {
+
+  }
 
   useEffect(() => {
     if (canvasRef.current) {
@@ -97,7 +93,7 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
       canvasElement?.removeEventListener('mouseup', handleStop);
     }
 
-  }, [functionality, handleClick, handleMove, handleStop])
+  }, [functionality])
 
-  return {lines, LineCTX}
+  return { lines, LineCTX, handleLineErase }
 }

@@ -17,13 +17,14 @@ export default function LogIn() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({email,password})
+        body: JSON.stringify({email,password}),
+        credentials: "include"
       })
 
       if (response.ok) {
         console.log(response);  
-        sessionStorage.setItem("email", email)      
-        router.push("./pages/Home");
+        sessionStorage.setItem("email", email)   
+        router.push("./Home");
       }
     } catch (error) {
       console.log("Internal Server Error", error);      

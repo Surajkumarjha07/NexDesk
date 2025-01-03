@@ -36,11 +36,6 @@ export default function canvasArrowFeature({ canvasRef }: pencilFeature) {
         let YPosition = e.offsetY;
         startX.current = XPosition;
         startY.current = YPosition;
-        // let canvas = CTX.current;
-        // if (canvas) {
-        //     canvas.beginPath();
-        //     canvas.moveTo(XPosition, YPosition);
-        // }
     }, [arrows])
     
     const handleArrowErase = (id: number) => {
@@ -55,13 +50,6 @@ export default function canvasArrowFeature({ canvasRef }: pencilFeature) {
             let YPosition = e.offsetY;
             endX.current = XPosition;
             endY.current = YPosition;
-            // let canvas = CTX.current;
-            // if (canvas) {
-            //     canvas.lineTo(XPosition, YPosition);
-            //     canvas.strokeStyle = `${lineColorMap.get(currentColor.current)}`;
-            //     canvas.lineWidth = currentThickness.current;
-            //     canvas.stroke();
-            // }
             setArrows(prevArrows => [
                 ...prevArrows,
                 { id: prevArrows.length + 1, startX: startX.current, startY: startY.current, endX: endX.current, endY: endY.current, lineColor: "black", lineWidth: 4 }

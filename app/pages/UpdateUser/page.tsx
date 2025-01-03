@@ -13,6 +13,42 @@ export default function UpdateUser() {
   const [newPassword, setNewPassword] = useState<string>('');
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const router = useRouter();
+  const [visibleContent, setVisibleContent] = useState<boolean>(false);
+
+  useEffect(() => {
+    const cookies = document.cookie.split("; ");
+    const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
+    const mainCookie = cookie ? cookie.split("=")[1] : null;
+
+    const authorized = async () => {
+      if (!mainCookie) {
+        router.push("/");
+      }
+
+      try {
+        const response = await fetch("http://localhost:4000/userAuthenticated", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${mainCookie}`
+          },
+          credentials: "include"
+        })
+
+        if (!response.ok) {
+          router.push("/")
+        }
+        else {
+          setVisibleContent(true);
+        }
+      } catch (error) {
+        console.log("error: ", error);
+        router.push("/")
+      }
+    };
+
+    authorized();
+  }, []);
 
   const UpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -57,19 +93,19 @@ export default function UpdateUser() {
       setUser(data.user);
     }
   }
-  
+
   useEffect(() => {
     let email = sessionStorage.getItem("email");
     if (email) {
       console.log(email);
       setEmail(email);
       getUser(email);
-    }    
+    }
   }, [])
 
   useEffect(() => {
     console.log("User state updated:", user);
-    if (user) { 
+    if (user) {
       setNewEmail(user!.email);
       setNewName(user!.name);
     }
@@ -77,6 +113,7 @@ export default function UpdateUser() {
 
 
   return (
+    visibleContent &&
     <>
       <section className='w-screen h-screen relative flex justify-center items-center'>
         <form className="w-auto bg-white px-14 py-8 flex flex-col justify-center rounded-md shadow-md" method="post" onSubmit={UpdateUser}>
@@ -89,16 +126,16 @@ export default function UpdateUser() {
 
           <p className='text-2xl text-black font-semibold my-4'> Update credentials </p>
 
-          <input type="email" name="newEmail" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" autoFocus placeholder="New Email" onChange={e => setNewEmail(e.target.value)} value={newEmail}/>
+          <input type="email" name="newEmail" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" autoFocus placeholder="New Email" onChange={e => setNewEmail(e.target.value)} value={newEmail} />
           <br />
 
-          <input type="text" name="newName" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="New Name" onChange={e => setNewName(e.target.value)} value={newName}/>
+          <input type="text" name="newName" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="New Name" onChange={e => setNewName(e.target.value)} value={newName} />
           <br />
 
-          <input type="password" name="newPassword" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="New Password" onChange={e => setNewPassword(e.target.value)} value={newPassword}/>
+          <input type="password" name="newPassword" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="New Password" onChange={e => setNewPassword(e.target.value)} value={newPassword} />
           <br />
 
-          <input type="password" name="currentPassword" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Current Password" onChange={e => setCurrentPassword(e.target.value)} value={currentPassword}/>
+          <input type="password" name="currentPassword" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Current Password" onChange={e => setCurrentPassword(e.target.value)} value={currentPassword} />
 
           <p className="text-gray-800 font-medium max-md:text-xs my-6">
             Don't want to update? go to

@@ -15,6 +15,7 @@ import canvasImageFeatures from '@/app/Features/canvasImageFeatures'
 import Image from 'next/image'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import { useSocket } from '@/app/socketContext'
+import { useRouter } from 'next/navigation'
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -41,6 +42,43 @@ export default function CanvasPage() {
   const [userJoined, setUserJoined] = useState<string>("");
   const socket = useSocket();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const router = useRouter();
+  const [visibleContent, setVisibleContent] = useState<boolean>(false);
+
+  useEffect(() => {
+    const cookies = document.cookie.split("; ");
+    const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
+    const mainCookie = cookie ? cookie.split("=")[1] : null;
+
+    const authorized = async () => {
+      if (!mainCookie) {
+        router.push("/");
+      }
+
+      try {
+        const response = await fetch("http://localhost:4000/userAuthenticated", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${mainCookie}`
+          },
+          credentials: "include"
+        })
+
+        if (!response.ok) {
+          router.push("/")
+        }
+        else{
+          setVisibleContent(true);
+        }
+      } catch (error) {
+        console.log("error: ", error);
+        router.push("/")
+      }
+    };
+
+    authorized();
+  }, []);
 
   const { settingText, removeInput, inputs, handleTextClick, handleTextMove, handleTextStop, handleTextEraser, handleInputModify } = canvasTextFeatures({
     canvasRef,
@@ -71,7 +109,7 @@ export default function CanvasPage() {
 
   const { arrows, CTX, handleArrowErase } = canvasArrowFeatures({ canvasRef })
 
-  const { lines, LineCTX } = canvasPencilFeature({ canvasRef })
+  const { lines, LineCTX, handleLineErase } = canvasPencilFeature({ canvasRef })
 
   const { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgHeightResize, handleImgResizeStart, handleImgResizeStop, handleImgWidthResize } = canvasImageFeatures({ canvasRef })
 
@@ -120,13 +158,12 @@ export default function CanvasPage() {
         canvas.moveTo(arrow.startX, arrow.startY);
         canvas.lineTo(arrow.endX, arrow.endY);
         canvas.lineWidth = arrow.lineWidth;
-        canvas.strokeStyle = arrow.lineColor;
+        canvas.strokeStyle = arrow.lineColor!;
         canvas.stroke();
       }
     });
 
   }, [arrows, CTX, functionality]);
-
 
   useEffect(() => {
     let canvas = LineCTX.current;
@@ -135,17 +172,15 @@ export default function CanvasPage() {
         canvas.beginPath();
         canvas.moveTo(line.startX, line.startY);
         canvas.lineTo(line.endX, line.endY);
-        canvas.strokeStyle = line.lineColor;
         canvas.lineWidth = line.lineWidth;
+        canvas.strokeStyle = line.lineColor;
         canvas.stroke();
       }
     })
-
-  }, [functionality,lines, LineCTX])
-
-  console.log(lines);
+  }, [lines, LineCTX, functionality])
 
   return (
+    visibleContent &&
     <>
       <section className='relative w-screen h-screen pr-10'>
         <div ref={messageRef} className='bg-white w-fit h-fit rounded-md absolute top-4 left-1/2 transform -translate-x-1/2 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>

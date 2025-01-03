@@ -1,12 +1,11 @@
-type arrow = {
-    // onmousemove: (e: Event) => void,
+type Line = {
     id: number,
     startX: number,
     startY: number,
     endX: number,
     endY: number,
     lineWidth: number,
-    lineColor: string | undefined
+    lineColor: string
 }
 
-export default arrow;
+export default Line;

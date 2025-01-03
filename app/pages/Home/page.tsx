@@ -13,6 +13,42 @@ export default function HomePage() {
     const socket = useSocket();
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
     const dispatch = useAppDispatch();
+    const [visibleContent, setVisibleContent] = useState<boolean>(false);
+
+    useEffect(() => {
+        const cookies = document.cookie.split("; ");
+        const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
+        const mainCookie = cookie ? cookie.split("=")[1] : null;
+
+        const authorized = async () => {
+            if (!mainCookie) {
+                router.push("/");
+            }
+
+            try {
+                const response = await fetch("http://localhost:4000/userAuthenticated", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${mainCookie}`
+                    },
+                    credentials: "include"
+                })
+
+                if (!response.ok) {
+                    router.push("/")
+                }
+                else {
+                    setVisibleContent(true);
+                }
+            } catch (error) {
+                console.log("error: ", error);
+                router.push("/")
+            }
+        };
+
+        authorized();
+    }, []);
 
     useEffect(() => {
         const email = sessionStorage.getItem("email");
@@ -46,6 +82,7 @@ export default function HomePage() {
     }
 
     return (
+        visibleContent &&
         <>
             <Navbar />
             <section className='w-screen h-screen absolute top-0 flex justify-center items-center'>
