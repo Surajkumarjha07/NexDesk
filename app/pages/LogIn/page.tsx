@@ -17,17 +17,17 @@ export default function LogIn() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({email,password}),
+        body: JSON.stringify({ email, password }),
         credentials: "include"
       })
 
       if (response.ok) {
-        console.log(response);  
-        sessionStorage.setItem("email", email)   
-        router.push("./Home");
+        let res = await response.json();
+        console.log("res:", res);
+        router.push("./pages/Home");
       }
     } catch (error) {
-      console.log("Internal Server Error", error);      
+      console.log("Internal Server Error", error);
     }
   }
 
@@ -44,17 +44,17 @@ export default function LogIn() {
 
           <p className='text-2xl text-black font-semibold my-4'> Sign In </p>
 
-          <input type="email" name="email" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" autoFocus placeholder="Email" onChange={e => setEmail(e.target.value)}/>
+          <input type="email" name="email" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" autoFocus placeholder="Email" onChange={e => setEmail(e.target.value)} />
           <br />
 
-          <input type="password" name="password" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Password"  onChange={e => setPassword(e.target.value)}/>
+          <input type="password" name="password" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Password" onChange={e => setPassword(e.target.value)} />
 
           <p className="text-gray-800 font-medium max-md:text-xs my-6">
-            Don't have an account? 
+            Don't have an account?
             <Link href={'/pages/SignUp'}>
-            <span className="text-blue-600 cursor-pointer ml-2">
-              Create one!
-            </span>
+              <span className="text-blue-600 cursor-pointer ml-2">
+                Create one!
+              </span>
             </Link>
           </p>
 

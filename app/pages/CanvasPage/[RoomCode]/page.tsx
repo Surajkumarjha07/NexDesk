@@ -46,7 +46,7 @@ export default function CanvasPage() {
   const [visibleContent, setVisibleContent] = useState<boolean>(false);
 
   useEffect(() => {
-    const cookies = document.cookie.split("; ");
+    const cookies = document.cookie.split(";");
     const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
     const mainCookie = cookie ? cookie.split("=")[1] : null;
 
@@ -179,6 +179,10 @@ export default function CanvasPage() {
     })
   }, [lines, LineCTX, functionality])
 
+  const handleEraseItem = (e: React.MouseEvent) => {
+    console.log((e.target as HTMLCanvasElement).children);    
+  }
+
   return (
     visibleContent &&
     <>
@@ -206,7 +210,7 @@ export default function CanvasPage() {
         <UserFeatures />
         <ChatComponent />
         <Sidebar />
-        <canvas className={`bg-white rounded-md shadow-md w-screen h-screen ${functionality === 'eraser' ? 'cursor-auto' : 'cursor-crosshair'}`} ref={canvasRef} >
+        <canvas className={`bg-white rounded-md shadow-md w-screen h-screen ${functionality === 'eraser' ? 'cursor-auto' : 'cursor-crosshair'}`} ref={canvasRef} onMouseMove={handleEraseItem}>
         </canvas>
 
         {
