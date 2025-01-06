@@ -22,8 +22,6 @@ export default function LogIn() {
       })
 
       if (response.ok) {
-        let res = await response.json();
-        console.log("res:", res);
         router.push("./pages/Home");
       }
     } catch (error) {
@@ -50,7 +48,7 @@ export default function LogIn() {
           <input type="password" name="password" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Password" onChange={e => setPassword(e.target.value)} />
 
           <p className="text-gray-800 font-medium max-md:text-xs my-6">
-            Don't have an account?
+            Don&apos;t have an account?
             <Link href={'/pages/SignUp'}>
               <span className="text-blue-600 cursor-pointer ml-2">
                 Create one!

@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 import Image from 'next/image'
 import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
 import ArrowOutwardOutlinedIcon from '@mui/icons-material/ArrowOutwardOutlined';
@@ -32,7 +32,7 @@ export default function BottomBar() {
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
 
     const handleActive = (e: React.MouseEvent<HTMLButtonElement>) => {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         dispatch(setFunctionality(target.name));
         if (target.name === 'eraser') {
             dispatch(setEraser(true));
@@ -43,14 +43,14 @@ export default function BottomBar() {
     }
 
     const handleImage = (e: React.ChangeEvent) => {
-        let xPosition = Math.floor(Math.random() * 500);
-        let YPosition = Math.floor(Math.random() * 200);
+        const xPosition = Math.floor(Math.random() * 500);
+        const YPosition = Math.floor(Math.random() * 200);
         dispatch(setFunctionality('images'))
-        let target = e.target as HTMLInputElement;
-        let file = target.files![0];
+        const target = e.target as HTMLInputElement;
+        const file = target.files![0];
         let result;
         if (file) {
-            let reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = function (e) {
                 result = e.target!.result;
@@ -68,7 +68,7 @@ export default function BottomBar() {
     }
 
     useEffect(() => {
-
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleImageDrawed = (data: any) => {
             const { id, x, y, src, width, height, brightness, contrast, saturation, modify } = data;
             console.log(data);

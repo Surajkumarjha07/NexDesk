@@ -1,7 +1,7 @@
-import React, { RefObject, useCallback, useEffect, useRef, useState } from 'react'
+import React, { RefObject, useEffect, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import image from '../Interfaces/image';
-import { deleteImage, setImageBrightness, setImageContrast, setImages, setImageSaturation } from '../Redux/slices/images';
+import { deleteImage, setImages } from '../Redux/slices/images';
 import { setSelectedItem } from '../Redux/slices/selectedItem';
 import { useSocket } from '../socketContext';
 
@@ -9,7 +9,7 @@ type imageDependencies = {
     canvasRef: RefObject<HTMLCanvasElement>,
 }
 
-export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
+export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
     const functionality = useAppSelector(state => state.Functionality.functionality);
     const imageId = useRef<number>(0);
     const imageRef = useRef<image | null>(null);
@@ -48,7 +48,7 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
 
     const handleImageModification = () => {
         if (isModifying.current) {
-            let updatedArr = images.map(image =>
+            const updatedArr = images.map(image =>
                 ({ ...image, brightness: image.id === imageId.current ? imgBrightness : image.brightness, contrast: image.id === imageId.current ? imgContrast : image.contrast, saturation: image.id === imageId.current ? imgSaturation : image.saturation })
             )
             dispatch(setImages(updatedArr));
@@ -62,10 +62,10 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
         if (functionality === "arrow" && isModifying.current) {
             handleImageModification();
         }
-    }, [imgBrightness, imgContrast, imgSaturation])
+    }, [imgBrightness, imgContrast, imgSaturation, functionality])
 
     const handleImageModificationStop = () => {
-        let updatedArray = images.map(image =>
+        const updatedArray = images.map(image =>
             ({ ...image, modify: false })
         )
         dispatch(
@@ -82,7 +82,7 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
     const handleImageClick = (e: MouseEvent | React.MouseEvent, id: number) => {
         if (functionality === "hand") {
             e.preventDefault();
-            let image = images.find(image => image.id === id);
+            const image = images.find(image => image.id === id);
             imageId.current = id;
             imageRef.current = image || null;
             if (image) {
@@ -97,10 +97,10 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
         if (functionality === "hand") {
             e.preventDefault();
             if (isMoving.current) {
-                let XPosition = e.clientX - XPos.current;
-                let YPosition = e.clientY - YPos.current;
+                const XPosition = e.clientX - XPos.current;
+                const YPosition = e.clientY - YPos.current;
 
-                let updatedArr = images.map(image => (
+                const updatedArr = images.map(image => (
                     { ...image, x: image.id === imageId.current ? XPosition : image.x, y: image.id === imageId.current ? YPosition : image.y }
                 ))
                 dispatch(setImages(updatedArr))
@@ -134,7 +134,7 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
             if (imageRef.current) {
                 newWidth = (e.clientX - imageRef.current.x);
             }
-            let updatedImages = images.map(image => (
+            const updatedImages = images.map(image => (
                 { ...image, width: image.id === imageId.current ? newWidth : image.width }
             ))
             dispatch(setImages(updatedImages));
@@ -150,7 +150,7 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
             if (imageRef.current) {
                 newHeight = (e.clientY - imageRef.current.y);
             }
-            let updatedImages = images.map(image => (
+            const updatedImages = images.map(image => (
                 { ...image, height: image.id === imageId.current ? newHeight : image.height }
             ))
             dispatch(setImages(updatedImages));
@@ -180,16 +180,17 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
             isModifying.current = true;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleImageModified = (data: any) => {
             const { id, imgBrightness, imgContrast, imgSaturation } = data;
-            let updatedArr = images.map(image =>
+            const updatedArr = images.map(image =>
                 ({ ...image, brightness: image.id === id ? imgBrightness : image.brightness, contrast: image.id === id ? imgContrast : image.contrast, saturation: image.id === id ? imgSaturation : image.saturation })
             )
             dispatch(setImages(updatedArr));
         }
 
         const handleImageUnSelected = () => {
-            let updatedArray = images.map(image =>
+            const updatedArray = images.map(image =>
                 ({ ...image, modify: false })
             )
             dispatch(
@@ -200,26 +201,29 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
             isResizing.current = false;
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleImageMoved = (data: any) => {
             const { id, x, y } = data;
 
-            let updatedArr = images.map(image => (
+            const updatedArr = images.map(image => (
                 { ...image, x: image.id === id ? x : image.x, y: image.id === id ? y : image.y }
             ))
             dispatch(setImages(updatedArr))
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleImageHeightResize = (data: any) => {
             const { id, newHeight } = data;
-            let updatedImages = images.map(image => (
+            const updatedImages = images.map(image => (
                 { ...image, height: image.id === id ? newHeight : image.width }
             ))
             dispatch(setImages(updatedImages));
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleImageWidthResize = (data: any) => {
             const { id, newWidth } = data;
-            let updatedImages = images.map(image => (
+            const updatedImages = images.map(image => (
                 { ...image, width: image.id === id ? newWidth : image.width }
             ))
             dispatch(setImages(updatedImages));
@@ -255,7 +259,7 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
 
     useEffect(() => {
 
-        let canvasElement = canvasRef.current;
+        const canvasElement = canvasRef.current;
         if (canvasElement) {
             if (functionality !== "images" && images.some(image => image.modify === true)) {
                 canvasElement.addEventListener("click", handleImageModificationStop);
@@ -267,7 +271,7 @@ export default function canvasImageFeatures({ canvasRef }: imageDependencies) {
                 canvasElement.removeEventListener("click", handleImageModificationStop);
             }
         }
-    }, [functionality, images])
+    }, [functionality, images, canvasRef])
 
     return { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgResizeStart, handleImgResizeStop, handleImgHeightResize, handleImgWidthResize }
 }

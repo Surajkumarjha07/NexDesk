@@ -1,6 +1,6 @@
 "use client"
 import Logo from '@/app/components/Logo'
-import React, { FormEvent, useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 
@@ -24,7 +24,7 @@ export default function SignUp() {
 
       if (response.ok) {
         console.log(response);        
-        router.push("./Login");
+        router.push("/");
       }
     } catch (error) {
       console.log("Internal Server Error", error);      

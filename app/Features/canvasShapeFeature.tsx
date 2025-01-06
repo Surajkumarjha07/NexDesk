@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import shapeFeature from '../Interfaces/shapeFeature'
-import { setResize } from '../Redux/slices/shapes'
 import { setSelectedItem } from '../Redux/slices/selectedItem'
 import { useSocket } from '../socketContext'
+import shape from '../Interfaces/shape'
 
-export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, patternType, borderType, opacity }: shapeFeature) {
+export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, patternType, borderType, opacity }: shapeFeature) {
   const [shapes, setShapes] = useState<shape[]>([])
   const functionality = useAppSelector(state => state.Functionality.functionality)
   const isEraserOpen = useAppSelector(state => state.Eraser.isEraserOpen);
@@ -20,13 +20,13 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
   const socket = useSocket();
   const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
 
-  const handleShapeSelected = (e: React.MouseEvent | MouseEvent, id: number) => {
+  const handleShapeSelected = (id: number) => {
     if (functionality == "arrow") {
       if (shapes.some(shape => shape.modify === true)) {
         shapes.forEach(shape => shape.modify = false);
       }
       shapeId.current = id;
-      let shape = shapes.find(shape => shape.id === id);
+      const shape = shapes.find(shape => shape.id === id);
       shapeRef.current = shape;
       setShapes(prevShapes =>
         prevShapes.map(shape => ({
@@ -77,7 +77,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
         socket.emit("itemHeightResize", { meetingCode, id: shapeId.current, newHeight: newHeight! })
       }
     }
-  }, [])
+  }, [socket, meetingCode])
 
   const handleWidthResize = useCallback((e: MouseEvent | React.MouseEvent) => {
     if (isResizing.current) {
@@ -96,7 +96,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
         socket.emit("itemWidthResize", { meetingCode, id: shapeId.current, newWidth: newWidth! });
       }
     }
-  }, [])
+  }, [meetingCode, socket])
 
   const handleShapeResizingStop = useCallback(() => {
     isResizing.current = false;
@@ -117,18 +117,18 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
 
   const handleEraser = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
     if (isEraserOpen) {
-      let updatedShapes = shapes.filter(shape => shape.id !== id);
+      const updatedShapes = shapes.filter(shape => shape.id !== id);
       setShapes(updatedShapes);
       if (socket) {
         socket.emit("itemErase", { meetingCode, id })
       }
     }
-  }, [isEraserOpen, shapes])
+  }, [isEraserOpen, shapes, meetingCode, socket])
 
   const handleClick = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
     if (functionality === 'hand') {
       shapeId.current = id;
-      let shape = shapes.find(shape => shape.id === id);
+      const shape = shapes.find(shape => shape.id === id);
       if (shape) {
         XPos.current = e.clientX - shape.x;
         YPos.current = e.clientY - shape.y;
@@ -139,8 +139,8 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
 
   const handleMove = useCallback((e: MouseEvent | React.MouseEvent) => {
     if (isMoving.current) {
-      let XPosition = e.clientX - XPos.current;
-      let YPosition = e.clientY - YPos.current;
+      const XPosition = e.clientX - XPos.current;
+      const YPosition = e.clientY - YPos.current;
 
       const updatedShapes = shapes.map(shape =>
         shape.id === shapeId.current ?
@@ -151,7 +151,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
         socket.emit("itemMoving", { meetingCode, id: shapeId.current, x: XPosition, y: YPosition });
       }
     }
-  }, [shapes, isMoving.current])
+  }, [shapes, meetingCode, socket])
 
   const handleStop = useCallback(() => {
     isMoving.current = false;
@@ -162,6 +162,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
   }, [shapeColor, borderType, patternType, opacity])
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleItemDraw = (data: any) => {
       const { id, x, y, width, height, shapeColor, shapeType, borderType, patternType, opacity, modify } = data;
       setShapes(prev => [
@@ -175,7 +176,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
         shapes.forEach(shape => shape.modify = false);
       }
       shapeId.current = id;
-      let shape = shapes.find(shape => shape.id === id);
+      const shape = shapes.find(shape => shape.id === id);
       shapeRef.current = shape;
       setShapes(prevShapes =>
         prevShapes.map(shape => ({
@@ -204,6 +205,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
       )
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleItemModify = (data: any) => {
       const { id, shapeColor, patternType, borderType, opacity } = data;
       setShapes(prevShapes =>
@@ -215,6 +217,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
       )
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleItemMoving = (data: any) => {
       const { id, x, y } = data;
 
@@ -227,6 +230,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
       )
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleItemHeightResize = (data: any) => {
       const { id, newHeight } = data;
       setShapes(prevShapes =>
@@ -236,7 +240,8 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
         )
       )
     }
-
+    
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleItemWidthResize = (data: any) => {
       const { id, newWidth } = data;
       setShapes(prevShapes =>
@@ -270,7 +275,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
         socket.off("itemWidthResized", handleItemWidthResize);
       }
     }
-  }, [socket, dispatch])
+  }, [socket, dispatch, shapes])
 
   useEffect(() => {
     const handleCanvasClick = (e: MouseEvent) => {
@@ -305,7 +310,7 @@ export default function canvasTextFeatures({ canvasRef, shapeType, shapeColor, p
         canvasElement.removeEventListener("click", handleShapeUnSelected)
       }
     };
-  }, [functionality, shapeColor, shapeType, patternType, borderType, opacity, shapes])
+  }, [functionality, shapeColor, shapeType, patternType, borderType, opacity, shapes, canvasRef])
 
   return { shapes, handleClick, handleMove, handleStop, handleEraser, handleShapeSelected, handleShapeResizeStart, handleHeightResize, handleWidthResize, handleShapeResizingStop };
 

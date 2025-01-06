@@ -5,19 +5,19 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function DeleteUser() {
-  const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
   const [visibleContent, setVisibleContent] = useState<boolean>(false);
 
   useEffect(() => {
-    const cookies = document.cookie.split("; ");
+    const cookies = document.cookie.split(";");
     const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
     const mainCookie = cookie ? cookie.split("=")[1] : null;
 
     const authorized = async () => {
       if (!mainCookie) {
         router.push("/");
+        return;
       }
 
       try {
@@ -31,7 +31,7 @@ export default function DeleteUser() {
         })
 
         if (!response.ok) {
-          router.push("/")
+          router.push("/");
         }
         else {
           setVisibleContent(true);
@@ -43,34 +43,41 @@ export default function DeleteUser() {
     };
 
     authorized();
-  }, []);
+  }, [router]);
 
   const DeleteUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
+      const cookies = document.cookie.split(";");
+      const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
+      const cookie = targetCookie ? targetCookie.split("=")[1] : null;
+
       const response = await fetch("http://localhost:4000/deleteUser", {
         method: 'DELETE',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookie}`
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ password })
       })
 
       if (response.ok) {
-        console.log(response);
-        router.push("./Login");
+        const response = await fetch("http://localhost:4000/signOut", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+        })
+
+        if (response.ok) {
+          window.location.reload();
+        }
       }
     } catch (error) {
       console.log("Internal Server Error", error);
     }
   }
-
-  useEffect(() => {
-    let email = sessionStorage.getItem("email")
-    if (email) {
-      setEmail(email);
-    }
-  }, [])
 
   return (
     visibleContent &&

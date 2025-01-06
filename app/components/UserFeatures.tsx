@@ -2,7 +2,6 @@ import React from 'react'
 import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import { PeopleAltOutlined } from '@mui/icons-material'
 import QuestionAnswerOutlinedIcon from '@mui/icons-material/QuestionAnswerOutlined';
-import { setFunctionality } from '../Redux/slices/functionality';
 import { setToggleChat, setToggleUsers, setToggle } from '../Redux/slices/ToggleMessage';
 
 export default function UserFeatures() {
@@ -11,7 +10,7 @@ export default function UserFeatures() {
   const chat = useAppSelector(state => state.ToggleMessage.chat);
 
   const handleActive = (e: React.MouseEvent<HTMLButtonElement>) => {
-    let target = e.target as HTMLButtonElement;
+    const target = e.target as HTMLButtonElement;
     if (target.name === "users") {
       dispatch(setToggleUsers(true))
       dispatch(setToggleChat(false));

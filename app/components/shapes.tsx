@@ -10,7 +10,7 @@ export default function Shapes() {
     const dispatch = useAppDispatch();
 
     const selectShape = (e: React.MouseEvent) => {
-        let target = e.target as HTMLButtonElement
+        const target = e.target as HTMLButtonElement
         if (target.name) {
             dispatch(setShapeType(target.name))
         }

@@ -7,14 +7,14 @@ export default function BottomComponent() {
     const dispatch = useAppDispatch()
 
     const handlePatternType = (e: React.MouseEvent) => {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         if (target) {
             dispatch(setPatternType(target.name));
         }
     }
 
     const handleBorderType = (e: React.MouseEvent) => {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         if (target) {
             dispatch(setBorderType(target.name));
         }

@@ -16,7 +16,7 @@ export default function Sidebar() {
     const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
 
     const handleColorChange = (e: React.MouseEvent<HTMLButtonElement>) => {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         dispatch(setTextColor(target.name));
         dispatch(setNoteBackgroundColor(target.name))
         dispatch(setShapeColor(target.name))
@@ -24,9 +24,9 @@ export default function Sidebar() {
     }
 
     const handleBrightness = (e: React.ChangeEvent) => {
-        let target = e.target as HTMLInputElement;
-        let value: number = parseInt(target.value) * 5;
-        let PencilValue = parseInt(target.value);
+        const target = e.target as HTMLInputElement;
+        const value: number = parseInt(target.value) * 5;
+        const PencilValue = parseInt(target.value);
         dispatch(setTextBrightness(value));
         dispatch(setNoteTextBrightness(value));
         dispatch(setShapeOpacity(value));
@@ -34,20 +34,20 @@ export default function Sidebar() {
     }
 
     const handleImgBrightness = (e: React.ChangeEvent) => {
-        let target = e.target as HTMLInputElement;
-        let imgBrightness = parseInt(target.value) * 0.5;
+        const target = e.target as HTMLInputElement;
+        const imgBrightness = parseInt(target.value) * 0.5;
         dispatch(setImageBrightness(imgBrightness));
     }
 
     const handleImgContrast = (e: React.ChangeEvent) => {
-        let target = e.target as HTMLInputElement;
-        let imgContrast = parseInt(target.value) * 0.5;
+        const target = e.target as HTMLInputElement;
+        const imgContrast = parseInt(target.value) * 0.5;
         dispatch(setImageContrast(imgContrast));
     }
 
     const handleImgSaturation = (e: React.ChangeEvent) => {
-        let target = e.target as HTMLInputElement;
-        let imgSaturation = parseInt(target.value) * 50;
+        const target = e.target as HTMLInputElement;
+        const imgSaturation = parseInt(target.value) * 50;
         dispatch(setImageSaturation(imgSaturation));
     }
 

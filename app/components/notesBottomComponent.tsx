@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { useAppDispatch } from '../Redux/hooks'
 import { setNoteTextSize, setNoteTextAlign } from '../Redux/slices/noteFeatures';
@@ -11,7 +11,7 @@ export default function NotesBottomComponent() {
 
     useEffect(() => {
         document.addEventListener("click", (e: MouseEvent) => {
-            let target = e.target as HTMLElement;
+            const target = e.target as HTMLElement;
             if (target.classList.contains("box")) {
                 setToggle(!toggle);
             }
@@ -19,20 +19,20 @@ export default function NotesBottomComponent() {
                 setToggle(false)
             }
         })
-    }, [])
+    },[])
 
     function TextSize(e: React.MouseEvent) {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         dispatch(setNoteTextSize(target.name));
     }
 
     function FontFamily(e: React.MouseEvent) {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         dispatch(setNoteFontFamily(target.name));
     }
 
     function textAlign(e: React.MouseEvent) {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         if (target && target.name) {
             dispatch(setNoteTextAlign(target.name));
         };

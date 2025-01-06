@@ -1,7 +1,5 @@
-import React from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import image from "@/app/Interfaces/image";
-import { useSocket } from "@/app/socketContext";
 
 const initialState = {
     images: <image[]>[],
@@ -27,7 +25,7 @@ export const ImageSlice = createSlice({
             });
         },
         deleteImage: (state, action: PayloadAction<number>) => {
-            let updatedArr = state.images.filter(image => image.id !== action.payload)
+            const updatedArr = state.images.filter(image => image.id !== action.payload)
             state.images = updatedArr;
         },
         setImageBrightness: (state, action) => {

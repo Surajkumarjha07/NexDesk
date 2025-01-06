@@ -3,17 +3,17 @@ import Logo from '@/app/components/Logo'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
-import User from '@/app/Interfaces/getUser';
+import { useAppSelector } from '@/app/Redux/hooks';
 
 export default function UpdateUser() {
-  const [user, setUser] = useState<User | null>(null);
-  const [email, setEmail] = useState<string>('');
   const [newEmail, setNewEmail] = useState<string>('');
   const [newName, setNewName] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const router = useRouter();
   const [visibleContent, setVisibleContent] = useState<boolean>(false);
+  const username = useAppSelector(state => state.UserCredential.username);
+  const userEmail = useAppSelector(state => state.UserCredential.userEmail);
 
   useEffect(() => {
     const cookies = document.cookie.split("; ");
@@ -23,6 +23,7 @@ export default function UpdateUser() {
     const authorized = async () => {
       if (!mainCookie) {
         router.push("/");
+        return;
       }
 
       try {
@@ -36,7 +37,7 @@ export default function UpdateUser() {
         })
 
         if (!response.ok) {
-          router.push("/")
+          router.push("/");
         }
         else {
           setVisibleContent(true);
@@ -48,7 +49,7 @@ export default function UpdateUser() {
     };
 
     authorized();
-  }, []);
+  }, [router]);
 
   const UpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -63,54 +64,43 @@ export default function UpdateUser() {
     }
 
     try {
+      const cookies = document.cookie.split(";");
+      const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
+      const cookie = targetCookie ? targetCookie.split("=")[1] : null;
+
       const response = await fetch("http://localhost:4000/updateUser", {
         method: 'PUT',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${cookie}`
         },
-        body: JSON.stringify({ email, newEmail, newName, currentPassword, newPassword })
+        body: JSON.stringify({ newEmail, newName, currentPassword, newPassword }),
+        credentials: "include"
       })
 
       if (response.ok) {
-        console.log(response);
-        router.push("./Home");
+        //signOut ->
+        const signOut = await fetch("http://localhost:4000/signOut", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+        })
+
+        if (signOut.ok) {
+          window.location.reload();
+        }
       }
     } catch (error) {
       console.log("Internal Server Error", error);
     }
   }
 
-  async function getUser(email: string) {
-    const response = await fetch(`http://localhost:4000/getUser?email=${email}`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json"
-      },
-    })
-
-    if (response.ok) {
-      let data = await response.json();
-      setUser(data.user);
-    }
-  }
-
   useEffect(() => {
-    let email = sessionStorage.getItem("email");
-    if (email) {
-      console.log(email);
-      setEmail(email);
-      getUser(email);
-    }
+    setNewEmail(userEmail);
+    setNewName(username);
   }, [])
-
-  useEffect(() => {
-    console.log("User state updated:", user);
-    if (user) {
-      setNewEmail(user!.email);
-      setNewName(user!.name);
-    }
-  }, [user]);
-
 
   return (
     visibleContent &&
@@ -138,7 +128,7 @@ export default function UpdateUser() {
           <input type="password" name="currentPassword" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Current Password" onChange={e => setCurrentPassword(e.target.value)} value={currentPassword} />
 
           <p className="text-gray-800 font-medium max-md:text-xs my-6">
-            Don't want to update? go to
+            Don&apos;t want to update? go to
             <Link href={'/pages/LogIn'}>
               <span className="text-blue-600 cursor-pointer ml-2">
                 Home

@@ -2,14 +2,12 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import input from '../Interfaces/input'
 import canvasTextFeature from '../Interfaces/canvasTextFeatures'
 import { useAppDispatch, useAppSelector } from '../Redux/hooks'
-import { textBrightnessMap } from '../ObjectMapping'
 import { setSelectedItem } from '../Redux/slices/selectedItem'
 import { useSocket } from '../socketContext'
 
-export default function canvasTextFeatures({ canvasRef, textColor, textSize, fontFamily, textBrightness, textAlign }: canvasTextFeature) {
+export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fontFamily, textBrightness, textAlign }: canvasTextFeature) {
   const [inputs, setInputs] = useState<input[]>([]);
   const functionality = useAppSelector(state => state.Functionality.functionality)
-  const textId = useRef(0);
   const isMoving = useRef(false);
   const isEraserOpen = useAppSelector(state => state.Eraser.isEraserOpen);
   const isModified = useRef(false);
@@ -28,7 +26,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
       }
       inputId.current = id;
       isModified.current = true;
-      let input = inputs.find(input => input.id === id);
+      const input = inputs.find(input => input.id === id);
       if (input) {
         inputRef.current = input;
       }
@@ -74,20 +72,20 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
 
   const handleTextEraser = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
     if (isEraserOpen) {
-      let updatedInputs = inputs.filter(input => input.id !== id);
+      const updatedInputs = inputs.filter(input => input.id !== id);
       setInputs(updatedInputs);
       if (socket) {
         socket.emit("inputErase", { meetingCode, id });
       }
     }
 
-  }, [isEraserOpen, inputs])
+  }, [isEraserOpen, inputs, meetingCode, socket])
 
 
   const handleTextClick = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
     if (functionality === 'hand') {
       inputId.current = id;
-      let note = inputs.find(note => note.id === id);
+      const note = inputs.find(note => note.id === id);
       if (note) {
         XPos.current = e.clientX - note.x;
         YPos.current = e.clientY - note.y;
@@ -98,10 +96,10 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
 
   const handleTextMove = useCallback((e: MouseEvent | React.MouseEvent) => {
     if (isMoving.current) {
-      let XPosition = e.clientX - XPos.current!;
-      let YPosition = e.clientY - YPos.current!;
+      const XPosition = e.clientX - XPos.current!;
+      const YPosition = e.clientY - YPos.current!;
 
-      let updatedNotes = inputs.map(input =>
+      const updatedNotes = inputs.map(input =>
         input.id === inputId.current ?
           { ...input, x: XPosition, y: YPosition } : input
       )
@@ -110,7 +108,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
         socket.emit("inputMove", { meetingCode, id: inputId.current, x: XPosition, y: YPosition });
       }
     }
-  }, [inputs])
+  }, [inputs, meetingCode, socket])
 
   const handleTextStop = useCallback(() => {
     isMoving.current = false;
@@ -121,6 +119,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
   }, [textColor, textSize, fontFamily, textBrightness, textAlign])
 
   useEffect(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleTextDrawed = (data: any) => {
       const { id, x, y, text, textColor, textSize, fontFamily, textBrightness, modify, textAlign } = data;
       setInputs(prev => [
@@ -129,6 +128,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
       ])
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleInputText = (data: any) => {
       const { id, value } = data;
       setInputs(prevInputs =>
@@ -140,7 +140,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
     }
 
     const handleInputFocusRemove = () => {
-      let filterArr = inputs.filter(input => input.text !== "")
+      const filterArr = inputs.filter(input => input.text !== "")
       setInputs(filterArr);
     }
 
@@ -150,7 +150,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
       }
       inputId.current = id;
       isModified.current = true;
-      let input = inputs.find(input => input.id === id);
+      const input = inputs.find(input => input.id === id);
       if (input) {
         inputRef.current = input;
       }
@@ -163,6 +163,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
       dispatch(setSelectedItem("text"))
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleInputModify = (data: any) => {
       const { id, textColor, textSize, fontFamily, textBrightness, textAlign } = data;
       setInputs(prevInputs =>
@@ -190,6 +191,7 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
       )
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleInputMoved = (data: any) => {
       const { id, x, y } = data;
       setInputs(prevInputs =>
@@ -259,10 +261,10 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
         canvasElement.removeEventListener("click", handleInputModifyStop)
       }
     };
-  }, [functionality, textSize, textColor, fontFamily, textBrightness, textAlign, inputs])
+  }, [functionality, textSize, textColor, fontFamily, textBrightness, textAlign, inputs, canvasRef, meetingCode, socket])
 
   const removeInput = () => {
-    let filterArr = inputs.filter(input => input.text !== "")
+    const filterArr = inputs.filter(input => input.text !== "")
     setInputs(filterArr);
     if (socket) {
       socket.emit("removeFocus", meetingCode)
@@ -270,8 +272,8 @@ export default function canvasTextFeatures({ canvasRef, textColor, textSize, fon
   }
 
   const settingText = (e: React.ChangeEvent, id: number) => {
-    let target = e.target as HTMLInputElement;
-    let updatedInputs = inputs.map(input => (
+    const target = e.target as HTMLInputElement;
+    const updatedInputs = inputs.map(input => (
       input.id === id ?
         { ...input, text: target.value } : input
     ))

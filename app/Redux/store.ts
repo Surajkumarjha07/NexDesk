@@ -8,7 +8,8 @@ import PencilFeaturesReducer from './slices/pencil';
 import EraserReducer from './slices/Eraser';
 import MeetingCodeReducer from './slices/meetingCode';
 import SelectedItemReducer from "./slices/selectedItem";
-import ToggleMessageReducer from "./slices/ToggleMessage"
+import ToggleMessageReducer from "./slices/ToggleMessage";
+import UserCredentialReducer from "./slices/user";
 
 export const store = configureStore({
     reducer: {
@@ -21,7 +22,8 @@ export const store = configureStore({
         Eraser: EraserReducer,
         MeetingCode: MeetingCodeReducer,
         SelectedItem: SelectedItemReducer,
-        ToggleMessage: ToggleMessageReducer
+        ToggleMessage: ToggleMessageReducer,
+        UserCredential: UserCredentialReducer
     }
 });
 

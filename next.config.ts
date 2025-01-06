@@ -8,4 +8,16 @@ const nextConfig: NextConfig = {
   }
 };
 
+module.exports = {
+  async redirects() {
+    return[
+      {
+        source: '/pages/Login',
+        destination: '/',
+        permanent: true,
+      }
+    ]
+  }
+}
+
 export default nextConfig;

@@ -20,20 +20,17 @@ export default function ChatComponent() {
     const dispatch = useAppDispatch();
     const [message, setMessage] = useState<string>('');
     const socket = useSocket();
-    const [email, setEmail] = useState<string>("");
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
     const [messageArr, setMessageArr] = useState<message[]>([]);
     const [membersArr, setMembers] = useState<Set<memberType>>(new Set());
     const users = useAppSelector(state => state.ToggleMessage.users);
     const chat = useAppSelector(state => state.ToggleMessage.chat);
     const toggle = useAppSelector(state => state.ToggleMessage.toggle);
+    const username = useAppSelector(state => state.UserCredential.username);
 
     const colors = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
     useEffect(() => {
-        let email = sessionStorage.getItem("email");
-        setEmail(email!)
-
         if (socket) {
             socket.emit("getMembers", meetingCode);
 
@@ -64,8 +61,8 @@ export default function ChatComponent() {
 
     useEffect(() => {
         if (socket) {
-            const handleMessageArrived = (email: string, message: string) => {
-                setMessageArr(prev => [...prev, { from: email, msg: message, color: colors[Math.floor(Math.random() * 7)] }]);
+            const handleMessageArrived = (username: string, message: string) => {
+                setMessageArr(prev => [...prev, { from: username, msg: message, color: colors[Math.floor(Math.random() * 7)] }]);
             };
             socket.on("messageArrived", handleMessageArrived);
 
@@ -82,7 +79,7 @@ export default function ChatComponent() {
 
     const sendMessage = () => {
         if (socket && message !== "") {
-            socket.emit('message', email, message, meetingCode);
+            socket.emit('message', username, message, meetingCode);
         }
         setMessage("");
     };
@@ -91,7 +88,7 @@ export default function ChatComponent() {
         <>
             <aside className={`${toggle ? 'opacity-100 h-[32rem] z-50' : 'opacity-0 h-0 -z-10'} w-80 bg-white shadow-md shadow-gray-400 absolute top-28 left-5 flex flex-col rounded-2xl overflow-hidden transition-all duration-500`}>
                 <div className='flex justify-between items-center h-[12%] px-4'>
-                    <p className='text-gray-700 font-medium text-xl'> { users ? "People" : "Messages" } </p>
+                    <p className='text-gray-700 font-medium text-xl'> {users ? "People" : "Messages"} </p>
                     <button onClick={closeSidebar}>
                         <CloseOutlinedIcon className='text-gray-800' />
                     </button>

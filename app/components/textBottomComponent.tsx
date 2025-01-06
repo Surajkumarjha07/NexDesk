@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import { useAppDispatch } from '../Redux/hooks';
 import { setTextAlign, setTextSize } from '../Redux/slices/textFeatures';
@@ -8,21 +8,21 @@ export default function TextBottomComponent() {
     const dispatch = useAppDispatch();
 
     function TextSize(e: React.MouseEvent<HTMLButtonElement>) {
-        let target = e.currentTarget
+        const target = e.currentTarget
         if (target && target.name) {
             dispatch(setTextSize(target.name))
         }
     }
 
     function FontFamily(e: React.MouseEvent<HTMLButtonElement>) {
-        let target = e.currentTarget;
+        const target = e.currentTarget;
         if (target && target.name) {
             dispatch(setFontFamily(target.name))
         }
     }
 
     function textAlign(e: React.MouseEvent) {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         if (target && target.name) {
             dispatch(setTextAlign(target.name));
         }

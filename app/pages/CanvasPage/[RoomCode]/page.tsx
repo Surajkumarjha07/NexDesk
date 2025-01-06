@@ -1,21 +1,21 @@
 "use client"
-import Sidebar from '@/app/components/Sidebar'
-import React, { useEffect, useRef, useState } from 'react'
-import BottomBar from '@/app/components/BottomBar'
-import { useAppSelector } from '@/app/Redux/hooks'
-import canvasTextFeatures from '@/app/Features/canvasTextFeatures'
-import StickyNotesFeatures from '@/app/Features/stickyNotesFeatures'
-import { bgColorMap, borderColorMap, noteTextBrightnessMap, textBrightnessMap, textColorMap } from '../../../ObjectMapping'
-import canvasShapeFeature from '@/app/Features/canvasShapeFeature'
-import canvasArrowFeatures from '@/app/Features/canvasArrowFeatures'
-import canvasPencilFeature from '@/app/Features/canvasPencilFeature'
-import UserFeatures from '@/app/components/UserFeatures'
-import ChatComponent from '@/app/components/ChatComponent'
-import canvasImageFeatures from '@/app/Features/canvasImageFeatures'
-import Image from 'next/image'
+import Sidebar from '@/app/components/Sidebar';
+import React, { useEffect, useRef, useState } from 'react';
+import BottomBar from '@/app/components/BottomBar';
+import { useAppSelector } from '@/app/Redux/hooks';
+import StickyNotesFeatures from '@/app/Features/stickyNotesFeatures';
+import { bgColorMap, borderColorMap, noteTextBrightnessMap, textBrightnessMap, textColorMap } from '../../../ObjectMapping';
+import UserFeatures from '@/app/components/UserFeatures';
+import ChatComponent from '@/app/components/ChatComponent';
+import Image from 'next/image';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
-import { useSocket } from '@/app/socketContext'
-import { useRouter } from 'next/navigation'
+import { useSocket } from '@/app/socketContext';
+import { useRouter } from 'next/navigation';
+import CanvasShapeFeatures from '@/app/Features/canvasShapeFeature';
+import CanvasTextFeatures from '@/app/Features/canvasTextFeatures';
+import CanvasArrowFeature from '@/app/Features/canvasArrowFeatures';
+import CanvasPencilFeature from '@/app/Features/canvasPencilFeature';
+import CanvasImageFeatures from '@/app/Features/canvasImageFeatures';
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -53,6 +53,7 @@ export default function CanvasPage() {
     const authorized = async () => {
       if (!mainCookie) {
         router.push("/");
+        return;
       }
 
       try {
@@ -66,9 +67,9 @@ export default function CanvasPage() {
         })
 
         if (!response.ok) {
-          router.push("/")
+          router.push("/");
         }
-        else{
+        else {
           setVisibleContent(true);
         }
       } catch (error) {
@@ -78,9 +79,9 @@ export default function CanvasPage() {
     };
 
     authorized();
-  }, []);
+  }, [router]);
 
-  const { settingText, removeInput, inputs, handleTextClick, handleTextMove, handleTextStop, handleTextEraser, handleInputModify } = canvasTextFeatures({
+  const { settingText, removeInput, inputs, handleTextClick, handleTextMove, handleTextStop, handleTextEraser, handleInputModify } = CanvasTextFeatures({
     canvasRef,
     textColor,
     textSize,
@@ -98,7 +99,7 @@ export default function CanvasPage() {
     noteTextAlign
   })
 
-  const { shapes, handleClick, handleMove, handleStop, handleEraser, handleShapeSelected, handleShapeResizeStart, handleHeightResize, handleWidthResize, handleShapeResizingStop } = canvasShapeFeature({
+  const { shapes, handleClick, handleMove, handleStop, handleEraser, handleShapeSelected, handleShapeResizeStart, handleHeightResize, handleWidthResize, handleShapeResizingStop } = CanvasShapeFeatures({
     canvasRef,
     shapeColor,
     shapeType,
@@ -107,14 +108,14 @@ export default function CanvasPage() {
     opacity
   })
 
-  const { arrows, CTX, handleArrowErase } = canvasArrowFeatures({ canvasRef })
+  const { arrows, CTX, handleArrowErase } = CanvasArrowFeature({ canvasRef })
 
-  const { lines, LineCTX, handleLineErase } = canvasPencilFeature({ canvasRef })
+  const { lines, LineCTX, handleLineErase } = CanvasPencilFeature({ canvasRef })
 
-  const { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgHeightResize, handleImgResizeStart, handleImgResizeStop, handleImgWidthResize } = canvasImageFeatures({ canvasRef })
+  const { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgHeightResize, handleImgResizeStart, handleImgResizeStop, handleImgWidthResize } = CanvasImageFeatures({ canvasRef })
 
   const copyToClipBoard = (e: React.MouseEvent) => {
-    let target = e.target as HTMLSpanElement;
+    const target = e.target as HTMLSpanElement;
     if (target) {
       navigator.clipboard.writeText(target.innerHTML.trim());
     }
@@ -136,10 +137,10 @@ export default function CanvasPage() {
 
   useEffect(() => {
     if (socket) {
-      socket.on("newUserJoined", (email: string, meetingCode: string) => {
+      socket.on("newUserJoined", (username: string, meetingCode: string) => {
         console.log("new user");
         setToggleBox(true);
-        setUserJoined(email);
+        setUserJoined(username);
         if (audioRef.current) {
           audioRef.current.play();
         }
@@ -151,7 +152,7 @@ export default function CanvasPage() {
   }, [socket]);
 
   useEffect(() => {
-    let canvas = CTX.current;
+    const canvas = CTX.current;
     arrows.forEach(arrow => {
       if (canvas) {
         canvas.beginPath();
@@ -166,7 +167,7 @@ export default function CanvasPage() {
   }, [arrows, CTX, functionality]);
 
   useEffect(() => {
-    let canvas = LineCTX.current;
+    const canvas = LineCTX.current;
     lines.forEach(line => {
       if (canvas) {
         canvas.beginPath();
@@ -180,7 +181,7 @@ export default function CanvasPage() {
   }, [lines, LineCTX, functionality])
 
   const handleEraseItem = (e: React.MouseEvent) => {
-    console.log((e.target as HTMLCanvasElement).children);    
+    console.log((e.target as HTMLCanvasElement).children);
   }
 
   return (
@@ -285,7 +286,7 @@ export default function CanvasPage() {
                     }}
                     className={`${textBrightnessMap.get(shape.opacity)} ${borderColorMap.get(shape.shapeColor)} rounded-full ${shape.patternType === 'transparent' ? 'bg-transparent' : shape.patternType === 'opaque' ? 'bg-white' : shape.patternType === 'coloured' ? `${bgColorMap.get(shape.shapeColor)} bg-opacity-60` : 'bg-gradient-to-b from-red-600 via-pink-600 to-purple-600'} ${shape.borderType === 'roundedBorder' ? 'rounded-full' : shape.borderType === 'dashedBorder' ? 'border-dashed' : shape.borderType === 'solidBorder' ? 'rounded-full' : 'border-dotted'} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${(shape.modify) ? 'border-2' : 'border-4'}`}
                     onMouseDown={(e) => handleClick(e, shape.id)} onMouseMove={(e) => handleMove(e)} onMouseUp={handleStop}
-                    onMouseOver={(e) => handleEraser(e, shape.id)} onClick={(e) => handleShapeSelected(e, shape.id)}
+                    onMouseOver={(e) => handleEraser(e, shape.id)} onClick={() => handleShapeSelected(shape.id)}
                   >
                     <div className={`border border-blue-400 bg-blue-100 w-3 h-3 absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-e-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleWidthResize} onMouseUp={handleShapeResizingStop} />
                     <div className={`border border-blue-400 bg-blue-100 w-3 h-3 absolute bottom-0 left-1/2 transform translate-y-1/2 -translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-ns-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleHeightResize} onMouseUp={handleShapeResizingStop} />
@@ -301,7 +302,7 @@ export default function CanvasPage() {
                     }}
                     className={`${textBrightnessMap.get(shape.opacity)} ${borderColorMap.get(shape.shapeColor)} ${shape.patternType === 'transparent' ? 'bg-transparent' : shape.patternType === 'opaque' ? 'bg-white' : shape.patternType === 'coloured' ? `${bgColorMap.get(shape.shapeColor)} bg-opacity-60` : 'bg-gradient-to-b from-red-600 via-pink-600 to-purple-600'} ${shape.borderType === 'roundedBorder' ? 'rounded-md' : shape.borderType === 'dashedBorder' ? 'border-dashed' : shape.borderType === 'solidBorder' ? 'rounded-none' : 'border-dotted'} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${(shape.modify) ? 'border-2' : 'border-4'}`}
                     onMouseDown={(e) => handleClick(e, shape.id)} onMouseMove={(e) => handleMove(e)} onMouseUp={handleStop}
-                    onMouseOver={(e) => handleEraser(e, shape.id)} onClick={(e) => handleShapeSelected(e, shape.id)}
+                    onMouseOver={(e) => handleEraser(e, shape.id)} onClick={() => handleShapeSelected(shape.id)}
                   >
                     <div className={`border border-blue-400 bg-blue-100 w-6 h-3 absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-e-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleWidthResize} onMouseUp={handleShapeResizingStop} />
                     <div className={`border border-blue-400 bg-blue-100 w-3 h-6 absolute bottom-0 left-1/2 transform translate-y-1/2 -translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-ns-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleHeightResize} onMouseUp={handleShapeResizingStop} />

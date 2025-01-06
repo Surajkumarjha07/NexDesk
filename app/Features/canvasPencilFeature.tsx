@@ -1,17 +1,17 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import pencilFeature from '../Interfaces/pencilFeature'
 import { useAppSelector } from '../Redux/hooks'
 import { lineColorMap } from '../ObjectMapping';
 import Line from '../Interfaces/line';
 
-export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
+export default function CanvasPencilFeature({ canvasRef }: pencilFeature) {
   const functionality = useAppSelector(state => state.Functionality.functionality)
   const isDrawing = useRef(false);
   const LineCTX = useRef<CanvasRenderingContext2D | null>(null);
   const thickness = useAppSelector(state => state.PencilFeatures.thickness);
   const color = useAppSelector(state => state.PencilFeatures.color);
-  let currentThickness = useRef(thickness);
-  let currentColor = useRef(color);
+  const currentThickness = useRef(thickness);
+  const currentColor = useRef(color);
   const startX = useRef(0);
   const startY = useRef(0);
   const endX = useRef(0);
@@ -33,11 +33,11 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
 
   const handleClick = useCallback((e: MouseEvent) => {
     isDrawing.current = true;
-    let XPosition = e.offsetX;
-    let YPosition = e.offsetY;
+    const XPosition = e.offsetX;
+    const YPosition = e.offsetY;
     startX.current = XPosition;
     startY.current = YPosition;
-    let canvas = LineCTX.current;
+    const canvas = LineCTX.current;
     if (canvas) {
       canvas.beginPath();
       canvas.moveTo(XPosition, YPosition);
@@ -48,7 +48,7 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
     if (isDrawing.current) {
       endX.current = e.offsetX;
       endY.current = e.offsetY;
-      let canvas = LineCTX.current;
+      const canvas = LineCTX.current;
       if (canvas) {
         canvas.lineTo(e.offsetX, e.offsetY);
         canvas.strokeStyle = `${lineColorMap.get(currentColor.current)}`;
@@ -70,7 +70,7 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
 
   useEffect(() => {
     if (canvasRef.current) {
-      let ctx = canvasRef.current.getContext('2d');
+      const ctx = canvasRef.current.getContext('2d');
       canvasRef.current.width = window.innerWidth * window.devicePixelRatio;
       canvasRef.current.height = window.innerHeight * window.devicePixelRatio;
 
@@ -80,7 +80,7 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
       // canvasRef.current.style.height = `${window.innerHeight}px`;
     }
 
-    let canvasElement = canvasRef.current;
+    const canvasElement = canvasRef.current;
     if (canvasElement && functionality === 'pencil') {
       canvasElement.addEventListener('mousedown', handleClick);
       canvasElement.addEventListener('mousemove', handleMove);
@@ -93,7 +93,7 @@ export default function canvasPencilFeature({ canvasRef }: pencilFeature) {
       canvasElement?.removeEventListener('mouseup', handleStop);
     }
 
-  }, [functionality])
+  }, [functionality,canvasRef,handleClick, handleMove, handleStop])
 
   return { lines, LineCTX, handleLineErase }
 }
