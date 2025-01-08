@@ -18,6 +18,13 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
     const dispatch = useAppDispatch();
     const socket = useSocket();
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
+    const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+
+    useEffect(() => {
+        if (notes.some(note => note.modify === true) || !(selectedItem === "note")) {
+            notes.forEach(note => note.modify = false);
+        }
+    }, [selectedItem, notes])
 
     const handleModify = (id: number) => {
         if (functionality === 'arrow') {
@@ -116,6 +123,7 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
 
     useEffect(() => {
         handleNoteModify();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [noteBackgroundColor, noteFontFamily, noteTextSize, noteTextBrightness, noteTextAlign])
 
     useEffect(() => {
@@ -254,7 +262,8 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
                 canvasElement.removeEventListener("click", handleModifyStop);
             }
         };
-    }, [functionality, noteBackgroundColor, noteTextSize, noteFontFamily, noteTextBrightness, noteTextAlign, canvasRef, notes])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [functionality, noteBackgroundColor, noteTextSize, noteFontFamily, noteTextBrightness, noteTextAlign, canvasRef, notes, meetingCode, socket])
 
     const removeNote = () => {
         const filterArr1 = notes.filter(note => note.text != "")

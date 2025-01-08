@@ -106,11 +106,12 @@ export default function Sidebar() {
                 <hr />
 
                 {
-                    functionality === "text" ?
+                    (functionality === "text" || selectedItem === "text") ?
                         <TextBottomComponent /> :
-                        functionality === "notes" ?
+                        (functionality === "notes" || selectedItem === "note")?
                             <NotesBottomComponent /> :
-                            <BottomComponent />
+                            !(selectedItem === "image") ?
+                                <BottomComponent /> : null
                 }
 
             </aside>

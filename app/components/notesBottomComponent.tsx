@@ -13,7 +13,7 @@ export default function NotesBottomComponent() {
         document.addEventListener("click", (e: MouseEvent) => {
             const target = e.target as HTMLElement;
             if (target.classList.contains("box")) {
-                setToggle(!toggle);
+                setToggle(toggle => !toggle);
             }
             else {
                 setToggle(false)

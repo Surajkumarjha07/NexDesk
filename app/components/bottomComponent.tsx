@@ -4,7 +4,7 @@ import { useAppDispatch } from '../Redux/hooks';
 import { setBorderType, setPatternType } from '../Redux/slices/shapes';
 
 export default function BottomComponent() {
-    const dispatch = useAppDispatch()
+    const dispatch = useAppDispatch();
 
     const handlePatternType = (e: React.MouseEvent) => {
         const target = e.target as HTMLButtonElement;
@@ -51,13 +51,6 @@ export default function BottomComponent() {
                     <button className='hover:bg-gray-200 p-2 rounded-md' name='solidBorder' onClick={handleBorderType}>
                         <Image src={'/Images/circle.png'} alt='square' height={100} width={100} className='w-6 h-6 pointer-events-none' />
                     </button>
-                </div>
-
-                <div className='flex justify-center items-center gap-8'>
-                    <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'> S </button>
-                    <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'> M </button>
-                    <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'> L </button>
-                    <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'> XL </button>
                 </div>
             </div>
         </>

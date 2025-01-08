@@ -18,9 +18,17 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
   const dispatch = useAppDispatch();
   const socket = useSocket();
   const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
+  const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+
+  useEffect(() => {
+    if (inputs.some(input => input.modify === true) || !(selectedItem === "text")) {
+      inputs.forEach(input => input.modify = false);
+    }
+  }, [selectedItem, inputs])
 
   const handleInputModify = (id: number) => {
     if (functionality === "arrow") {
+
       if (inputs.some(input => input.modify === true)) {
         inputs.forEach(input => input.modify = false);
       }
@@ -70,7 +78,7 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
     }
   }
 
-  const handleTextEraser = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
+  const handleTextEraser = useCallback((id: number) => {
     if (isEraserOpen) {
       const updatedInputs = inputs.filter(input => input.id !== id);
       setInputs(updatedInputs);
@@ -116,6 +124,7 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
 
   useEffect(() => {
     handleInputModification();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [textColor, textSize, fontFamily, textBrightness, textAlign])
 
   useEffect(() => {
@@ -261,6 +270,7 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
         canvasElement.removeEventListener("click", handleInputModifyStop)
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [functionality, textSize, textColor, fontFamily, textBrightness, textAlign, inputs, canvasRef, meetingCode, socket])
 
   const removeInput = () => {

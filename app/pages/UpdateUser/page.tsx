@@ -100,7 +100,7 @@ export default function UpdateUser() {
   useEffect(() => {
     setNewEmail(userEmail);
     setNewName(username);
-  }, [])
+  }, [userEmail, username]);
 
   return (
     visibleContent &&

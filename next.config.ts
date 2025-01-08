@@ -15,6 +15,11 @@ module.exports = {
         source: '/pages/Login',
         destination: '/',
         permanent: true,
+      },
+      {
+        source: "/pages/errorPage",
+        destination: "/",
+        permanent: true
       }
     ]
   }

@@ -19,6 +19,13 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
   const dispatch = useAppDispatch();
   const socket = useSocket();
   const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
+  const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+
+  useEffect(() => {
+    if (shapes.some(shape => shape.modify === true) || !(selectedItem === "shape")) {
+      shapes.forEach(shape => shape.modify = false);
+    }
+  }, [selectedItem, shapes])
 
   const handleShapeSelected = (id: number) => {
     if (functionality == "arrow") {
@@ -159,6 +166,7 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
 
   useEffect(() => {
     handleShapeModify();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [shapeColor, borderType, patternType, opacity])
 
   useEffect(() => {
@@ -240,7 +248,7 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
         )
       )
     }
-    
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleItemWidthResize = (data: any) => {
       const { id, newWidth } = data;
@@ -310,7 +318,8 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
         canvasElement.removeEventListener("click", handleShapeUnSelected)
       }
     };
-  }, [functionality, shapeColor, shapeType, patternType, borderType, opacity, shapes, canvasRef])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [functionality, shapeColor, shapeType, patternType, borderType, opacity, shapes, canvasRef, meetingCode, socket])
 
   return { shapes, handleClick, handleMove, handleStop, handleEraser, handleShapeSelected, handleShapeResizeStart, handleHeightResize, handleWidthResize, handleShapeResizingStop };
 

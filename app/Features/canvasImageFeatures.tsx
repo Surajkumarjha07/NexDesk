@@ -1,9 +1,9 @@
 import React, { RefObject, useEffect, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '../Redux/hooks'
-import image from '../Interfaces/image';
 import { deleteImage, setImages } from '../Redux/slices/images';
 import { setSelectedItem } from '../Redux/slices/selectedItem';
 import { useSocket } from '../socketContext';
+import image from '../Interfaces/image';
 
 type imageDependencies = {
     canvasRef: RefObject<HTMLCanvasElement>,
@@ -26,6 +26,18 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
     const isResizing = useRef<boolean>(false);
     const socket = useSocket();
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
+    const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+
+    useEffect(() => {
+        if (images.some(image => image.modify === true)) {
+            const updatedArr = images.map(image => ({
+                ...image,
+                modify: false
+            })
+            )
+            dispatch(setImages(updatedArr));
+        }
+    }, [selectedItem, dispatch, images])
 
     const handleImageSelect = (id: number) => {
         if (functionality === 'arrow') {
@@ -62,6 +74,7 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
         if (functionality === "arrow" && isModifying.current) {
             handleImageModification();
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [imgBrightness, imgContrast, imgSaturation, functionality])
 
     const handleImageModificationStop = () => {
@@ -271,6 +284,7 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
                 canvasElement.removeEventListener("click", handleImageModificationStop);
             }
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [functionality, images, canvasRef])
 
     return { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgResizeStart, handleImgResizeStop, handleImgHeightResize, handleImgWidthResize }

@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation';
 import CanvasShapeFeatures from '@/app/Features/canvasShapeFeature';
 import CanvasTextFeatures from '@/app/Features/canvasTextFeatures';
 import CanvasArrowFeature from '@/app/Features/canvasArrowFeatures';
-import CanvasPencilFeature from '@/app/Features/canvasPencilFeature';
+// import CanvasPencilFeature from '@/app/Features/canvasPencilFeature';
 import CanvasImageFeatures from '@/app/Features/canvasImageFeatures';
 
 export default function CanvasPage() {
@@ -108,9 +108,9 @@ export default function CanvasPage() {
     opacity
   })
 
-  const { arrows, CTX, handleArrowErase } = CanvasArrowFeature({ canvasRef })
+  const { arrows, CTX } = CanvasArrowFeature({ canvasRef })
 
-  const { lines, LineCTX, handleLineErase } = CanvasPencilFeature({ canvasRef })
+  // const { lines, LineCTX } = CanvasPencilFeature({ canvasRef })
 
   const { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgHeightResize, handleImgResizeStart, handleImgResizeStop, handleImgWidthResize } = CanvasImageFeatures({ canvasRef })
 
@@ -137,7 +137,9 @@ export default function CanvasPage() {
 
   useEffect(() => {
     if (socket) {
-      socket.on("newUserJoined", (username: string, meetingCode: string) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      socket.on("newUserJoined", (data: any) => {
+        const { username } = data;
         console.log("new user");
         setToggleBox(true);
         setUserJoined(username);
@@ -164,25 +166,31 @@ export default function CanvasPage() {
       }
     });
 
+    const handleErase = (e: React.MouseEvent | MouseEvent) => {
+      const rect = canvasRef.current?.getBoundingClientRect();
+      const mouseX = e.clientX - rect!.left;
+      const mouseY = e.clientY - rect!.top;
+
+      console.log("x: ", mouseX, "y: ", mouseY);
+    }
+
+    canvasRef.current?.addEventListener("mousemove", (e) => handleErase(e));
+
   }, [arrows, CTX, functionality]);
 
-  useEffect(() => {
-    const canvas = LineCTX.current;
-    lines.forEach(line => {
-      if (canvas) {
-        canvas.beginPath();
-        canvas.moveTo(line.startX, line.startY);
-        canvas.lineTo(line.endX, line.endY);
-        canvas.lineWidth = line.lineWidth;
-        canvas.strokeStyle = line.lineColor;
-        canvas.stroke();
-      }
-    })
-  }, [lines, LineCTX, functionality])
-
-  const handleEraseItem = (e: React.MouseEvent) => {
-    console.log((e.target as HTMLCanvasElement).children);
-  }
+  // useEffect(() => {
+  //   const canvas = LineCTX.current;
+  //   lines.forEach(line => {
+  //     if (canvas) {
+  //       canvas.beginPath();
+  //       canvas.moveTo(line.startX, line.startY);
+  //       canvas.lineTo(line.endX, line.endY);
+  //       canvas.lineWidth = line.lineWidth;
+  //       canvas.strokeStyle = line.lineColor;
+  //       canvas.stroke();
+  //     }
+  //   })
+  // }, [lines, LineCTX, functionality])
 
   return (
     visibleContent &&
@@ -211,7 +219,7 @@ export default function CanvasPage() {
         <UserFeatures />
         <ChatComponent />
         <Sidebar />
-        <canvas className={`bg-white rounded-md shadow-md w-screen h-screen ${functionality === 'eraser' ? 'cursor-auto' : 'cursor-crosshair'}`} ref={canvasRef} onMouseMove={handleEraseItem}>
+        <canvas className={`bg-white rounded-md shadow-md w-screen h-screen ${functionality === 'eraser' ? 'cursor-auto' : 'cursor-crosshair'}`} ref={canvasRef} >
         </canvas>
 
         {
@@ -261,52 +269,38 @@ export default function CanvasPage() {
               onMouseOver={(e) => handleEraser(e, shape.id)}
             /> :
 
-              shape.shapeType === "triangle" ? <div key={shape.id}
-                style={{
-                  position: 'absolute',
-                  top: `${shape.y}px`,
-                  left: `${shape.x}px`,
-                  borderLeft: '100px solid transparent',
-                  borderRight: '100px solid transparent',
-                  borderBottom: '200px solid green',
-                  cursor: `${functionality === 'hand' ? 'grab' : 'auto'}`
-                }}
-                onMouseDown={(e) => handleClick(e, shape.id)} onMouseMove={(e) => handleMove(e)} onMouseUp={handleStop}
-                onMouseOver={(e) => handleEraser(e, shape.id)}
-              /> :
+              shape.shapeType === "circle" ?
+                <div key={shape.id}
+                  style={{
+                    position: 'absolute',
+                    top: `${shape.y}px`,
+                    left: `${shape.x}px`,
+                    width: `${shape.width}px`,
+                    height: `${shape.height}px`
+                  }}
+                  className={`${textBrightnessMap.get(shape.opacity)} ${borderColorMap.get(shape.shapeColor)} rounded-full ${shape.patternType === 'transparent' ? 'bg-transparent' : shape.patternType === 'opaque' ? 'bg-white' : shape.patternType === 'coloured' ? `${bgColorMap.get(shape.shapeColor)} bg-opacity-60` : 'bg-gradient-to-b from-red-600 via-pink-600 to-purple-600'} ${shape.borderType === 'roundedBorder' ? 'rounded-full' : shape.borderType === 'dashedBorder' ? 'border-dashed' : shape.borderType === 'solidBorder' ? 'rounded-full' : 'border-dotted'} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${(shape.modify) ? 'border-2' : 'border-4'}`}
+                  onMouseDown={(e) => handleClick(e, shape.id)} onMouseMove={(e) => handleMove(e)} onMouseUp={handleStop}
+                  onMouseOver={(e) => handleEraser(e, shape.id)} onClick={() => handleShapeSelected(shape.id)}
+                >
+                  <div className={`border border-blue-400 bg-blue-100 w-3 h-3 absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-e-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleWidthResize} onMouseUp={handleShapeResizingStop} />
+                  <div className={`border border-blue-400 bg-blue-100 w-3 h-3 absolute bottom-0 left-1/2 transform translate-y-1/2 -translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-ns-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleHeightResize} onMouseUp={handleShapeResizingStop} />
+                </div> :
 
-                shape.shapeType === "circle" ?
-                  <div key={shape.id}
-                    style={{
-                      position: 'absolute',
-                      top: `${shape.y}px`,
-                      left: `${shape.x}px`,
-                      width: `${shape.width}px`,
-                      height: `${shape.height}px`
-                    }}
-                    className={`${textBrightnessMap.get(shape.opacity)} ${borderColorMap.get(shape.shapeColor)} rounded-full ${shape.patternType === 'transparent' ? 'bg-transparent' : shape.patternType === 'opaque' ? 'bg-white' : shape.patternType === 'coloured' ? `${bgColorMap.get(shape.shapeColor)} bg-opacity-60` : 'bg-gradient-to-b from-red-600 via-pink-600 to-purple-600'} ${shape.borderType === 'roundedBorder' ? 'rounded-full' : shape.borderType === 'dashedBorder' ? 'border-dashed' : shape.borderType === 'solidBorder' ? 'rounded-full' : 'border-dotted'} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${(shape.modify) ? 'border-2' : 'border-4'}`}
-                    onMouseDown={(e) => handleClick(e, shape.id)} onMouseMove={(e) => handleMove(e)} onMouseUp={handleStop}
-                    onMouseOver={(e) => handleEraser(e, shape.id)} onClick={() => handleShapeSelected(shape.id)}
-                  >
-                    <div className={`border border-blue-400 bg-blue-100 w-3 h-3 absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-e-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleWidthResize} onMouseUp={handleShapeResizingStop} />
-                    <div className={`border border-blue-400 bg-blue-100 w-3 h-3 absolute bottom-0 left-1/2 transform translate-y-1/2 -translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-ns-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleHeightResize} onMouseUp={handleShapeResizingStop} />
-                  </div> :
-
-                  <div key={shape.id}
-                    style={{
-                      position: 'absolute',
-                      top: `${shape.y}px`,
-                      left: `${shape.x}px`,
-                      width: `${shape.width}px`,
-                      height: `${shape.height}px`
-                    }}
-                    className={`${textBrightnessMap.get(shape.opacity)} ${borderColorMap.get(shape.shapeColor)} ${shape.patternType === 'transparent' ? 'bg-transparent' : shape.patternType === 'opaque' ? 'bg-white' : shape.patternType === 'coloured' ? `${bgColorMap.get(shape.shapeColor)} bg-opacity-60` : 'bg-gradient-to-b from-red-600 via-pink-600 to-purple-600'} ${shape.borderType === 'roundedBorder' ? 'rounded-md' : shape.borderType === 'dashedBorder' ? 'border-dashed' : shape.borderType === 'solidBorder' ? 'rounded-none' : 'border-dotted'} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${(shape.modify) ? 'border-2' : 'border-4'}`}
-                    onMouseDown={(e) => handleClick(e, shape.id)} onMouseMove={(e) => handleMove(e)} onMouseUp={handleStop}
-                    onMouseOver={(e) => handleEraser(e, shape.id)} onClick={() => handleShapeSelected(shape.id)}
-                  >
-                    <div className={`border border-blue-400 bg-blue-100 w-6 h-3 absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-e-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleWidthResize} onMouseUp={handleShapeResizingStop} />
-                    <div className={`border border-blue-400 bg-blue-100 w-3 h-6 absolute bottom-0 left-1/2 transform translate-y-1/2 -translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-ns-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleHeightResize} onMouseUp={handleShapeResizingStop} />
-                  </div>
+                <div key={shape.id}
+                  style={{
+                    position: 'absolute',
+                    top: `${shape.y}px`,
+                    left: `${shape.x}px`,
+                    width: `${shape.width}px`,
+                    height: `${shape.height}px`
+                  }}
+                  className={`${textBrightnessMap.get(shape.opacity)} ${borderColorMap.get(shape.shapeColor)} ${shape.patternType === 'transparent' ? 'bg-transparent' : shape.patternType === 'opaque' ? 'bg-white' : shape.patternType === 'coloured' ? `${bgColorMap.get(shape.shapeColor)} bg-opacity-60` : 'bg-gradient-to-b from-red-600 via-pink-600 to-purple-600'} ${shape.borderType === 'roundedBorder' ? 'rounded-md' : shape.borderType === 'dashedBorder' ? 'border-dashed' : shape.borderType === 'solidBorder' ? 'rounded-none' : 'border-dotted'} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${(shape.modify) ? 'border-2' : 'border-4'}`}
+                  onMouseDown={(e) => handleClick(e, shape.id)} onMouseMove={(e) => handleMove(e)} onMouseUp={handleStop}
+                  onMouseOver={(e) => handleEraser(e, shape.id)} onClick={() => handleShapeSelected(shape.id)}
+                >
+                  <div className={`border border-blue-400 bg-blue-100 w-6 h-3 absolute top-1/2 right-0 transform -translate-y-1/2 translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-e-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleWidthResize} onMouseUp={handleShapeResizingStop} />
+                  <div className={`border border-blue-400 bg-blue-100 w-3 h-6 absolute bottom-0 left-1/2 transform translate-y-1/2 -translate-x-1/2 ${(shape.modify) ? 'visible' : 'hidden'} cursor-ns-resize`} onMouseDown={handleShapeResizeStart} onMouseMove={handleHeightResize} onMouseUp={handleShapeResizingStop} />
+                </div>
           ))
         }
 
@@ -349,7 +343,7 @@ export default function CanvasPage() {
               autoFocus
               onChange={(e) => settingText(e, input.id)}
               onMouseDown={(e) => handleTextClick(e, input.id)} onMouseMove={(e) => handleTextMove(e)} onMouseUp={handleTextStop}
-              onMouseOver={(e) => handleTextEraser(e, input.id)} onClick={() => handleInputModify(input.id)}
+              onMouseOver={() => handleTextEraser(input.id)} onClick={() => handleInputModify(input.id)}
             />
           ))
         }

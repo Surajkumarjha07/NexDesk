@@ -55,12 +55,18 @@ export default function HomePage() {
 
     useEffect(() => {
         if (socket) {
-            socket.on('roomCreated', (username: string, meetingCode: string) => {
-                dispatch(setMeetingCode(meetingCode.trim()));
-                router.push(`./CanvasPage/${meetingCode.trim()}`)
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            socket.on('roomCreated', (data: any) => {
+                const { meetingCode } = data;
+                if (meetingCode) {
+                    dispatch(setMeetingCode(meetingCode.trim()));
+                    router.push(`./CanvasPage/${meetingCode.trim()}`)
+                }
             })
-
-            socket.on("roomJoined", (username: string, meetingCode: string) => {
+            
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            socket.on("roomJoined", (data: any) => {
+                const { username, meetingCode } = data;
                 console.log("you are joined the room: ", username, meetingCode);
                 router.push(`./CanvasPage/${meetingCode.trim()}`);
             })
@@ -102,9 +108,9 @@ export default function HomePage() {
                             <span className='font-semibold'> New Whiteboard </span>
                         </motion.button>
 
-                        <input type="text" className='text-gray-700 px-3 py-3 w-64 border-2 border-gray-400 outline-none rounded-md placeholder:text-gray-500 placeholder:font-medium' placeholder='Enter Code' onChange={e => dispatch(setMeetingCode(e.target.value))} />
+                        <input type="text" className='text-gray-700 px-3 py-3 w-64 border-2 border-gray-400 outline-none rounded-md placeholder:text-gray-500 placeholder:font-medium z-50' placeholder='Enter Code' onChange={e => dispatch(setMeetingCode(e.target.value))} />
 
-                        <button className={`${meetingCode ? 'text-blue-500' : 'text-gray-500 '} font-semibold`} onClick={handleJoinRoom}>
+                        <button className={`${meetingCode ? 'text-blue-500' : 'text-gray-500 '} font-semibold z-50`} onClick={handleJoinRoom}>
                             Join
                         </button>
                     </div>
@@ -112,30 +118,30 @@ export default function HomePage() {
                     <p className='text-gray-500 font-semibold'> NexDesk </p>
                 </div>
 
-                <motion.div ref={divRef} className='w-1/2 h-screen flex justify-center items-center' initial={{rotate: 0, scale: 1, opacity: 1}} animate={{rotate:150, scale: 0, opacity: 0}} transition={{duration: 10, repeat: Infinity, repeatType: "mirror", repeatDelay:4}}>
+                <motion.div ref={divRef} className='w-1/2 h-screen flex justify-center items-center' initial={{ rotate: 0, scale: 1, opacity: 1 }} animate={{ rotate: 150, scale: 0, opacity: 0 }} transition={{ duration: 10, repeat: Infinity, repeatType: "mirror", repeatDelay: 4 }}>
                     <div className='w-1/2 h-1/2 border-4 border-pink-600 bg-pink-200 bg-opacity-45 backdrop-blur-md rounded-lg relative'>
-                        <motion.div className='absolute top-0 left-1/2 -translate-y-1/2 -translate-x-1/2 w-44 h-44 shadow-inner shadow-orange-600 bg-opacity-75 backdrop-opacity-15 rounded-md bg-orange-500 flex justify-center items-center text-white text-3xl font-mono'>
+                        <motion.div className='absolute top-0 left-1/2 -translate-y-1/2 -translate-x-1/2 w-44 h-44 shadow-inner shadow-orange-600 rounded-md bg-orange-500 flex justify-center items-center text-white text-3xl font-mono'>
                             <p>
                                 {
                                     textArr[0]
                                 }
                             </p>
                         </motion.div>
-                        <motion.div className='absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-44 h-44 shadow-inner shadow-green-600 bg-opacity-75 backdrop-opacity-15 rounded-md bg-green-500 flex justify-center items-center text-white text-3xl font-mono'>
+                        <motion.div className='absolute top-1/2 right-0 -translate-y-1/2 translate-x-1/2 w-44 h-44 shadow-inner shadow-green-600 rounded-md bg-green-500 flex justify-center items-center text-white text-3xl font-mono'>
                             <p>
                                 {
                                     textArr[1]
                                 }
                             </p>
                         </motion.div>
-                        <motion.div className='absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-44 h-44 shadow-inner shadow-blue-600 bg-opacity-75 backdrop-opacity-15 rounded-md bg-blue-500 flex justify-center items-center text-white text-3xl font-mono'>
+                        <motion.div className='absolute top-1/2 left-0 -translate-x-1/2 -translate-y-1/2 w-44 h-44 shadow-inner shadow-blue-600 rounded-md bg-blue-500 flex justify-center items-center text-white text-3xl font-mono'>
                             <p>
                                 {
                                     textArr[2]
                                 }
                             </p>
                         </motion.div>
-                        <motion.div className='absolute bottom-0 left-1/2 translate-y-1/2 -translate-x-1/2 w-44 h-44 shadow-inner shadow-yellow-600 bg-opacity-75 backdrop-opacity-15 rounded-md bg-yellow-500 flex justify-center items-center text-white text-3xl font-mono'>
+                        <motion.div className='absolute bottom-0 left-1/2 translate-y-1/2 -translate-x-1/2 w-44 h-44 shadow-inner shadow-yellow-600 rounded-md bg-yellow-500 flex justify-center items-center text-white text-3xl font-mono'>
                             <p>
                                 {
                                     textArr[3]

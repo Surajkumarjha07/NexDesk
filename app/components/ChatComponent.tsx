@@ -56,12 +56,14 @@ export default function ChatComponent() {
                 }
             }
         }
-
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket, meetingCode])
 
     useEffect(() => {
         if (socket) {
-            const handleMessageArrived = (username: string, message: string) => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const handleMessageArrived = (data: any) => {
+                const { username, message } = data;
                 setMessageArr(prev => [...prev, { from: username, msg: message, color: colors[Math.floor(Math.random() * 7)] }]);
             };
             socket.on("messageArrived", handleMessageArrived);
@@ -70,6 +72,7 @@ export default function ChatComponent() {
                 socket.off("messageArrived", handleMessageArrived);
             };
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket, messageArr]);
 
 
