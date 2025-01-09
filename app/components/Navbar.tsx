@@ -80,7 +80,7 @@ export default function Navbar() {
                     {
                         visible &&
                         <div className='box2 bg-white shadow-sm shadow-gray-300 flex justify-center items-center gap-4 rounded-md px-4 py-2 absolute top-20 right-0'>
-                            <div className={`box3 rounded-full w-14 h-14 ${colors[Math.floor(Math.random() * colors.length)]} flex justify-center items-center text-2xl text-white`}> {username.toUpperCase().charAt(0)} </div>
+                            <div className={`box3 rounded-full w-14 h-14 ${color} flex justify-center items-center text-2xl text-white`}> {username.toUpperCase().charAt(0)} </div>
                             <div className='box4 flex flex-col justify-center items-start'>
                                 <p className='emailText text-gray-700 font-semibold'> {username} </p>
                                 <button className='signOut text-red-600 font-medium text-sm mt-1' onClick={signOut}> Sign Out </button>

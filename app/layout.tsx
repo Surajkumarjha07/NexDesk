@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "NesDesk",
+  title: "NexDesk",
   description: "This is the best collaboration app by which peoples can collaborate on a project share their ideas throughout with their team members to discuss about the topic",
 };
 

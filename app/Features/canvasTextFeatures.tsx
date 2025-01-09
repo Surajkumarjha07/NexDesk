@@ -7,7 +7,7 @@ import { useSocket } from '../socketContext'
 
 export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fontFamily, textBrightness, textAlign }: canvasTextFeature) {
   const [inputs, setInputs] = useState<input[]>([]);
-  const functionality = useAppSelector(state => state.Functionality.functionality)
+  const functionality = useAppSelector(state => state.Functionality.functionality);
   const isMoving = useRef(false);
   const isEraserOpen = useAppSelector(state => state.Eraser.isEraserOpen);
   const isModified = useRef(false);
@@ -21,8 +21,13 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
   const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
 
   useEffect(() => {
-    if (inputs.some(input => input.modify === true) || !(selectedItem === "text")) {
-      inputs.forEach(input => input.modify = false);
+    if (inputs.some(input => input.modify === true) && !(selectedItem === "text")) {
+      setInputs(prevInputs =>
+        prevInputs.map(input => ({
+          ...input,
+          modify: input.modify === true ? false : true
+        }))
+      )
     }
   }, [selectedItem, inputs])
 

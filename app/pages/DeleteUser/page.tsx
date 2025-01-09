@@ -1,8 +1,9 @@
 "use client"
-import Logo from '@/app/components/Logo'
-import React, { useEffect, useState } from 'react'
-import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import Logo from '@/app/components/Logo';
+import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { toast } from "react-toastify";
 
 export default function DeleteUser() {
   const [password, setPassword] = useState<string>('');
@@ -32,6 +33,7 @@ export default function DeleteUser() {
 
         if (!response.ok) {
           router.push("/");
+
         }
         else {
           setVisibleContent(true);
@@ -47,6 +49,16 @@ export default function DeleteUser() {
 
   const DeleteUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!password) {
+      toast.error("Enter password to delete account!", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'error',
+        position: 'top-center',
+      });
+      return;
+    }
+
     try {
       const cookies = document.cookie.split(";");
       const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
@@ -62,6 +74,12 @@ export default function DeleteUser() {
       })
 
       if (response.ok) {
+        toast.success("Feels bad to see you go!", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'success',
+          position: 'top-center',
+        })
         const response = await fetch("http://localhost:4000/signOut", {
           method: "POST",
           headers: {
@@ -74,6 +92,27 @@ export default function DeleteUser() {
           window.location.reload();
         }
       }
+
+      switch (response.status) {
+        case 404:
+          toast.error("Password not matched!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+
+        case 500:
+          toast.error("Internal server error!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+      }
+
     } catch (error) {
       console.log("Internal Server Error", error);
     }

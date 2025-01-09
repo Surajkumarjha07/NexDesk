@@ -22,8 +22,13 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
   const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
 
   useEffect(() => {
-    if (shapes.some(shape => shape.modify === true) || !(selectedItem === "shape")) {
-      shapes.forEach(shape => shape.modify = false);
+    if (shapes.some(shape => shape.modify === true) && !(selectedItem === "shape")) {
+      setShapes(prevShapes => 
+        prevShapes.map(shape => ({
+          ...shape,
+          modify: shape.modify === true ? false : true
+        }))
+      )
     }
   }, [selectedItem, shapes])
 

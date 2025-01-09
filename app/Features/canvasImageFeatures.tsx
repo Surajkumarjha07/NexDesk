@@ -29,7 +29,7 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
     const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
 
     useEffect(() => {
-        if (images.some(image => image.modify === true)) {
+        if (images.some(image => image.modify === true) && !(selectedItem === "image")) {
             const updatedArr = images.map(image => ({
                 ...image,
                 modify: false
@@ -38,6 +38,7 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
             dispatch(setImages(updatedArr));
         }
     }, [selectedItem, dispatch, images])
+    console.log("sel: ", selectedItem);
 
     const handleImageSelect = (id: number) => {
         if (functionality === 'arrow') {

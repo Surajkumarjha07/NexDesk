@@ -21,8 +21,13 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
     const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
 
     useEffect(() => {
-        if (notes.some(note => note.modify === true) || !(selectedItem === "note")) {
-            notes.forEach(note => note.modify = false);
+        if (notes.some(note => note.modify === true) && !(selectedItem === "note")) {
+            setNotes(prevNotes => 
+                prevNotes.map(note => ({
+                  ...note,
+                  modify: note.modify === true ? false : true
+                }))
+              )
         }
     }, [selectedItem, notes])
 

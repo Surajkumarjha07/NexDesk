@@ -3,6 +3,7 @@ import Logo from '@/app/components/Logo'
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
+import { toast } from "react-toastify";
 
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
@@ -23,6 +24,40 @@ export default function LogIn() {
 
       if (response.ok) {
         router.push("./pages/Home");
+        toast.success("Congrats! You are Logged In", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'success',
+          position: 'top-center',
+        })
+      }
+      switch (response.status) {
+        case 404:
+          toast.error("Incorrect Email or password!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+
+        case 400:
+          toast.error("Enter details correctly!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+
+        case 500:
+          toast.error("Internal server error!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
       }
     } catch (error) {
       console.log("Internal Server Error", error);

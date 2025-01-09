@@ -3,6 +3,7 @@ import Logo from '@/app/components/Logo'
 import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
+import { toast } from "react-toastify"
 
 export default function SignUp() {
   const [email, setEmail] = useState<string | null>('');
@@ -18,16 +19,53 @@ export default function SignUp() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({email,name,password}),
+        body: JSON.stringify({ email, name, password }),
         credentials: "include"
       })
 
       if (response.ok) {
-        console.log(response);        
+        console.log(response);
         router.push("/");
+        toast.success("Great! You are Signed Up", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'success',
+          position: 'top-center',
+        })
+      }
+      switch (response.status) {
+        case 409:
+          toast.success("Email already in use!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+
+        case 400:
+          toast.success("Enter details correctly!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+
+        case 500:
+          toast.success("Internal server error!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+
+        default:
+          break;
       }
     } catch (error) {
-      console.log("Internal Server Error", error);      
+      console.log("Internal Server Error", error);
     }
   }
 
@@ -44,20 +82,20 @@ export default function SignUp() {
 
           <p className='text-2xl text-black font-semibold my-4'> Create account </p>
 
-          <input type="email" name="email" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" autoFocus placeholder="Email" onChange={e => setEmail(e.target.value)}/>
+          <input type="email" name="email" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" autoFocus placeholder="Email" onChange={e => setEmail(e.target.value)} />
           <br />
 
-          <input type="text" name="name" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Name" onChange={e => setName(e.target.value)}/>
+          <input type="text" name="name" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Name" onChange={e => setName(e.target.value)} />
           <br />
 
-          <input type="password" name="password" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Password" onChange={e => setPassword(e.target.value)}/>
+          <input type="password" name="password" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Password" onChange={e => setPassword(e.target.value)} />
 
           <p className="text-gray-800 font-medium max-md:text-xs my-6">
             have an account?
             <Link href={'/pages/LogIn'}>
-            <span className="text-blue-600 cursor-pointer ml-2">
-              Log In
-            </span>
+              <span className="text-blue-600 cursor-pointer ml-2">
+                Log In
+              </span>
             </Link>
           </p>
 

@@ -206,7 +206,7 @@ export default function CanvasPage() {
         {
           toggleBox &&
           <>
-            <audio ref={audioRef} src="/sounds/notification.wav" controls autoPlay />
+            <audio ref={audioRef} src="/sounds/notification.wav" autoPlay />
             <div ref={userJoinedBox} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
               <p className='text-gray-600 text-base font-semibold'> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {userJoined} </span> joined into your team </p>
               <button onClick={hideuserJoinedMessage}>
@@ -333,12 +333,15 @@ export default function CanvasPage() {
                 position: "absolute",
                 left: `${input.x}px`,
                 top: `${input.y}px`,
-                minHeight: '3rem',
+                height: "auto",
+                width: "auto",
+                minWidth: "50px",
                 padding: '4px 8px',
                 outline: 'none',
                 backgroundColor: 'transparent',
+                overflow: "hidden"
               }}
-              className={`${textColorMap.get(input.textColor)} ${input.fontFamily} ${input.textAlign} ${input.textSize} ${textBrightnessMap.get(input.textBrightness)} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${functionality === "arrow" ? "cursor-default" : ''} ${input.modify ? "border-2 border-blue-300" : ""} w-fit`}
+              className={`${textColorMap.get(input.textColor)} ${input.fontFamily} ${input.textAlign} ${input.textSize} ${textBrightnessMap.get(input.textBrightness)} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${functionality === "arrow" ? "cursor-default" : ''} ${input.modify ? "border-2 border-blue-300" : ""}`}
               value={input.text}
               autoFocus
               onChange={(e) => settingText(e, input.id)}

@@ -9,6 +9,7 @@ import { setNoteBackgroundColor, setNoteTextBrightness } from '../Redux/slices/n
 import { setShapeColor, setShapeOpacity } from '../Redux/slices/shapes';
 import { setColor, setPencilThickness } from '../Redux/slices/pencil';
 import { setImageBrightness, setImageContrast, setImageSaturation } from '../Redux/slices/images';
+import { Box, Slider } from '@mui/material';
 
 export default function Sidebar() {
     const dispatch = useAppDispatch();
@@ -23,32 +24,40 @@ export default function Sidebar() {
         dispatch(setColor(target.name))
     }
 
-    const handleBrightness = (e: React.ChangeEvent) => {
-        const target = e.target as HTMLInputElement;
-        const value: number = parseInt(target.value) * 5;
-        const PencilValue = parseInt(target.value);
-        dispatch(setTextBrightness(value));
-        dispatch(setNoteTextBrightness(value));
-        dispatch(setShapeOpacity(value));
-        dispatch(setPencilThickness(PencilValue));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleBrightness = (event: Event, value: number | number[], activeThumb: number) => {
+        if (typeof value === "number") {
+            const PencilValue = value;
+            const finalValue = value * 5;
+            dispatch(setTextBrightness(finalValue));
+            dispatch(setNoteTextBrightness(finalValue));
+            dispatch(setShapeOpacity(finalValue));
+            dispatch(setPencilThickness(PencilValue));
+        }
     }
 
-    const handleImgBrightness = (e: React.ChangeEvent) => {
-        const target = e.target as HTMLInputElement;
-        const imgBrightness = parseInt(target.value) * 0.5;
-        dispatch(setImageBrightness(imgBrightness));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleImgBrightness = (event: Event, value: number | number[], activeThumb: number) => {
+        if (typeof value === "number") {
+            const imgBrightness = value * 0.5;
+            dispatch(setImageBrightness(imgBrightness));
+        }
     }
 
-    const handleImgContrast = (e: React.ChangeEvent) => {
-        const target = e.target as HTMLInputElement;
-        const imgContrast = parseInt(target.value) * 0.5;
-        dispatch(setImageContrast(imgContrast));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleImgContrast = (event: Event, value: number | number[], activeThumb: number) => {
+        if (typeof value === "number") {
+            const imgContrast = value * 0.5;
+            dispatch(setImageContrast(imgContrast));
+        }
     }
 
-    const handleImgSaturation = (e: React.ChangeEvent) => {
-        const target = e.target as HTMLInputElement;
-        const imgSaturation = parseInt(target.value) * 50;
-        dispatch(setImageSaturation(imgSaturation));
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleImgSaturation = (event: Event, value: number | number[], activeThumb: number) => {
+        if (typeof value === "number") {
+            const imgSaturation = value * 50;
+            dispatch(setImageSaturation(imgSaturation));
+        }
     }
 
     return (
@@ -79,11 +88,33 @@ export default function Sidebar() {
                     (selectedItem === "image" && functionality === "arrow") ?
                         <div className='mt-4'>
                             <p className='text-gray-600 font-medium text-sm'> Brightness </p>
-                            <input type="range" min={1} max={5} defaultValue={2} name="brightness" className='w-full' onChange={handleImgBrightness} />
+                            <Box sx={{ width: "auto" }}>
+                                <Slider
+                                    aria-label="brightness"
+                                    defaultValue={2}
+                                    name='brightness'
+                                    color="primary"
+                                    min={1}
+                                    max={5}
+                                    onChange={handleImgBrightness}
+                                />
+                            </Box>
                         </div> :
 
                         <div className='mt-4'>
-                            <input type="range" min={1} max={20} defaultValue={functionality === 'pencil' || functionality === "upRightArrow" ? 5 : 20} name="thickness" className='w-full' onChange={handleBrightness} />
+                            <Box sx={{ width: "auto" }}>
+                                <Slider
+                                    aria-label="thickness"
+                                    defaultValue={
+                                        functionality === 'pencil' || functionality === "upRightArrow" ? 5 : 20
+                                    }
+                                    name='thickness'
+                                    color="primary"
+                                    min={1}
+                                    max={20}
+                                    onChange={handleBrightness}
+                                />
+                            </Box>
                         </div>
                 }
 
@@ -91,7 +122,17 @@ export default function Sidebar() {
                     (selectedItem === "image" && functionality === "arrow") &&
                     <div className='mt-2'>
                         <p className='text-gray-600 font-medium text-sm'> Contrast </p>
-                        <input type="range" min={1} max={5} defaultValue={2} name="contrast" className='w-full' onChange={handleImgContrast} />
+                        <Box sx={{ width: "auto" }}>
+                            <Slider
+                                aria-label="contrast"
+                                defaultValue={2}
+                                name='contrast'
+                                color="primary"
+                                min={1}
+                                max={5}
+                                onChange={handleImgContrast}
+                            />
+                        </Box>
                     </div>
                 }
 
@@ -99,7 +140,17 @@ export default function Sidebar() {
                     (selectedItem === "image" && functionality === "arrow") &&
                     <div className='mt-2'>
                         <p className='text-gray-600 font-medium text-sm'> Saturation </p>
-                        <input type="range" min={1} max={5} defaultValue={2} name="contrast" className='w-full' onChange={handleImgSaturation} />
+                        <Box sx={{ width: "auto" }}>
+                            <Slider
+                                aria-label="saturation"
+                                defaultValue={2}
+                                name='saturation'
+                                color="primary"
+                                min={1}
+                                max={5}
+                                onChange={handleImgSaturation}
+                            />
+                        </Box>
                     </div>
                 }
 
@@ -108,7 +159,7 @@ export default function Sidebar() {
                 {
                     (functionality === "text" || selectedItem === "text") ?
                         <TextBottomComponent /> :
-                        (functionality === "notes" || selectedItem === "note")?
+                        (functionality === "notes" || selectedItem === "note") ?
                             <NotesBottomComponent /> :
                             !(selectedItem === "image") ?
                                 <BottomComponent /> : null

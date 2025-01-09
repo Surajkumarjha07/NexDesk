@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { useAppSelector } from '@/app/Redux/hooks';
+import { toast } from "react-toastify";
 
 export default function UpdateUser() {
   const [newEmail, setNewEmail] = useState<string>('');
@@ -54,12 +55,22 @@ export default function UpdateUser() {
   const UpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!newEmail && !newName && !newPassword) {
-      alert("Please provide at least one field to update.");
+      toast.error("Provide atleast one field to update!", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'error',
+        position: 'top-center',
+      })
       return;
     }
 
     if (!currentPassword) {
-      alert("Please provide your previous password");
+      toast.error("Current password required", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'error',
+        position: 'top-center',
+      })
       return;
     }
 
@@ -79,6 +90,12 @@ export default function UpdateUser() {
       })
 
       if (response.ok) {
+        toast.success("Your credentials are updated!", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'success',
+          position: 'top-center',
+        })
         //signOut ->
         const signOut = await fetch("http://localhost:4000/signOut", {
           method: "POST",
@@ -92,6 +109,27 @@ export default function UpdateUser() {
           window.location.reload();
         }
       }
+
+      switch (response.status) {
+        case 401:
+          toast.error("Password not matched!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+
+        case 500:
+          toast.error("Internal server error!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+      }
+
     } catch (error) {
       console.log("Internal Server Error", error);
     }
@@ -116,10 +154,10 @@ export default function UpdateUser() {
 
           <p className='text-2xl text-black font-semibold my-4'> Update credentials </p>
 
-          <input type="email" name="newEmail" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" autoFocus placeholder="New Email" onChange={e => setNewEmail(e.target.value)} value={newEmail} />
+          <input type="email" name="newEmail" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" autoFocus placeholder="Your Email" onChange={e => setNewEmail(e.target.value)} value={newEmail} />
           <br />
 
-          <input type="text" name="newName" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="New Name" onChange={e => setNewName(e.target.value)} value={newName} />
+          <input type="text" name="newName" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="Your Name" onChange={e => setNewName(e.target.value)} value={newName} />
           <br />
 
           <input type="password" name="newPassword" className="w-96 py-3 outline-none border-b border-gray-400 focus:border-b-2 focus:border-b-blue-400 text-gray-700 placeholder:text-sm" placeholder="New Password" onChange={e => setNewPassword(e.target.value)} value={newPassword} />
