@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import { useAppSelector, useAppDispatch } from '../Redux/hooks';
 import { useSocket } from '../socketContext';
-import { setToggle } from '../Redux/slices/ToggleMessage';
+import { setToggle, setToggleChat, setToggleUsers } from '../Redux/slices/ToggleMessage';
+import CallIcon from '@mui/icons-material/Call';
 
 type message = {
     from: string,
@@ -12,7 +13,7 @@ type message = {
 }
 
 type memberType = {
-    user: string,
+    user: { userEmail: string, username: string },
     color: string
 }
 
@@ -22,30 +23,33 @@ export default function ChatComponent() {
     const socket = useSocket();
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
     const [messageArr, setMessageArr] = useState<message[]>([]);
-    const [membersArr, setMembers] = useState<Set<memberType>>(new Set());
+    const [membersArr, setMembers] = useState<memberType[]>([]);
     const users = useAppSelector(state => state.ToggleMessage.users);
     const chat = useAppSelector(state => state.ToggleMessage.chat);
     const toggle = useAppSelector(state => state.ToggleMessage.toggle);
     const username = useAppSelector(state => state.UserCredential.username);
+    const membersFetched = useRef(false);
+    const userEmail = useAppSelector(state => state.UserCredential.userEmail);
+    const forwardUserDisconnect = useRef(false);
 
     const colors = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
+    const handleMembers = (members: { userEmail: string, username: string }[]) => {
+        setMembers([]);
+        if (Array.isArray(members)) {
+            members.forEach(member => {
+                setMembers((prev) => [
+                    ...prev, { user: member, color: colors[Math.floor(Math.random() * 7)] }
+                ]);
+            })
+        }
+    }
+
     useEffect(() => {
         if (socket) {
-            socket.emit("getMembers", meetingCode);
-
-            const handleMembers = (members: string[]) => {
-                if (Array.isArray(members)) {
-                    setMembers((prev) => {
-                        const updatedSet = new Set(prev);
-                        members.forEach((member) => {
-                            if (!([...updatedSet].some(existingMember => existingMember.user === member))) {
-                                updatedSet.add({ user: member, color: colors[Math.floor(Math.random() * 7)] })
-                            }
-                        });
-                        return updatedSet;
-                    });
-                }
+            if (!membersFetched.current) {
+                socket.emit("getMembers", meetingCode);
+                membersFetched.current = true;
             }
 
             socket.on("fetchedMembers", handleMembers);
@@ -78,6 +82,8 @@ export default function ChatComponent() {
 
     const closeSidebar = () => {
         dispatch(setToggle(false));
+        dispatch(setToggleChat(false));
+        dispatch(setToggleUsers(false));
     }
 
     const sendMessage = () => {
@@ -86,6 +92,40 @@ export default function ChatComponent() {
         }
         setMessage("");
     };
+
+    const endMeeting = () => {
+        if (socket && !forwardUserDisconnect.current) {
+            socket.emit("userDisconnect", { userEmail, username, meetingCode })
+            forwardUserDisconnect.current = true;
+        }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const updatedRoom = (data: any) => {
+        const { updatedRoom } = data;
+
+        if (Array.isArray(updatedRoom)) {
+            setMembers([]);
+            updatedRoom.forEach(member => {
+                setMembers((prev) => [
+                    ...prev, { user: member, color: colors[Math.floor(Math.random() * 7)] }
+                ]);
+            })
+        }
+    }
+
+    useEffect(() => {
+        if (socket) {
+            socket.on("userDisconnected", updatedRoom);
+        }
+
+        return () => {
+            if (socket) {
+                socket.off("userDisconnected", updatedRoom);
+            }
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [socket]);
 
     return (
         <>
@@ -97,12 +137,12 @@ export default function ChatComponent() {
                     </button>
                 </div>
 
-                <div className='w-full h-5/6 overflow-y-scroll flex-grow px-4'>
+                <div className='w-full overflow-y-scroll flex-grow px-4'>
                     {
                         users &&
                         [...membersArr].map(({ user, color }, index) => (
                             <div key={index} className={`my-3 px-3 py-2 rounded-xl w-full ${color}`}>
-                                <p className='text-gray-800 text-xs font-semibold'> {user} </p>
+                                <p className='text-gray-800 text-xs font-semibold'> {user.username} </p>
                             </div>
                         ))
                     }
@@ -119,17 +159,28 @@ export default function ChatComponent() {
                     }
                 </div>
 
-                <div className="flex items-center h-[15%] px-4">
-                    <div className="relative w-full overflow-hidden">
-                        <button className="absolute right-1 top-1/2 transform -translate-y-1/2 hover:bg-gray-300 w-12 h-4/5 rounded-full" onClick={sendMessage}>
-                            <SendIcon className={message ? "text-blue-600" : "text-gray-800"} />
-                        </button>
-                        <input
-                            type="text" name='message' value={message}
-                            className={`${(users) ? 'hidden' : 'visible'} w-full h-12 pr-14 pl-6 outline-none border-2 border-gray-500 text-black py-2 rounded-full placeholder:text-gray-600 placeholder:font-medium bg-gray-100`}
-                            placeholder="Enter message here" onChange={e => setMessage(e.target.value)}
-                        />
-                    </div>
+                <div className={`flex items-center h-[15%] px-4 ${users && "h-[11%] rounded-t-xl bg-rose-200"}`}>
+                    {
+                        !users &&
+                        <div className="relative w-full h-fit overflow-hidden">
+                            <button className="absolute right-1 top-1/2 transform -translate-y-1/2 hover:bg-gray-300 w-12 h-4/5 rounded-full" onClick={sendMessage}>
+                                <SendIcon className={message ? "text-blue-600" : "text-gray-800"} />
+                            </button>
+                            <input
+                                type="text" name='message' value={message}
+                                className={`w-full h-12 pr-14 pl-6 outline-none border-2 border-gray-500 text-black py-2 rounded-full placeholder:text-gray-600 placeholder:font-medium bg-gray-100`}
+                                placeholder="Enter message here" onChange={e => setMessage(e.target.value)}
+                            />
+                        </div>
+                    }
+
+                    {
+                        users &&
+                        <div className="relative -top-1/3 mx-auto flex justify-center items-center w-14 h-14 overflow-hidden bg-red-600 rounded-full outline outline-4 outline-white cursor-pointer" onClick={endMeeting}>
+                            <CallIcon className='pointer-events-none' />
+                        </div>
+                    }
+
                 </div>
 
             </aside>

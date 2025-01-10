@@ -38,7 +38,6 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
             dispatch(setImages(updatedArr));
         }
     }, [selectedItem, dispatch, images])
-    console.log("sel: ", selectedItem);
 
     const handleImageSelect = (id: number) => {
         if (functionality === 'arrow') {

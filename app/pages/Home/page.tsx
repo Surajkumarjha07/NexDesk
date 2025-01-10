@@ -16,6 +16,7 @@ export default function HomePage() {
     const [visibleContent, setVisibleContent] = useState<boolean>(false);
     const divRef = useRef<HTMLDivElement>(null);
     const username = useAppSelector(state => state.UserCredential.username);
+    const userEmail = useAppSelector(state => state.UserCredential.userEmail);
 
     useEffect(() => {
         const cookies = document.cookie.split("; ");
@@ -63,11 +64,10 @@ export default function HomePage() {
                     router.push(`./CanvasPage/${meetingCode.trim()}`)
                 }
             })
-            
+
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             socket.on("roomJoined", (data: any) => {
-                const { username, meetingCode } = data;
-                console.log("you are joined the room: ", username, meetingCode);
+                const { meetingCode } = data;
                 router.push(`./CanvasPage/${meetingCode.trim()}`);
             })
         }
@@ -75,13 +75,13 @@ export default function HomePage() {
 
     const newMeeting = () => {
         if (socket && username) {
-            socket.emit('newMeeting', username)
+            socket.emit('newMeeting', username, userEmail)
         }
     };
 
     const handleJoinRoom = () => {
         if (socket && meetingCode && username) {
-            socket.emit("joinRoom", username, meetingCode);
+            socket.emit("joinRoom", username, userEmail, meetingCode);
         }
     };
 

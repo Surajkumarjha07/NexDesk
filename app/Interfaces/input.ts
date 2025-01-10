@@ -9,8 +9,6 @@ type input = {
     textBrightness: number,
     modify: boolean,
     textAlign: string,
-    // startPoint: number,
-    // endPoint: number
   }
 
   export default input;

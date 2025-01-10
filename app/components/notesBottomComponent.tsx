@@ -1,25 +1,25 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import Image from 'next/image'
 import { useAppDispatch } from '../Redux/hooks'
 import { setNoteTextSize, setNoteTextAlign } from '../Redux/slices/noteFeatures';
 import { setNoteFontFamily } from '../Redux/slices/noteFeatures';
 
 export default function NotesBottomComponent() {
-    const [toggle, setToggle] = useState(false)
+    // const [toggle, setToggle] = useState(false)
     const dispatch = useAppDispatch();
 
-    useEffect(() => {
-        document.addEventListener("click", (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (target.classList.contains("box")) {
-                setToggle(toggle => !toggle);
-            }
-            else {
-                setToggle(false)
-            }
-        })
-    },[])
+    // useEffect(() => {
+    //     document.addEventListener("click", (e: MouseEvent) => {
+    //         const target = e.target as HTMLElement;
+    //         if (target.classList.contains("box") || target.classList.contains("box2") || target.classList.contains("f1") || target.classList.contains("f2") || target.classList.contains("f3")) {
+    //             setToggle(true);
+    //         }
+    //         else {
+    //             setToggle(false)
+    //         }
+    //     })
+    // },[])
 
     function TextSize(e: React.MouseEvent) {
         const target = e.target as HTMLButtonElement;
@@ -65,25 +65,25 @@ export default function NotesBottomComponent() {
                     <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md' name='text-end' onClick={textAlign}>
                         <Image src={'/Images/alignRight.png'} alt='right' height={100} width={100} className='w-6 h-6 pointer-events-none' />
                     </button>
-                    <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md box'>
+                    {/* <button className='box text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'>
                         <Image src={'/Images/upArrow.png'} alt='right' height={100} width={100} className='w-4 h-4 pointer-events-none' />
-                    </button>
+                    </button> */}
                 </div>
-
+{/* 
                 {
                     toggle &&
-                    <div className='flex justify-center items-center gap-8 bg-white shadow-md py-2 px-3 absolute bottom-0'>
-                        <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'>
-                            <Image src={'/Images/alignTop.png'} alt='right' height={100} width={100} className='w-6 h-6' />
+                    <div className='box2 flex justify-center items-center gap-8 bg-white shadow-md py-2 px-3 absolute bottom-0'>
+                        <button className='f1 text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'>
+                            <Image src={'/Images/alignTop.png'} alt='right' height={100} width={100} className='w-6 h-6 pointer-events-none' />
                         </button>
-                        <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'>
-                            <Image src={'/Images/midAlign.png'} alt='right' height={100} width={100} className='w-6 h-6' />
+                        <button className='f2 text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'>
+                            <Image src={'/Images/midAlign.png'} alt='right' height={100} width={100} className='w-6 h-6 pointer-events-none' />
                         </button>
-                        <button className='text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'>
-                            <Image src={'/Images/alignBottom.png'} alt='right' height={100} width={100} className='w-6 h-6' />
+                        <button className='f3 text-2xl text-black font-semibold hover:bg-gray-200 py-1 px-2 rounded-md'>
+                            <Image src={'/Images/alignBottom.png'} alt='right' height={100} width={100} className='w-6 h-6 pointer-events-none' />
                         </button>
                     </div>
-                }
+                } */}
             </div>
         </>
     )

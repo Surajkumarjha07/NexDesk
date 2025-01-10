@@ -286,13 +286,14 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
     }
   }
 
-  const settingText = (e: React.ChangeEvent, id: number) => {
+  const settingText = (e: React.ChangeEvent<HTMLInputElement> | React.MouseEvent<HTMLInputElement>, id: number) => {
     const target = e.target as HTMLInputElement;
+
     const updatedInputs = inputs.map(input => (
       input.id === id ?
-        { ...input, text: target.value } : input
-    ))
-    setInputs(updatedInputs)
+        { ...input, text: input.text.length < 18 ? target.value : input.text } : input
+    ));
+    setInputs(updatedInputs);
     if (socket) {
       socket.emit("setInputText", { meetingCode, id, value: target.value });
     }

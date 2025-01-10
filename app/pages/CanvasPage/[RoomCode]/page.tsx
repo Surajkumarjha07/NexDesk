@@ -2,7 +2,7 @@
 import Sidebar from '@/app/components/Sidebar';
 import React, { useEffect, useRef, useState } from 'react';
 import BottomBar from '@/app/components/BottomBar';
-import { useAppSelector } from '@/app/Redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/Redux/hooks';
 import StickyNotesFeatures from '@/app/Features/stickyNotesFeatures';
 import { bgColorMap, borderColorMap, noteTextBrightnessMap, textBrightnessMap, textColorMap } from '../../../ObjectMapping';
 import UserFeatures from '@/app/components/UserFeatures';
@@ -13,9 +13,10 @@ import { useSocket } from '@/app/socketContext';
 import { useRouter } from 'next/navigation';
 import CanvasShapeFeatures from '@/app/Features/canvasShapeFeature';
 import CanvasTextFeatures from '@/app/Features/canvasTextFeatures';
-import CanvasArrowFeature from '@/app/Features/canvasArrowFeatures';
+// import CanvasArrowFeature from '@/app/Features/canvasArrowFeatures';
 // import CanvasPencilFeature from '@/app/Features/canvasPencilFeature';
 import CanvasImageFeatures from '@/app/Features/canvasImageFeatures';
+import { setDisconnectedUser } from '@/app/Redux/slices/user';
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -42,8 +43,12 @@ export default function CanvasPage() {
   const [userJoined, setUserJoined] = useState<string>("");
   const socket = useSocket();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const userDisconnectRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
   const [visibleContent, setVisibleContent] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
+  const [toggleDisconnectBox, setToggleDisconnectBox] = useState<boolean>(false);
+  const disconnectedUser = useAppSelector(state => state.UserCredential.disconnectedUser);
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
@@ -108,7 +113,7 @@ export default function CanvasPage() {
     opacity
   })
 
-  const { arrows, CTX } = CanvasArrowFeature({ canvasRef })
+  // const { arrows, CTX } = CanvasArrowFeature({ canvasRef })
 
   // const { lines, LineCTX } = CanvasPencilFeature({ canvasRef })
 
@@ -140,7 +145,6 @@ export default function CanvasPage() {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       socket.on("newUserJoined", (data: any) => {
         const { username } = data;
-        console.log("new user");
         setToggleBox(true);
         setUserJoined(username);
         if (audioRef.current) {
@@ -153,30 +157,22 @@ export default function CanvasPage() {
     }
   }, [socket]);
 
-  useEffect(() => {
-    const canvas = CTX.current;
-    arrows.forEach(arrow => {
-      if (canvas) {
-        canvas.beginPath();
-        canvas.moveTo(arrow.startX, arrow.startY);
-        canvas.lineTo(arrow.endX, arrow.endY);
-        canvas.lineWidth = arrow.lineWidth;
-        canvas.strokeStyle = arrow.lineColor!;
-        canvas.stroke();
-      }
-    });
+  // useEffect(() => {
+  //   const canvas = CTX.current;
+  //   arrows.forEach(arrow => {
+  //     if (canvas) {
+  //       canvas.beginPath();
+  //       canvas.moveTo(arrow.startX, arrow.startY);
+  //       canvas.lineTo(arrow.endX, arrow.endY);
+  //       canvas.lineWidth = arrow.lineWidth;
+  //       canvas.strokeStyle = arrow.lineColor!;
+  //       canvas.stroke();
+  //     }
+  //   });
 
-    const handleErase = (e: React.MouseEvent | MouseEvent) => {
-      const rect = canvasRef.current?.getBoundingClientRect();
-      const mouseX = e.clientX - rect!.left;
-      const mouseY = e.clientY - rect!.top;
+  //   canvasRef.current?.addEventListener("mousemove", (e) => handleErase(e));
 
-      console.log("x: ", mouseX, "y: ", mouseY);
-    }
-
-    canvasRef.current?.addEventListener("mousemove", (e) => handleErase(e));
-
-  }, [arrows, CTX, functionality]);
+  // }, [arrows, CTX, functionality]);
 
   // useEffect(() => {
   //   const canvas = LineCTX.current;
@@ -191,6 +187,35 @@ export default function CanvasPage() {
   //     }
   //   })
   // }, [lines, LineCTX, functionality])
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const handleUserDisconnected = (data: any) => {
+    const { username } = data;
+    dispatch(setDisconnectedUser(username));
+    setToggleDisconnectBox(true);
+    setTimeout(() => {
+      setToggleDisconnectBox(false);
+    }, 5000);
+  }
+
+  const handleURDisconnected = () => {
+    router.push("../Home");
+  }
+
+  useEffect(() => {
+    if (socket) {
+      socket.on("userDisconnected", handleUserDisconnected);
+      socket.on("urDisconnected", handleURDisconnected);
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("userDisconnected", handleUserDisconnected);
+        socket.off("urDisconnected", handleURDisconnected);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [socket])
 
   return (
     visibleContent &&
@@ -209,6 +234,19 @@ export default function CanvasPage() {
             <audio ref={audioRef} src="/sounds/notification.wav" autoPlay />
             <div ref={userJoinedBox} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
               <p className='text-gray-600 text-base font-semibold'> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {userJoined} </span> joined into your team </p>
+              <button onClick={hideuserJoinedMessage}>
+                <CloseOutlinedIcon className='text-gray-600' />
+              </button>
+            </div>
+          </>
+        }
+
+        {
+          toggleDisconnectBox &&
+          <>
+            <audio ref={audioRef} src="/sounds/notification.wav" autoPlay />
+            <div ref={userDisconnectRef} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
+              <p className='text-gray-600 text-base font-semibold'> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {disconnectedUser} </span> has left the room </p>
               <button onClick={hideuserJoinedMessage}>
                 <CloseOutlinedIcon className='text-gray-600' />
               </button>
@@ -334,14 +372,13 @@ export default function CanvasPage() {
                 left: `${input.x}px`,
                 top: `${input.y}px`,
                 height: "auto",
-                width: "auto",
-                minWidth: "50px",
+                width: `auto`,
                 padding: '4px 8px',
                 outline: 'none',
                 backgroundColor: 'transparent',
-                overflow: "hidden"
               }}
-              className={`${textColorMap.get(input.textColor)} ${input.fontFamily} ${input.textAlign} ${input.textSize} ${textBrightnessMap.get(input.textBrightness)} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${functionality === "arrow" ? "cursor-default" : ''} ${input.modify ? "border-2 border-blue-300" : ""}`}
+
+              className={`rounded-lg ${textColorMap.get(input.textColor)} ${input.fontFamily} ${input.textAlign} ${input.textSize} ${textBrightnessMap.get(input.textBrightness)} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${functionality === "arrow" ? "cursor-default" : ''} ${input.modify ? "border-2 border-blue-500" : "border-2 border-gray-600"}`}
               value={input.text}
               autoFocus
               onChange={(e) => settingText(e, input.id)}
