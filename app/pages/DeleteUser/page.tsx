@@ -74,12 +74,6 @@ export default function DeleteUser() {
       })
 
       if (response.ok) {
-        toast.success("Feels bad to see you go!", {
-          hideProgressBar: true,
-          autoClose: 1500,
-          type: 'success',
-          position: 'top-center',
-        })
         const response = await fetch("http://localhost:4000/signOut", {
           method: "POST",
           headers: {

@@ -90,12 +90,6 @@ export default function UpdateUser() {
       })
 
       if (response.ok) {
-        toast.success("Your credentials are updated!", {
-          hideProgressBar: true,
-          autoClose: 1500,
-          type: 'success',
-          position: 'top-center',
-        })
         //signOut ->
         const signOut = await fetch("http://localhost:4000/signOut", {
           method: "POST",
