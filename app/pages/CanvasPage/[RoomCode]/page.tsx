@@ -49,6 +49,7 @@ export default function CanvasPage() {
   const dispatch = useAppDispatch();
   const [toggleDisconnectBox, setToggleDisconnectBox] = useState<boolean>(false);
   const disconnectedUser = useAppSelector(state => state.UserCredential.disconnectedUser);
+  const [confirmSave, setConfirmSave] = useState(false);
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
@@ -216,6 +217,12 @@ export default function CanvasPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket])
+
+  useEffect(() => {
+    if (functionality === "save") {
+      setConfirmSave(true);
+    }
+  }, [functionality])
 
   return (
     visibleContent &&

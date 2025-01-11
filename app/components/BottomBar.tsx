@@ -16,6 +16,7 @@ import ChangeHistoryOutlinedIcon from '@mui/icons-material/ChangeHistoryOutlined
 import { setEraser } from '../Redux/slices/Eraser';
 import { setImages } from '../Redux/slices/images';
 import { useSocket } from '../socketContext';
+import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
 
 export default function BottomBar() {
     const dispatch = useAppDispatch();
@@ -135,6 +136,10 @@ export default function BottomBar() {
                         <KeyboardArrowUpOutlinedIcon className={functionality !== "upArrow" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
                     </button>
                 </div>
+
+                <button className={functionality === "save" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='save' onClick={handleActive}>
+                    <FolderSpecialRoundedIcon fontSize='large' className={functionality !== "save" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
+                </button>
             </section>
         </>
     )

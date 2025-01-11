@@ -5,6 +5,7 @@ import { useAppSelector, useAppDispatch } from '../Redux/hooks';
 import { useSocket } from '../socketContext';
 import { setToggle, setToggleChat, setToggleUsers } from '../Redux/slices/ToggleMessage';
 import CallIcon from '@mui/icons-material/Call';
+import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 
 type message = {
     from: string,
@@ -26,11 +27,13 @@ export default function ChatComponent() {
     const [membersArr, setMembers] = useState<memberType[]>([]);
     const users = useAppSelector(state => state.ToggleMessage.users);
     const chat = useAppSelector(state => state.ToggleMessage.chat);
+    const saves = useAppSelector(state => state.ToggleMessage.saves);
     const toggle = useAppSelector(state => state.ToggleMessage.toggle);
     const username = useAppSelector(state => state.UserCredential.username);
     const membersFetched = useRef(false);
     const userEmail = useAppSelector(state => state.UserCredential.userEmail);
     const forwardUserDisconnect = useRef(false);
+    const [showOptions, setShowOptions] = useState(false);
 
     const colors = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
@@ -131,13 +134,13 @@ export default function ChatComponent() {
         <>
             <aside className={`${toggle ? 'opacity-100 h-[32rem] z-50' : 'opacity-0 h-0 -z-10'} w-80 bg-white shadow-md shadow-gray-400 absolute top-28 left-5 flex flex-col rounded-2xl overflow-hidden transition-all duration-500`}>
                 <div className='flex justify-between items-center h-[12%] px-4'>
-                    <p className='text-gray-700 font-medium text-xl'> {users ? "People" : "Messages"} </p>
+                    <p className='text-gray-700 font-medium text-xl'> {users ? "People" : saves ? "Saved Meetings" : "Messages"} </p>
                     <button onClick={closeSidebar}>
                         <CloseOutlinedIcon className='text-gray-800' />
                     </button>
                 </div>
 
-                <div className='w-full overflow-y-scroll flex-grow px-4'>
+                <div className='w-full overflow-y-scroll flex-grow px-4 overflow-x-hidden'>
                     {
                         users &&
                         [...membersArr].map(({ user, color }, index) => (
@@ -155,13 +158,35 @@ export default function ChatComponent() {
                                 <p className='text-gray-700 text-[13px] font-semibold mt-1'> {msg} </p>
                             </div>
                         ))
+                    }
 
+                    {
+                        saves &&
+                        <div className='relative'>
+                            <div className={`w-full h-fit flex justify-between items-center rounded-md py-2 px-4 bg-yellow-300`}>
+                                <p className='text-gray-800 text-sm font-semibold'> Meeting Name </p>
+                                <button onClick={() => setShowOptions(option => !option)}>
+                                    <MoreVertRoundedIcon className='text-gray-800 font-semibold pointer-events-none' />
+                                </button>
+                            </div>
+                            {
+                                showOptions &&
+                                <div className='absolute w-fit h-fit top-10 right-0 bg-white rounded-md px-2 py-1 shadow-sm shadow-gray-400'>
+                                    <button className='w-full text-xs font-semibold text-gray-800 block hover:bg-gray-200 px-2 py-1 rounded-md'>
+                                        Open
+                                    </button>
+                                    <button className='w-full text-xs font-semibold text-red-600 hover:bg-red-200 px-2 py-1 rounded-md'>
+                                        Delete
+                                    </button>
+                                </div>
+                            }
+                        </div>
                     }
                 </div>
 
-                <div className={`flex items-center h-[15%] px-4 ${users && "h-[11%] rounded-t-xl bg-rose-200"}`}>
+                <div className={`flex items-center h-[15%] px-4 ${users && "h-[11%] rounded-t-xl bg-rose-200"} ${saves && "h-[3%]"}`}>
                     {
-                        !users &&
+                        chat &&
                         <div className="relative w-full h-fit overflow-hidden">
                             <button className="absolute right-1 top-1/2 transform -translate-y-1/2 hover:bg-gray-300 w-12 h-4/5 rounded-full" onClick={sendMessage}>
                                 <SendIcon className={message ? "text-blue-600" : "text-gray-800"} />
