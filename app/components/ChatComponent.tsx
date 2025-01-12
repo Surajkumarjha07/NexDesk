@@ -130,6 +130,18 @@ export default function ChatComponent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket]);
 
+     useEffect(() => {
+            document.addEventListener("click", (e: MouseEvent) => {
+                const target = e.target as HTMLElement;
+                if (!target.classList.contains("openOption")) {
+                    setShowOptions(false);
+                }
+                else {
+                    setShowOptions(true);
+                }
+            })
+        }, [])
+
     return (
         <>
             <aside className={`${toggle ? 'opacity-100 h-[32rem] z-50' : 'opacity-0 h-0 -z-10'} w-80 bg-white shadow-md shadow-gray-400 absolute top-28 left-5 flex flex-col rounded-2xl overflow-hidden transition-all duration-500`}>
@@ -165,7 +177,7 @@ export default function ChatComponent() {
                         <div className='relative'>
                             <div className={`w-full h-fit flex justify-between items-center rounded-md py-2 px-4 bg-yellow-300`}>
                                 <p className='text-gray-800 text-sm font-semibold'> Meeting Name </p>
-                                <button onClick={() => setShowOptions(option => !option)}>
+                                <button className='openOption'>
                                     <MoreVertRoundedIcon className='text-gray-800 font-semibold pointer-events-none' />
                                 </button>
                             </div>

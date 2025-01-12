@@ -13,10 +13,9 @@ import { useSocket } from '@/app/socketContext';
 import { useRouter } from 'next/navigation';
 import CanvasShapeFeatures from '@/app/Features/canvasShapeFeature';
 import CanvasTextFeatures from '@/app/Features/canvasTextFeatures';
-// import CanvasArrowFeature from '@/app/Features/canvasArrowFeatures';
-// import CanvasPencilFeature from '@/app/Features/canvasPencilFeature';
 import CanvasImageFeatures from '@/app/Features/canvasImageFeatures';
 import { setDisconnectedUser } from '@/app/Redux/slices/user';
+// import Save from '@/app/components/save';
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -49,7 +48,7 @@ export default function CanvasPage() {
   const dispatch = useAppDispatch();
   const [toggleDisconnectBox, setToggleDisconnectBox] = useState<boolean>(false);
   const disconnectedUser = useAppSelector(state => state.UserCredential.disconnectedUser);
-  const [confirmSave, setConfirmSave] = useState(false);
+  // const saveWhiteBoard = useAppSelector(state => state.UserCredential.saveWhiteBoard)
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
@@ -158,37 +157,6 @@ export default function CanvasPage() {
     }
   }, [socket]);
 
-  // useEffect(() => {
-  //   const canvas = CTX.current;
-  //   arrows.forEach(arrow => {
-  //     if (canvas) {
-  //       canvas.beginPath();
-  //       canvas.moveTo(arrow.startX, arrow.startY);
-  //       canvas.lineTo(arrow.endX, arrow.endY);
-  //       canvas.lineWidth = arrow.lineWidth;
-  //       canvas.strokeStyle = arrow.lineColor!;
-  //       canvas.stroke();
-  //     }
-  //   });
-
-  //   canvasRef.current?.addEventListener("mousemove", (e) => handleErase(e));
-
-  // }, [arrows, CTX, functionality]);
-
-  // useEffect(() => {
-  //   const canvas = LineCTX.current;
-  //   lines.forEach(line => {
-  //     if (canvas) {
-  //       canvas.beginPath();
-  //       canvas.moveTo(line.startX, line.startY);
-  //       canvas.lineTo(line.endX, line.endY);
-  //       canvas.lineWidth = line.lineWidth;
-  //       canvas.strokeStyle = line.lineColor;
-  //       canvas.stroke();
-  //     }
-  //   })
-  // }, [lines, LineCTX, functionality])
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const handleUserDisconnected = (data: any) => {
     const { username } = data;
@@ -218,22 +186,24 @@ export default function CanvasPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [socket])
 
-  useEffect(() => {
-    if (functionality === "save") {
-      setConfirmSave(true);
-    }
-  }, [functionality])
-
   return (
     visibleContent &&
     <>
       <section className='relative w-screen h-screen pr-10'>
-        <div ref={messageRef} className='bg-white w-fit h-fit rounded-md absolute top-4 left-1/2 transform -translate-x-1/2 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
+        <div ref={messageRef} className='bg-white w-fit h-fit rounded-md absolute top-4 left-1/2 transform -translate-x-1/2 z-30 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
           <p className='text-gray-600 text-lg font-semibold'> Send this <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {meetingCode} </span> to your team, friends to collaborate </p>
           <button onClick={hideMessage}>
             <CloseOutlinedIcon className='text-gray-600' />
           </button>
         </div>
+
+        {/* {
+          saveWhiteBoard &&
+          <>
+            <div className='absolute top-0 w-screen h-screen bg-gray-400 backdrop-filter bg-opacity-45 z-40' />
+            <Save texts={inputs} shapes={shapes} notes={notes} images={images}/>
+          </>
+        } */}
 
         {
           toggleBox &&

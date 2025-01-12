@@ -16,7 +16,8 @@ import ChangeHistoryOutlinedIcon from '@mui/icons-material/ChangeHistoryOutlined
 import { setEraser } from '../Redux/slices/Eraser';
 import { setImages } from '../Redux/slices/images';
 import { useSocket } from '../socketContext';
-import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
+// import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
+// import { setSaveWhiteBoard } from '../Redux/slices/user';
 
 export default function BottomBar() {
     const dispatch = useAppDispatch();
@@ -65,6 +66,18 @@ export default function BottomBar() {
         }
     }
 
+    // useEffect(() => {
+    //     document.addEventListener("click", (e: MouseEvent) => {
+    //         const target = e.target as HTMLElement;
+    //         if (!target.classList.contains("openSave")) {
+    //             dispatch(setSaveWhiteBoard(false));
+    //         }
+    //         else {
+    //             dispatch(setSaveWhiteBoard(true));
+    //         }
+    //     })
+    // }, [])
+
     useEffect(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleImageDrawed = (data: any) => {
@@ -96,9 +109,6 @@ export default function BottomBar() {
                 <button className={functionality === "hand" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='hand' onClick={handleActive}>
                     <BackHandOutlinedIcon className={functionality !== "hand" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
                 </button>
-                {/* <button className={functionality === "pencil" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='pencil' onClick={handleActive}>
-                    <CreateOutlinedIcon className={functionality !== "pencil" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
-                </button> */}
                 <button className={functionality === "eraser" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='eraser' onClick={handleActive}>
                     {
                         functionality === "eraser" ?
@@ -106,9 +116,6 @@ export default function BottomBar() {
                             <Image src={'/Images/eraser.png'} alt='Eraser' height={100} width={100} className='w-6 h-6 pointer-events-none' />
                     }
                 </button>
-                {/* <button className={functionality === "upRightArrow" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='upRightArrow' onClick={handleActive}>
-                    <ArrowOutwardOutlinedIcon className={functionality !== "upRightArrow" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
-                </button> */}
                 <button className={functionality === "text" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='text' onClick={handleActive}>
                     <FormatItalicOutlinedIcon className={functionality !== "text" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
                 </button>
@@ -137,9 +144,9 @@ export default function BottomBar() {
                     </button>
                 </div>
 
-                <button className={functionality === "save" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='save' onClick={handleActive}>
+                {/* <button className={`openSave p-2 rounded-md ${functionality === "save" ? 'bg-blue-500' : 'hover:bg-blue-200'}`} name='save' onClick={handleActive}>
                     <FolderSpecialRoundedIcon fontSize='large' className={functionality !== "save" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
-                </button>
+                </button> */}
             </section>
         </>
     )

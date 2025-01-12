@@ -3,7 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
     userEmail: "",
     username: "",
-    disconnectedUser: ""
+    disconnectedUser: "",
+    saveWhiteBoard: false
 }
 
 export const UserSlice = createSlice({
@@ -18,9 +19,13 @@ export const UserSlice = createSlice({
         },
         setDisconnectedUser: (state, action) => {
             state.disconnectedUser = action.payload;
+        },
+        setSaveWhiteBoard: (state, action) => {
+            state.saveWhiteBoard = action.payload;
+            console.log(state.saveWhiteBoard);            
         }
     }
 })
 
-export const { setUserEmail, setUserName, setDisconnectedUser } = UserSlice.actions;
+export const { setUserEmail, setUserName, setDisconnectedUser, setSaveWhiteBoard } = UserSlice.actions;
 export default UserSlice.reducer;
