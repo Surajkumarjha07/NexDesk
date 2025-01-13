@@ -19,6 +19,12 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
   const socket = useSocket();
   const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
   const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+  const openedWhiteboard = useAppSelector(state => state.Whiteboard.openedWhiteboard);
+  const isNewMeeting = useAppSelector(state => state.MeetingCode.meetingCode);
+
+  useEffect(() => {
+    setInputs(openedWhiteboard.texts);
+  }, [openedWhiteboard])
 
   useEffect(() => {
     if (inputs.some(input => input.modify === true) && !(selectedItem === "text")) {
@@ -241,6 +247,11 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
     }
   }, [socket, dispatch, inputs])
 
+  useEffect(() => {
+    if (isNewMeeting) {
+      setInputs([]);
+    }
+  }, [isNewMeeting])
 
   useEffect(() => {
     const handleCanvasClick = (e: MouseEvent) => {

@@ -14,6 +14,10 @@ export const ImageSlice = createSlice({
     reducers: {
         setImages: (state, action: PayloadAction<image | image[]>) => {
             const newImages = Array.isArray(action.payload) ? action.payload : [action.payload];
+            if (newImages.length === 0) {
+                state.images = [];
+                return;
+            }
 
             newImages.forEach(newImage => {
                 const index = state.images.findIndex(image => image.id === newImage.id);

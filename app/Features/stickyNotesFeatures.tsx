@@ -19,15 +19,21 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
     const socket = useSocket();
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
     const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+    const openedWhiteboard = useAppSelector(state => state.Whiteboard.openedWhiteboard);
+    const isNewMeeting = useAppSelector(state => state.MeetingCode.isNewMeeting);
+
+    useEffect(() => {
+        setNotes(openedWhiteboard.notes);
+    }, [openedWhiteboard])
 
     useEffect(() => {
         if (notes.some(note => note.modify === true) && !(selectedItem === "note")) {
-            setNotes(prevNotes => 
+            setNotes(prevNotes =>
                 prevNotes.map(note => ({
-                  ...note,
-                  modify: note.modify === true ? false : true
+                    ...note,
+                    modify: note.modify === true ? false : true
                 }))
-              )
+            )
         }
     }, [selectedItem, notes])
 
@@ -234,6 +240,12 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
             }
         }
     }, [socket, dispatch, notes])
+
+    useEffect(() => {
+        if (isNewMeeting) {
+            setNotes([]);
+        }
+    }, [isNewMeeting])
 
     useEffect(() => {
         const handleCanvasClick = (e: MouseEvent) => {

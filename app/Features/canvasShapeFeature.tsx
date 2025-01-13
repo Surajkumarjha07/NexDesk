@@ -20,10 +20,16 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
   const socket = useSocket();
   const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
   const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+  const openedWhiteboard = useAppSelector(state => state.Whiteboard.openedWhiteboard);
+  const isNewMeeting = useAppSelector(state => state.MeetingCode.isNewMeeting);
+
+  useEffect(() => {
+    setShapes(openedWhiteboard.shapes);
+  }, [openedWhiteboard])
 
   useEffect(() => {
     if (shapes.some(shape => shape.modify === true) && !(selectedItem === "shape")) {
-      setShapes(prevShapes => 
+      setShapes(prevShapes =>
         prevShapes.map(shape => ({
           ...shape,
           modify: shape.modify === true ? false : true
@@ -289,6 +295,12 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
       }
     }
   }, [socket, dispatch, shapes])
+
+  useEffect(() => {
+    if (isNewMeeting) {
+      setShapes([]);
+    }
+  }, [isNewMeeting])
 
   useEffect(() => {
     const handleCanvasClick = (e: MouseEvent) => {

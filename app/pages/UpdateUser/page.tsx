@@ -114,6 +114,15 @@ export default function UpdateUser() {
           })
           break;
 
+        case 410:
+          toast.error("User not authorized!", {
+            hideProgressBar: true,
+            autoClose: 1500,
+            type: 'error',
+            position: 'top-center',
+          })
+          break;
+
         case 500:
           toast.error("Internal server error!", {
             hideProgressBar: true,

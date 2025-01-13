@@ -5,7 +5,7 @@ import DashboardCustomizeOutlinedIcon from '@mui/icons-material/DashboardCustomi
 import { useRouter } from 'next/navigation';
 import { useSocket } from '@/app/socketContext';
 import { useAppDispatch, useAppSelector } from '@/app/Redux/hooks';
-import { setMeetingCode } from '@/app/Redux/slices/meetingCode';
+import { setIsNewMeeting, setMeetingCode } from '@/app/Redux/slices/meetingCode';
 import { motion } from "framer-motion"
 
 export default function HomePage() {
@@ -22,6 +22,7 @@ export default function HomePage() {
         const cookies = document.cookie.split("; ");
         const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
         const mainCookie = cookie ? cookie.split("=")[1] : null;
+        dispatch(setMeetingCode(""));
 
         const authorized = async () => {
             if (!mainCookie) {
@@ -52,7 +53,7 @@ export default function HomePage() {
         };
 
         authorized();
-    }, [router]);
+    }, [router, dispatch]);
 
     useEffect(() => {
         if (socket) {
@@ -76,12 +77,14 @@ export default function HomePage() {
     const newMeeting = () => {
         if (socket && username) {
             socket.emit('newMeeting', username, userEmail)
+            dispatch(setIsNewMeeting(true));
         }
     };
 
     const handleJoinRoom = () => {
         if (socket && meetingCode && username) {
             socket.emit("joinRoom", username, userEmail, meetingCode);
+            dispatch(setIsNewMeeting(true));
         }
     };
 

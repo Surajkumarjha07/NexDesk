@@ -10,6 +10,7 @@ import MeetingCodeReducer from './slices/meetingCode';
 import SelectedItemReducer from "./slices/selectedItem";
 import ToggleMessageReducer from "./slices/ToggleMessage";
 import UserCredentialReducer from "./slices/user";
+import WhiteboardReducer from "./slices/whiteboard";
 
 export const store = configureStore({
     reducer: {
@@ -23,7 +24,8 @@ export const store = configureStore({
         MeetingCode: MeetingCodeReducer,
         SelectedItem: SelectedItemReducer,
         ToggleMessage: ToggleMessageReducer,
-        UserCredential: UserCredentialReducer
+        UserCredential: UserCredentialReducer,
+        Whiteboard: WhiteboardReducer
     }
 });
 

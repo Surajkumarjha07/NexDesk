@@ -3,9 +3,8 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import SendIcon from '@mui/icons-material/Send';
 import { useAppSelector, useAppDispatch } from '../Redux/hooks';
 import { useSocket } from '../socketContext';
-import { setToggle, setToggleChat, setToggleUsers } from '../Redux/slices/ToggleMessage';
+import { setToggle, setToggleChat, setToggleSaves, setToggleUsers } from '../Redux/slices/ToggleMessage';
 import CallIcon from '@mui/icons-material/Call';
-import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 
 type message = {
     from: string,
@@ -25,6 +24,8 @@ export default function ChatComponent() {
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
     const [messageArr, setMessageArr] = useState<message[]>([]);
     const [membersArr, setMembers] = useState<memberType[]>([]);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const [whiteboards, setWhiteboards] = useState<any[]>([]);
     const users = useAppSelector(state => state.ToggleMessage.users);
     const chat = useAppSelector(state => state.ToggleMessage.chat);
     const saves = useAppSelector(state => state.ToggleMessage.saves);
@@ -33,7 +34,11 @@ export default function ChatComponent() {
     const membersFetched = useRef(false);
     const userEmail = useAppSelector(state => state.UserCredential.userEmail);
     const forwardUserDisconnect = useRef(false);
-    const [showOptions, setShowOptions] = useState(false);
+    const cookies = document.cookie.split(";");
+    const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
+    const cookie = targetCookie ? targetCookie.split("=")[1] : null;
+    const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
+    const [color, setColor] = useState("")
 
     const colors = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
@@ -87,6 +92,7 @@ export default function ChatComponent() {
         dispatch(setToggle(false));
         dispatch(setToggleChat(false));
         dispatch(setToggleUsers(false));
+        dispatch(setToggleSaves(false));
     }
 
     const sendMessage = () => {
@@ -130,17 +136,32 @@ export default function ChatComponent() {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [socket]);
 
-     useEffect(() => {
-            document.addEventListener("click", (e: MouseEvent) => {
-                const target = e.target as HTMLElement;
-                if (!target.classList.contains("openOption")) {
-                    setShowOptions(false);
-                }
-                else {
-                    setShowOptions(true);
-                }
+    const getWhiteboards = async () => {
+        try {
+            const response = await fetch("http://localhost:4000/getWhiteboards", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${cookie}`
+                },
+                credentials: "include"
             })
-        }, [])
+
+            if (response.ok) {
+                const res = await response.json();
+                setWhiteboards(res.whiteboards)
+            }
+
+        } catch (error) {
+            console.error("error: ", error);
+        }
+    }
+
+    useEffect(() => {
+        getWhiteboards();
+        setColor(colors[Math.floor(Math.random() * 7)]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [confirmSaveWhiteboard])
 
     return (
         <>
@@ -155,7 +176,7 @@ export default function ChatComponent() {
                 <div className='w-full overflow-y-scroll flex-grow px-4 overflow-x-hidden'>
                     {
                         users &&
-                        [...membersArr].map(({ user, color }, index) => (
+                        membersArr.map(({ user, color }, index) => (
                             <div key={index} className={`my-3 px-3 py-2 rounded-xl w-full ${color}`}>
                                 <p className='text-gray-800 text-xs font-semibold'> {user.username} </p>
                             </div>
@@ -174,25 +195,11 @@ export default function ChatComponent() {
 
                     {
                         saves &&
-                        <div className='relative'>
-                            <div className={`w-full h-fit flex justify-between items-center rounded-md py-2 px-4 bg-yellow-300`}>
-                                <p className='text-gray-800 text-sm font-semibold'> Meeting Name </p>
-                                <button className='openOption'>
-                                    <MoreVertRoundedIcon className='text-gray-800 font-semibold pointer-events-none' />
-                                </button>
+                        whiteboards.map((whiteboard, index) => (
+                            <div className={`relative my-2 w-full h-fit flex justify-between items-center rounded-md py-2 px-4 ${color}`} key={index} >
+                                <p className='text-gray-800 text-sm font-semibold'> {whiteboard.meetingCode} </p>
                             </div>
-                            {
-                                showOptions &&
-                                <div className='absolute w-fit h-fit top-10 right-0 bg-white rounded-md px-2 py-1 shadow-sm shadow-gray-400'>
-                                    <button className='w-full text-xs font-semibold text-gray-800 block hover:bg-gray-200 px-2 py-1 rounded-md'>
-                                        Open
-                                    </button>
-                                    <button className='w-full text-xs font-semibold text-red-600 hover:bg-red-200 px-2 py-1 rounded-md'>
-                                        Delete
-                                    </button>
-                                </div>
-                            }
-                        </div>
+                        ))
                     }
                 </div>
 

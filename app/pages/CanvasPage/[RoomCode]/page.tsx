@@ -15,7 +15,7 @@ import CanvasShapeFeatures from '@/app/Features/canvasShapeFeature';
 import CanvasTextFeatures from '@/app/Features/canvasTextFeatures';
 import CanvasImageFeatures from '@/app/Features/canvasImageFeatures';
 import { setDisconnectedUser } from '@/app/Redux/slices/user';
-// import Save from '@/app/components/save';
+import Save from '@/app/components/save';
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -48,7 +48,8 @@ export default function CanvasPage() {
   const dispatch = useAppDispatch();
   const [toggleDisconnectBox, setToggleDisconnectBox] = useState<boolean>(false);
   const disconnectedUser = useAppSelector(state => state.UserCredential.disconnectedUser);
-  // const saveWhiteBoard = useAppSelector(state => state.UserCredential.saveWhiteBoard)
+  const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
+  const isNewMeeting = useAppSelector(state => state.MeetingCode.isNewMeeting);
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
@@ -112,10 +113,6 @@ export default function CanvasPage() {
     borderType,
     opacity
   })
-
-  // const { arrows, CTX } = CanvasArrowFeature({ canvasRef })
-
-  // const { lines, LineCTX } = CanvasPencilFeature({ canvasRef })
 
   const { images, handleImageSelect, handleErase, handleImageClick, handleImageMove, handleImageMoveStop, handleImgHeightResize, handleImgResizeStart, handleImgResizeStop, handleImgWidthResize } = CanvasImageFeatures({ canvasRef })
 
@@ -190,20 +187,24 @@ export default function CanvasPage() {
     visibleContent &&
     <>
       <section className='relative w-screen h-screen pr-10'>
-        <div ref={messageRef} className='bg-white w-fit h-fit rounded-md absolute top-4 left-1/2 transform -translate-x-1/2 z-30 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
-          <p className='text-gray-600 text-lg font-semibold'> Send this <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {meetingCode} </span> to your team, friends to collaborate </p>
-          <button onClick={hideMessage}>
-            <CloseOutlinedIcon className='text-gray-600' />
-          </button>
-        </div>
 
-        {/* {
-          saveWhiteBoard &&
+        {
+          isNewMeeting &&
+          <div ref={messageRef} className='bg-white w-fit h-fit rounded-md absolute top-4 left-1/2 transform -translate-x-1/2 z-30 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
+            <p className='text-gray-600 text-lg font-semibold'> Send this <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {meetingCode} </span> to your team, friends to collaborate </p>
+            <button onClick={hideMessage}>
+              <CloseOutlinedIcon className='text-gray-600' />
+            </button>
+          </div>
+        }
+
+        {
+          confirmSaveWhiteboard &&
           <>
             <div className='absolute top-0 w-screen h-screen bg-gray-400 backdrop-filter bg-opacity-45 z-40' />
-            <Save texts={inputs} shapes={shapes} notes={notes} images={images}/>
+            <Save texts={inputs} shapes={shapes} notes={notes} images={images} />
           </>
-        } */}
+        }
 
         {
           toggleBox &&

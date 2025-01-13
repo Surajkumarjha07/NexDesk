@@ -16,8 +16,8 @@ import ChangeHistoryOutlinedIcon from '@mui/icons-material/ChangeHistoryOutlined
 import { setEraser } from '../Redux/slices/Eraser';
 import { setImages } from '../Redux/slices/images';
 import { useSocket } from '../socketContext';
-// import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
-// import { setSaveWhiteBoard } from '../Redux/slices/user';
+import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
+import { setConfirmSaveWhiteboard } from '../Redux/slices/user';
 
 export default function BottomBar() {
     const dispatch = useAppDispatch();
@@ -33,6 +33,9 @@ export default function BottomBar() {
     const handleActive = (e: React.MouseEvent<HTMLButtonElement>) => {
         const target = e.target as HTMLButtonElement;
         dispatch(setFunctionality(target.name));
+        if (target.name === "save") {
+            dispatch(setConfirmSaveWhiteboard(true));
+        }
         if (target.name === 'eraser') {
             dispatch(setEraser(true));
         }
@@ -65,18 +68,6 @@ export default function BottomBar() {
             reader.readAsDataURL(file);
         }
     }
-
-    // useEffect(() => {
-    //     document.addEventListener("click", (e: MouseEvent) => {
-    //         const target = e.target as HTMLElement;
-    //         if (!target.classList.contains("openSave")) {
-    //             dispatch(setSaveWhiteBoard(false));
-    //         }
-    //         else {
-    //             dispatch(setSaveWhiteBoard(true));
-    //         }
-    //     })
-    // }, [])
 
     useEffect(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -144,9 +135,9 @@ export default function BottomBar() {
                     </button>
                 </div>
 
-                {/* <button className={`openSave p-2 rounded-md ${functionality === "save" ? 'bg-blue-500' : 'hover:bg-blue-200'}`} name='save' onClick={handleActive}>
+                <button className={`openSave p-2 rounded-md ${functionality === "save" ? 'bg-blue-500' : 'hover:bg-blue-200'}`} name='save' onClick={handleActive}>
                     <FolderSpecialRoundedIcon fontSize='large' className={functionality !== "save" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
-                </button> */}
+                </button>
             </section>
         </>
     )

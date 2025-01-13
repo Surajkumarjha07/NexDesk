@@ -4,7 +4,7 @@ const initialState = {
     userEmail: "",
     username: "",
     disconnectedUser: "",
-    saveWhiteBoard: false
+    confirmSaveWhiteboard: false
 }
 
 export const UserSlice = createSlice({
@@ -20,12 +20,11 @@ export const UserSlice = createSlice({
         setDisconnectedUser: (state, action) => {
             state.disconnectedUser = action.payload;
         },
-        setSaveWhiteBoard: (state, action) => {
-            state.saveWhiteBoard = action.payload;
-            console.log(state.saveWhiteBoard);            
+        setConfirmSaveWhiteboard: (state, action) => {
+            state.confirmSaveWhiteboard = action.payload;
         }
     }
 })
 
-export const { setUserEmail, setUserName, setDisconnectedUser, setSaveWhiteBoard } = UserSlice.actions;
+export const { setUserEmail, setUserName, setDisconnectedUser, setConfirmSaveWhiteboard } = UserSlice.actions;
 export default UserSlice.reducer;
