@@ -3,14 +3,18 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {hostname: ""}
+      { hostname: "" }
     ]
   }
 };
 
 module.exports = {
+  output: 'export',
+};
+
+module.exports = {
   async redirects() {
-    return[
+    return [
       {
         source: '/pages/Login',
         destination: '/',
