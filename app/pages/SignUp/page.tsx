@@ -14,7 +14,7 @@ export default function SignUp() {
   const SignUpUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:4000/signUp", {
+      const response = await fetch("https://nexdesk-backend.onrender.com/signUp", {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"

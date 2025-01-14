@@ -36,7 +36,7 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
                 });
                 return;
             }
-            const response = await fetch("http://localhost:4000/saveWhiteBoard", {
+            const response = await fetch("https://nexdesk-backend.onrender.com/saveWhiteBoard", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",

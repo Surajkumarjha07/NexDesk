@@ -139,7 +139,7 @@ export default function ChatComponent() {
 
     const getWhiteboards = async () => {
         try {
-            const response = await fetch("http://localhost:4000/getWhiteboards", {
+            const response = await fetch("https://nexdesk-backend.onrender.com/getWhiteboards", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
