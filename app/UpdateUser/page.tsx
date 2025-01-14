@@ -173,7 +173,7 @@ export default function UpdateUser() {
 
           <p className="text-gray-800 font-medium max-md:text-xs my-6">
             Don&apos;t want to update? go to
-            <Link href={'/pages/LogIn'}>
+            <Link href={'/LogIn'}>
               <span className="text-blue-600 cursor-pointer ml-2">
                 Home
               </span>

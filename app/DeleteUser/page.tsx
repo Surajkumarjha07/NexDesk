@@ -134,7 +134,7 @@ export default function DeleteUser() {
 
           <p className="text-gray-800 font-medium max-md:text-xs my-6">
             Change your mind? go to
-            <Link href={'/pages/Home'}>
+            <Link href={'/Home'}>
               <span className="text-blue-600 cursor-pointer ml-2">
                 Home!
               </span>

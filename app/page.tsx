@@ -1,6 +1,6 @@
 "use client"
 import { useRouter } from "next/navigation";
-import LogIn from "./pages/LogIn/page";
+import LogIn from "./LogIn/page";
 import { useEffect, useState } from "react";
 
 export default function Home() {
@@ -34,7 +34,7 @@ export default function Home() {
         }
         else {
           setVisibleContent(false);
-          router.push("/pages/Home");
+          router.push("/Home");
         }
       } catch (error) {
         console.log("error: ", error);

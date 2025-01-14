@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import BottomBar from '@/app/components/BottomBar';
 import { useAppDispatch, useAppSelector } from '@/app/Redux/hooks';
 import StickyNotesFeatures from '@/app/Features/stickyNotesFeatures';
-import { bgColorMap, borderColorMap, noteTextBrightnessMap, textBrightnessMap, textColorMap } from '../../../ObjectMapping';
+import { bgColorMap, borderColorMap, noteTextBrightnessMap, textBrightnessMap, textColorMap } from '../../ObjectMapping';
 import UserFeatures from '@/app/components/UserFeatures';
 import ChatComponent from '@/app/components/ChatComponent';
 import Image from 'next/image';
