@@ -23,7 +23,12 @@ export default function HomePage() {
     useEffect(() => {
         const cookies = document.cookie.split("; ");
         const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
-        const mainCookie = cookie ? cookie.split("=")[1] : null;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let mainCookie: any;
+        if (cookie) {
+            mainCookie = cookie.split("=")[1];
+        }
+
         dispatch(setMeetingCode(""));
         dispatch(setToggle(false));
 

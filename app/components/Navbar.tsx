@@ -26,7 +26,7 @@ export default function Navbar() {
     const [showOptions, setShowOptions] = useState(false);
     const cookies = document.cookie.split(";");
     const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
-    const cookie = targetCookie ? targetCookie.split("=")[1] : null;
+    const cookie = targetCookie && targetCookie.split("=")[1];
     const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [whiteboards, setWhiteboards] = useState<any[]>([]);
@@ -41,6 +41,19 @@ export default function Navbar() {
     const colors2 = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
     useEffect(() => {
+        if (cookie) {
+            try {
+                const payload = JSON.parse(atob(cookie.split(".")[1]));
+
+                if (payload) {
+                    dispatch(setUserEmail(payload.email));
+                    dispatch(setUserName(payload.name));
+                }
+            } catch (error) {
+                console.error("Error parsing the cookie: ", error);
+            }
+        }
+
         const time = nowTime.toLocaleString('en-US', {
             hour: 'numeric',
             minute: 'numeric',
@@ -48,15 +61,8 @@ export default function Navbar() {
             day: 'numeric',
             weekday: 'short',
             month: 'short',
-        })
+        });
         setTime(time);
-        const cookies = document.cookie.split(";");
-        const targetCookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
-        const cookie = targetCookie ? targetCookie.split("=")[1] : null;
-        const payload = JSON.parse(atob(cookie!.split(".")[1]));
-
-        dispatch(setUserEmail(payload.email));
-        dispatch(setUserName(payload.name));
 
         setColor(colors[Math.floor(Math.random() * colors.length)]);
         setColor2(colors2[Math.floor(Math.random() * colors2.length)]);
@@ -66,9 +72,14 @@ export default function Navbar() {
             if (!target.classList.contains("box") && !target.classList.contains("box2") && !target.classList.contains("box3") && !target.classList.contains("box4") && !target.classList.contains("emailText") && !target.classList.contains("signOut")) {
                 setVisible(false);
             }
-        })
+        });
+
+        return () => {
+            document.removeEventListener("click", () => { });
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+    }, [cookie, dispatch]);
+
 
     const handleBoxVisible = () => {
         setVisible(!visible);
