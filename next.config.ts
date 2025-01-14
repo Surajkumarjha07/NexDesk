@@ -16,12 +16,12 @@ module.exports = {
   async redirects() {
     return [
       {
-        source: '/pages/Login',
+        source: '/Login',
         destination: '/',
         permanent: true,
       },
       {
-        source: "/pages/errorPage",
+        source: "/errorPage",
         destination: "/",
         permanent: true
       }

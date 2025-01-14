@@ -4,7 +4,7 @@ import { SocketProvider } from "./socketContext";
 import Background from "./components/Background";
 import { Provider } from "react-redux";
 import { store } from "./Redux/store";
-import ErrorPage from "./pages/errorPage/page";
+import ErrorPage from "./errorPage/page";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
