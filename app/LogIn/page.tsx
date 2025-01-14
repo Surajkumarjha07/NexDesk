@@ -1,6 +1,6 @@
 "use client"
 import Logo from '@/app/components/Logo'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
@@ -9,17 +9,6 @@ export default function LogIn() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
-  const cookies = document.cookie.split("; ");
-  const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let mainCookie: any;
-  if (cookie) {
-    mainCookie = cookie.split("=")[1];
-  }
-
-  useEffect(() => {
-    router.push("/Home")
-  }, [mainCookie])
 
   const LogInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -34,12 +23,15 @@ export default function LogIn() {
       })
 
       if (response.ok) {
+        const res = await response.json();
+        console.log(res);
         toast.success("Congrats! You are Logged In", {
           hideProgressBar: true,
           autoClose: 1500,
           type: 'success',
           position: 'top-center',
         })
+        router.push("/Home");
       }
       switch (response.status) {
         case 404:
