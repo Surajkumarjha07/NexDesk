@@ -4,12 +4,12 @@ import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import note from '../Interfaces/note';
 import { setSelectedItem } from '../Redux/slices/selectedItem';
 import { useSocket } from '../socketContext';
+import { setNoteBackgroundColor, setNoteFontFamily, setNoteTextAlign, setNoteTextBrightness, setNoteTextSize } from '../Redux/slices/noteFeatures';
 
 export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, noteTextAlign }: stickyNotesFeature) {
     const functionality = useAppSelector(state => state.Functionality.functionality);
     const [notes, setNotes] = useState<note[]>([]);
     const isMoving = useRef(false);
-    const notesId = useRef(0);
     const XPos = useRef(0);
     const YPos = useRef(0);
     const isEraserOpen = useAppSelector(state => state.Eraser.isEraserOpen);
@@ -19,6 +19,24 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
     const dispatch = useAppDispatch();
     const socket = useSocket();
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
+    const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+    const openedWhiteboard = useAppSelector(state => state.Whiteboard.openedWhiteboard);
+    const isNewMeeting = useAppSelector(state => state.MeetingCode.isNewMeeting);
+
+    useEffect(() => {
+        setNotes(openedWhiteboard.notes);
+    }, [openedWhiteboard])
+
+    useEffect(() => {
+        if (notes.some(note => note.modify === true) && !(selectedItem === "note")) {
+            setNotes(prevNotes =>
+                prevNotes.map(note => ({
+                    ...note,
+                    modify: note.modify === true ? false : true
+                }))
+            )
+        }
+    }, [selectedItem, notes])
 
     const handleModify = (id: number) => {
         if (functionality === 'arrow') {
@@ -38,6 +56,11 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
             )
             isModified.current = true;
             dispatch(setSelectedItem("note"))
+            dispatch(setNoteTextSize(note?.noteTextSize));
+            dispatch(setNoteFontFamily(note?.noteFontFamily));
+            dispatch(setNoteBackgroundColor(note?.noteBackgroundColor));
+            dispatch(setNoteTextBrightness(note?.noteTextBrightness));
+            dispatch(setNoteTextAlign(note?.noteTextAlign));
             if (socket) {
                 socket.emit("noteSelect", { meetingCode, id })
             }
@@ -45,7 +68,7 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
     }
 
     const handleNoteModify = () => {
-        if (isModified.current) {
+        if (isModified.current && selectedItem === "note") {
             setNotes(prevNotes =>
                 prevNotes.map(note =>
                     (note.id === noteId.current && note.modify) ?
@@ -73,20 +96,20 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
 
     const handleNotesEraser = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
         if (isEraserOpen) {
-            let updatedNotes = notes.filter(shape => shape.id !== id);
+            const updatedNotes = notes.filter(shape => shape.id !== id);
             setNotes(updatedNotes);
             if (socket) {
                 socket.emit("noteErase", { meetingCode, id });
             }
         }
 
-    }, [isEraserOpen, notes])
+    }, [isEraserOpen, notes, meetingCode, socket])
 
 
     const handleNotesClick = useCallback((e: MouseEvent | React.MouseEvent, id: number) => {
         if (functionality === 'hand') {
-            notesId.current = id;
-            let note = notes.find(note => note.id === id);
+            noteId.current = id;
+            const note = notes.find(note => note.id === id);
             if (note) {
                 XPos.current = e.clientX - note.x;
                 YPos.current = e.clientY - note.y;
@@ -97,11 +120,11 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
 
     const handleNotesMove = useCallback((e: MouseEvent | React.MouseEvent) => {
         if (isMoving.current) {
-            let XPosition = e.clientX - XPos.current;
-            let YPosition = e.clientY - YPos.current;
+            const XPosition = e.clientX - XPos.current;
+            const YPosition = e.clientY - YPos.current;
 
-            let updatedNotes = notes.map(note =>
-                note.id === notesId.current ?
+            const updatedNotes = notes.map(note =>
+                note.id === noteId.current ?
                     { ...note, x: XPosition, y: YPosition } : note
             )
             setNotes(updatedNotes);
@@ -109,7 +132,7 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
                 socket.emit("noteMove", { meetingCode, id: noteId.current, x: XPosition, y: YPosition });
             }
         }
-    }, [notes])
+    }, [notes, meetingCode, socket])
 
     const handleNotesStop = useCallback(() => {
         isMoving.current = false;
@@ -117,10 +140,11 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
 
     useEffect(() => {
         handleNoteModify();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [noteBackgroundColor, noteFontFamily, noteTextSize, noteTextBrightness, noteTextAlign])
 
     useEffect(() => {
-
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleItemDrawed = (data: any) => {
             const { id, x, y, text, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, modify, noteTextAlign } = data;
             setNotes(prev => [
@@ -129,10 +153,10 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
             ])
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleNoteText = (data: any) => {
             const { id, value } = data;
-            console.log(data);
-            let updatedNotes = notes.map(note =>
+            const updatedNotes = notes.map(note =>
                 note.id === id ?
                     { ...note, text: value } : note
             )
@@ -140,7 +164,7 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
         }
 
         const handleNoteRemoved = () => {
-            let updatedNotes = notes.filter(note => note.text !== "");
+            const updatedNotes = notes.filter(note => note.text !== "");
             setNotes(updatedNotes);
         }
 
@@ -162,14 +186,17 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
             dispatch(setSelectedItem("note"))
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleNoteModified = (data: any) => {
             const { id, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, noteTextAlign } = data;
-            setNotes(prevNotes =>
-                prevNotes.map(note =>
-                    note.id === id ?
-                        { ...note, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, noteTextAlign } : note
+            if (selectedItem === "note") {
+                setNotes(prevNotes =>
+                    prevNotes.map(note =>
+                        note.id === id ?
+                            { ...note, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, noteTextAlign } : note
+                    )
                 )
-            )
+            }
         }
 
         const handleNoteUnSelected = () => {
@@ -182,10 +209,11 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
         }
 
         const handleNoteErased = (id: number) => {
-            let updatedNotes = notes.filter(shape => shape.id !== id);
+            const updatedNotes = notes.filter(shape => shape.id !== id);
             setNotes(updatedNotes);
         }
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleNoteMoved = (data: any) => {
             const { id, x, y } = data;
             setNotes(prevNotes =>
@@ -219,7 +247,13 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
                 socket.off("noteMoved", handleNoteMoved);
             }
         }
-    }, [socket, dispatch, notes])
+    }, [socket, dispatch, notes, selectedItem])
+
+    useEffect(() => {
+        if (isNewMeeting) {
+            setNotes([]);
+        }
+    }, [isNewMeeting])
 
     useEffect(() => {
         const handleCanvasClick = (e: MouseEvent) => {
@@ -253,10 +287,11 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
                 canvasElement.removeEventListener("click", handleModifyStop);
             }
         };
-    }, [functionality, noteBackgroundColor, noteTextSize, noteFontFamily, noteTextBrightness, noteTextAlign, notes])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [functionality, noteBackgroundColor, noteTextSize, noteFontFamily, noteTextBrightness, noteTextAlign, canvasRef, notes, meetingCode, socket])
 
     const removeNote = () => {
-        let filterArr1 = notes.filter(note => note.text != "")
+        const filterArr1 = notes.filter(note => note.text != "")
         setNotes(filterArr1);
         if (socket) {
             socket.emit("noteRemove", meetingCode)
@@ -264,11 +299,11 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
     }
 
     const settingNoteText = (e: React.ChangeEvent, id: number) => {
-        let target = e.target as HTMLTextAreaElement;
+        const target = e.target as HTMLTextAreaElement;
         if (socket) {
             socket.emit("setNoteText", { meetingCode, id, value: target.value });
         }
-        let updatedNotes = notes.map(note =>
+        const updatedNotes = notes.map(note =>
             note.id === id ?
                 { ...note, text: target.value } : note
         )

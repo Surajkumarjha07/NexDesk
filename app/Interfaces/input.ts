@@ -8,7 +8,7 @@ type input = {
     fontFamily: string,
     textBrightness: number,
     modify: boolean,
-    textAlign: string
+    textAlign: string,
   }
 
   export default input;

@@ -1,4 +1,3 @@
-import React from "react";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import image from "@/app/Interfaces/image";
 
@@ -15,6 +14,10 @@ export const ImageSlice = createSlice({
     reducers: {
         setImages: (state, action: PayloadAction<image | image[]>) => {
             const newImages = Array.isArray(action.payload) ? action.payload : [action.payload];
+            if (newImages.length === 0) {
+                state.images = [];
+                return;
+            }
 
             newImages.forEach(newImage => {
                 const index = state.images.findIndex(image => image.id === newImage.id);
@@ -26,7 +29,7 @@ export const ImageSlice = createSlice({
             });
         },
         deleteImage: (state, action: PayloadAction<number>) => {
-            let updatedArr = state.images.filter(image => image.id !== action.payload)
+            const updatedArr = state.images.filter(image => image.id !== action.payload)
             state.images = updatedArr;
         },
         setImageBrightness: (state, action) => {

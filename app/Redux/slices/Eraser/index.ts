@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { setImage } from "../images";
 
 const initialState = {
     isEraserOpen: false

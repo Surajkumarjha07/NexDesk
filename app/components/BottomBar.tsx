@@ -1,10 +1,8 @@
 "use client"
-import React, { useRef, useState } from 'react'
+import React, { useEffect } from 'react'
 import Image from 'next/image'
 import BackHandOutlinedIcon from '@mui/icons-material/BackHandOutlined';
-import ArrowOutwardOutlinedIcon from '@mui/icons-material/ArrowOutwardOutlined';
 import NearMeOutlinedIcon from '@mui/icons-material/NearMeOutlined';
-import CreateOutlinedIcon from '@mui/icons-material/CreateOutlined';
 import FormatItalicOutlinedIcon from '@mui/icons-material/FormatItalicOutlined';
 import StickyNote2OutlinedIcon from '@mui/icons-material/StickyNote2Outlined';
 import PhotoOutlinedIcon from '@mui/icons-material/PhotoOutlined';
@@ -14,11 +12,11 @@ import { setFunctionality } from '../Redux/slices/functionality';
 import Shapes from './shapes';
 import RectangleOutlinedIcon from '@mui/icons-material/RectangleOutlined';
 import CircleOutlinedIcon from '@mui/icons-material/CircleOutlined';
-import ChangeHistoryOutlinedIcon from '@mui/icons-material/ChangeHistoryOutlined';
-import HexagonOutlinedIcon from '@mui/icons-material/HexagonOutlined';
 import { setEraser } from '../Redux/slices/Eraser';
 import { setImages } from '../Redux/slices/images';
 import { useSocket } from '../socketContext';
+import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
+import { setConfirmSaveWhiteboard } from '../Redux/slices/user';
 
 export default function BottomBar() {
     const dispatch = useAppDispatch();
@@ -30,10 +28,14 @@ export default function BottomBar() {
     const imgSaturation = useAppSelector(state => state.ImageFeatures.imageSaturation);
     const socket = useSocket();
     const meetingCode = useAppSelector(state => state.MeetingCode.meetingCode);
+    const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
 
     const handleActive = (e: React.MouseEvent<HTMLButtonElement>) => {
-        let target = e.target as HTMLButtonElement;
+        const target = e.target as HTMLButtonElement;
         dispatch(setFunctionality(target.name));
+        if (target.name === "save") {
+            dispatch(setConfirmSaveWhiteboard(true));
+        }
         if (target.name === 'eraser') {
             dispatch(setEraser(true));
         }
@@ -43,14 +45,14 @@ export default function BottomBar() {
     }
 
     const handleImage = (e: React.ChangeEvent) => {
-        let xPosition = Math.floor(Math.random() * 500);
-        let YPosition = Math.floor(Math.random() * 200);
+        const xPosition = Math.floor(Math.random() * 500);
+        const YPosition = Math.floor(Math.random() * 200);
         dispatch(setFunctionality('images'))
-        let target = e.target as HTMLInputElement;
-        let file = target.files![0];
+        const target = e.target as HTMLInputElement;
+        const file = target.files![0];
         let result;
         if (file) {
-            let reader = new FileReader();
+            const reader = new FileReader();
 
             reader.onload = function (e) {
                 result = e.target!.result;
@@ -59,51 +61,75 @@ export default function BottomBar() {
                         id: images.length + 1, x: xPosition, y: YPosition, src: result, width: 300, height: 300, brightness: imgBrightness, contrast: imgContrast, saturation: imgSaturation, modify: false
                     }))
                 }
+                if (socket && result) {
+                    socket.emit("imageDraw", { meetingCode, id: images.length + 1, x: xPosition, y: YPosition, src: result, width: 300, height: 300, brightness: imgBrightness, contrast: imgContrast, saturation: imgSaturation, modify: false })
+                }
             }
             reader.readAsDataURL(file);
-            if (socket) {
-                socket.emit("imageDraw", { meetingCode,  id: images.length + 1, x: xPosition, y: YPosition, src: result, width: 300, height: 300, brightness: imgBrightness, contrast: imgContrast, saturation: imgSaturation, modify: false})
-            }
         }
     }
 
+    useEffect(() => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const handleImageDrawed = (data: any) => {
+            const { id, x, y, src, width, height, brightness, contrast, saturation, modify } = data;
+            console.log(data);
+            dispatch(setImages({
+                id, x, y, src, width, height, brightness, contrast, saturation, modify
+            })
+            )
+        }
+
+        if (socket) {
+            socket.on("imageDrawed", handleImageDrawed);
+        }
+
+        return () => {
+            if (socket) {
+                socket.off("imageDrawed", handleImageDrawed);
+            }
+        }
+    }, [socket, dispatch, images])
+
     return (
         <>
-            <section className='w-2/4 h-16 bg-white rounded-md shadow-md shadow-gray-400 absolute bottom-10 left-1/2 transform -translate-x-1/2 flex justify-evenly items-center gap-8 z-40'>
-                <button className={functionality === "arrow" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='arrow' onClick={handleActive}>
-                    <NearMeOutlinedIcon className={functionality !== "arrow" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
+            <section className={`${isDarkMode ? "bg-gray-800 shadow-none" : "bg-white shadow-sm shadow-gray-400"} w-2/4 h-16 rounded-md absolute bottom-10 left-1/2 transform -translate-x-1/2 flex justify-evenly items-center gap-8 z-40`}>
+                <button className={`p-2 rounded-md ${functionality === "arrow" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='arrow' onClick={handleActive}>
+                    <NearMeOutlinedIcon className={`pointer-events-none ${functionality === "arrow" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
                 </button>
-                <button className={functionality === "hand" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='hand' onClick={handleActive}>
-                    <BackHandOutlinedIcon className={functionality !== "hand" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
+                <button className={`p-2 rounded-md ${functionality === "hand" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='hand' onClick={handleActive}>
+                    <BackHandOutlinedIcon className={`pointer-events-none ${functionality === "hand" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
                 </button>
-                <button className={functionality === "pencil" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='pencil' onClick={handleActive}>
-                    <CreateOutlinedIcon className={functionality !== "pencil" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
-                </button>
-                <button className={functionality === "eraser" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='eraser' onClick={handleActive}>
+                <button className={`p-2 rounded-md ${functionality === "eraser" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='eraser' onClick={handleActive}>
                     {
-                        functionality === "eraser" ?
-                            <Image src={'/Images/eraser2.png'} alt='Eraser' height={100} width={100} className='w-6 h-6 pointer-events-none' /> :
-                            <Image src={'/Images/eraser.png'} alt='Eraser' height={100} width={100} className='w-6 h-6 pointer-events-none' />
+                        <Image
+                            src={
+                                !isDarkMode
+                                    ? (functionality === "eraser" ? "/Images/eraser2.png" : "/Images/eraser.png")
+                                    : (functionality === "eraser" ? "/Images/eraser2.png" : "/Images/eraser2.png")
+                            }
+                            alt="Eraser"
+                            height={100}
+                            width={100}
+                            className="w-6 h-6 pointer-events-none"
+                        />
                     }
                 </button>
-                <button className={functionality === "upRightArrow" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='upRightArrow' onClick={handleActive}>
-                    <ArrowOutwardOutlinedIcon className={functionality !== "upRightArrow" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
+                <button className={`p-2 rounded-md ${functionality === "text" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='text' onClick={handleActive}>
+                    <FormatItalicOutlinedIcon className={`pointer-events-none ${functionality === "text" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
                 </button>
-                <button className={functionality === "text" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='text' onClick={handleActive}>
-                    <FormatItalicOutlinedIcon className={functionality !== "text" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
+                <button className={`p-2 rounded-md ${functionality === "notes" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='notes' onClick={handleActive}>
+                    <StickyNote2OutlinedIcon className={`pointer-events-none ${functionality === "notes" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
                 </button>
-                <button className={functionality === "notes" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='notes' onClick={handleActive}>
-                    <StickyNote2OutlinedIcon className={functionality !== "notes" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
-                </button>
-                <button className={functionality === "images" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='images' onClick={handleActive}>
+                <button className={`p-2 rounded-md ${functionality === "images" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='images' onClick={handleActive}>
                     <div className='w-fit h-fit relative'>
-                        <PhotoOutlinedIcon className={functionality !== "images" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
+                        <PhotoOutlinedIcon className={`pointer-events-none ${functionality === "images" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
                         <input type="file" name="imageFile" onChange={handleImage} className='w-full h-full opacity-0 absolute top-0 left-0 cursor-pointer' />
                     </div>
                 </button>
-                <button className={functionality === "shapes" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='shapes' onClick={handleActive}>
+                <button className={`p-2 rounded-md ${functionality === "shapes" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='shapes' onClick={handleActive}>
                     {
-                        shapeType === "rectangle" ? <RectangleOutlinedIcon className={`${functionality === 'shapes' ? 'text-white' : 'text-black'} pointer-events-none`} /> : shapeType === "circle" ? <CircleOutlinedIcon className={`${functionality === 'shapes' ? 'text-white' : 'text-black'} pointer-events-none`} /> : shapeType === "triangle" ? <ChangeHistoryOutlinedIcon className={`${functionality === 'shapes' ? 'text-white' : 'text-black'} pointer-events-none`} /> : <HexagonOutlinedIcon className={`${functionality === 'shapes' ? 'text-white' : 'text-black'} pointer-events-none`} />
+                        shapeType === "rectangle" ? <RectangleOutlinedIcon className={`pointer-events-none ${functionality === "shapes" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} /> : <CircleOutlinedIcon className={`pointer-events-none ${functionality === "shapes" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
                     }
                 </button>
 
@@ -112,10 +138,14 @@ export default function BottomBar() {
                         functionality === "upArrow" ?
                             <Shapes /> : ''
                     }
-                    <button className={functionality === "upArrow" ? 'bg-blue-500 p-2 rounded-md' : 'hover:bg-blue-200 p-2 rounded-md'} name='upArrow' onClick={handleActive}>
-                        <KeyboardArrowUpOutlinedIcon className={functionality !== "upArrow" ? 'text-black pointer-events-none' : 'text-white pointer-events-none'} />
+                    <button className={`p-2 rounded-md ${functionality === "upArrow" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='upArrow' onClick={handleActive}>
+                        <KeyboardArrowUpOutlinedIcon className={`pointer-events-none ${functionality === "upArrow" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
                     </button>
                 </div>
+
+                <button className={`p-2 rounded-md ${functionality === "save" ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-700"}` : `${isDarkMode ? "hover:bg-gray-700" : "hover:bg-blue-200"}`}`} name='save' onClick={handleActive}>
+                    <FolderSpecialRoundedIcon fontSize='large' className={`pointer-events-none ${functionality === "save" ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
+                </button>
             </section>
         </>
     )

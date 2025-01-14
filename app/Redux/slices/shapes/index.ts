@@ -6,7 +6,6 @@ const initialState = {
     patternType: 'transparent',
     borderType: 'roundedBorder',
     opacity: 100,
-    resize: false
 }
 
 export const ShapeFeatures = createSlice({
@@ -27,12 +26,9 @@ export const ShapeFeatures = createSlice({
         },
         setShapeOpacity: (state, action) => {
             state.opacity = action.payload;
-        },
-        setResize: (state) => {
-            state.resize = true;
         }
     }
 })
 
-export const { setShapeType, setShapeColor, setPatternType, setBorderType, setShapeOpacity, setResize } = ShapeFeatures.actions;
+export const { setShapeType, setShapeColor, setPatternType, setBorderType, setShapeOpacity } = ShapeFeatures.actions;
 export default ShapeFeatures.reducer;

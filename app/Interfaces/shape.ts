@@ -11,3 +11,5 @@ type shape = {
     opacity: number,
     modify: boolean
 }
+
+export default shape;

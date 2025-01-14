@@ -13,7 +13,7 @@ export const TextFeatures = createSlice({
     name: 'TextFeatures',
     reducers: {
         setTextColor: (state, action) => {
-            state.textColor = action.payload;   
+            state.textColor = action.payload;               
         },
         setTextSize: (state, action) => {
             state.textSize = action.payload;
