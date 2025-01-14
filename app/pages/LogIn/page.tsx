@@ -23,7 +23,8 @@ export default function LogIn() {
       })
 
       if (response.ok) {
-        router.push("/pages/Home");
+        // router.push("/pages/Home");
+        window.location.href = "/pages/Home";
         toast.success("Congrats! You are Logged In", {
           hideProgressBar: true,
           autoClose: 1500,
