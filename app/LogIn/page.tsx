@@ -31,7 +31,9 @@ export default function LogIn() {
           type: 'success',
           position: 'top-center',
         })
-        router.push("/Home");
+        setTimeout(() => {
+          router.push("/Home");
+        }, 3000);
       }
       switch (response.status) {
         case 404:
