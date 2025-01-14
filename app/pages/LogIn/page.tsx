@@ -23,13 +23,14 @@ export default function LogIn() {
       })
 
       if (response.ok) {
-        // router.push("/pages/Home");
-        window.location.href = "/pages/Home";
         toast.success("Congrats! You are Logged In", {
           hideProgressBar: true,
           autoClose: 1500,
           type: 'success',
           position: 'top-center',
+          onClose: () => {
+            router.push("/pages/Home")
+          }
         })
       }
       switch (response.status) {
