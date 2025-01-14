@@ -8,7 +8,6 @@ import { toast } from "react-toastify";
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
-  const router = useRouter();
 
   const LogInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -28,10 +27,8 @@ export default function LogIn() {
           autoClose: 1500,
           type: 'success',
           position: 'top-center',
-          onClose: () => {
-            router.push("/pages/Home")
-          }
         })
+        window.location.href = "/pages/Home";
       }
       switch (response.status) {
         case 404:
