@@ -2,11 +2,13 @@
 import Logo from '@/app/components/Logo'
 import React, { useState } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
 
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const router = useRouter();
 
   const LogInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,7 +29,7 @@ export default function LogIn() {
           type: 'success',
           position: 'top-center',
         })
-        window.location.href = "/pages/Home";
+        router.push("/pages/Home");
       }
       switch (response.status) {
         case 404:
