@@ -31,7 +31,7 @@ export default function UpdateUser() {
       }
 
       try {
-        const response = await fetch("http://localhost:4000/userAuthenticated", {
+        const response = await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -82,7 +82,7 @@ export default function UpdateUser() {
       const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
       const cookie = targetCookie ? targetCookie.split("=")[1] : null;
 
-      const response = await fetch("http://localhost:4000/updateUser", {
+      const response = await fetch("https://nexdesk-backend.onrender.com/updateUser", {
         method: 'PUT',
         headers: {
           "Content-Type": "application/json",
@@ -94,7 +94,7 @@ export default function UpdateUser() {
 
       if (response.ok) {
         //signOut ->
-        const signOut = await fetch("http://localhost:4000/signOut", {
+        const signOut = await fetch("https://nexdesk-backend.onrender.com/signOut", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"

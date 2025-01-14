@@ -34,7 +34,7 @@ export default function HomePage() {
             }
 
             try {
-                const response = await fetch("http://localhost:4000/userAuthenticated", {
+                const response = await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
                     method: "GET",
                     headers: {
                         "Content-Type": "application/json",

@@ -75,7 +75,7 @@ export default function Navbar() {
     }
 
     const signOut = async () => {
-        const response = await fetch("http://localhost:4000/signOut", {
+        const response = await fetch("https://nexdesk-backend.onrender.com/signOut", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -90,7 +90,7 @@ export default function Navbar() {
 
     const getWhiteboards = async () => {
         try {
-            const response = await fetch("http://localhost:4000/getWhiteboards", {
+            const response = await fetch("https://nexdesk-backend.onrender.com/getWhiteboards", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -136,7 +136,7 @@ export default function Navbar() {
         dispatch(setFetchedMeetingCode(meetCode));
         dispatch(setIsNewMeeting(false));
         try {
-            const response = await fetch(`http://localhost:4000/openWhiteboard?meetingCode=${meetCode}`, {
+            const response = await fetch(`https://nexdesk-backend.onrender.com/openWhiteboard?meetingCode=${meetCode}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -166,7 +166,7 @@ export default function Navbar() {
         const target = e.target as HTMLDivElement;
         const meetCode = target.parentElement?.parentElement?.childNodes[0].textContent;
 
-        const response = await fetch("http://localhost:4000/deleteWhiteboard", {
+        const response = await fetch("https://nexdesk-backend.onrender.com/deleteWhiteboard", {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",

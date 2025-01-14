@@ -13,7 +13,7 @@ export default function LogIn() {
   const LogInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:4000/login", {
+      const response = await fetch("https://nexdesk-backend.onrender.com/login", {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"

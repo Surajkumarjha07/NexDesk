@@ -7,7 +7,7 @@ const SocketContext = createContext<Socket | null>(null);
 export const SocketProvider = ({ children }: {children: React.ReactNode}) => {
     const [socket, setSocket] = useState<Socket | null>(null)
     useEffect(() => {
-        const socket = io('http://localhost:4000');
+        const socket = io('https://nexdesk-backend.onrender.com');
         setSocket(socket);
         socket.on("connect", () => {
             console.log("user connected: ", socket.id);
