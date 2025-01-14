@@ -1,6 +1,6 @@
 "use client"
 import Logo from '@/app/components/Logo'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
@@ -9,6 +9,17 @@ export default function LogIn() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
+  const cookies = document.cookie.split("; ");
+  const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let mainCookie: any;
+  if (cookie) {
+    mainCookie = cookie.split("=")[1];
+  }
+
+  useEffect(() => {
+    router.push("/Home")
+  }, [mainCookie])
 
   const LogInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,7 +40,6 @@ export default function LogIn() {
           type: 'success',
           position: 'top-center',
         })
-        router.push("/Home");
       }
       switch (response.status) {
         case 404:
