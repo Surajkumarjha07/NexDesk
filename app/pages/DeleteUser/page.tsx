@@ -4,16 +4,20 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
+import { setIsDarkMode } from '@/app/Redux/slices/darkMode';
+import { useAppDispatch } from '@/app/Redux/hooks';
 
 export default function DeleteUser() {
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
   const [visibleContent, setVisibleContent] = useState<boolean>(false);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
     const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
     const mainCookie = cookie ? cookie.split("=")[1] : null;
+    dispatch(setIsDarkMode(false));
 
     const authorized = async () => {
       if (!mainCookie) {
@@ -45,7 +49,7 @@ export default function DeleteUser() {
     };
 
     authorized();
-  }, [router]);
+  }, [router, dispatch]);
 
   const DeleteUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

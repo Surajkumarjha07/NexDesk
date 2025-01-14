@@ -14,6 +14,8 @@ import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import FolderSpecialRoundedIcon from '@mui/icons-material/FolderSpecialRounded';
 import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import OpenWithOutlinedIcon from '@mui/icons-material/OpenWithOutlined';
+import Brightness4OutlinedIcon from '@mui/icons-material/Brightness4Outlined';
+import { setIsDarkMode } from '../Redux/slices/darkMode';
 
 export default function Navbar() {
     const [time, setTime] = useState('');
@@ -32,6 +34,7 @@ export default function Navbar() {
     const router = useRouter();
     const [toggleMeets, setToggleMeets] = useState(false);
     const [color2, setColor2] = useState("");
+    const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
 
     const nowTime = new Date();
     const colors = ["bg-red-500", "bg-blue-500", "bg-yellow-500", "bg-green-500", "bg-orange-500", "bg-pink-500", "bg-violet-500"];
@@ -200,25 +203,33 @@ export default function Navbar() {
         setToggleMeets(true);
     }
 
+    const enableDarkMode = () => {
+        dispatch(setIsDarkMode(!isDarkMode));
+    }
+
     return (
         <>
             <nav className='w-screen h-[10vh] relative flex justify-between items-center px-8 z-50'>
                 <div className='flex justify-start items-center'>
                     <Logo />
-                    <p className='text-xl font-semibold text-gray-500'> NexDesk </p>
+                    <p className={`${isDarkMode ? "text-gray-200" : "text-gray-500"} text-xl font-semibold`}> NexDesk </p>
                 </div>
 
                 <div className='flex justify-center items-center gap-4 relative'>
+                    <button className={isDarkMode ? 'p-2 rounded-md' : 'p-2 rounded-md'} name='isDarkMode' onClick={enableDarkMode}>
+                        <Brightness4OutlinedIcon className={`pointer-events-none w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} />
+                    </button>
+
                     <div className='relative'>
-                        <button className={`p-2 rounded-md ${toggleMeets ? 'bg-blue-400' : 'hover:bg-blue-200'}`} name='saves' onClick={openSidebar}>
-                            <FolderSpecialRoundedIcon className={!toggleMeets ? 'text-black pointer-events-none w-8 h-8' : 'text-white pointer-events-none w-8 h-8'} />
+                        <button className={`p-2 rounded-md ${toggleMeets ? `${!isDarkMode ? "bg-blue-400" : "bg-gray-600"}` : `${isDarkMode ? "hover:bg-gray-600" : "hover:bg-blue-200"}`}`} name='saves' onClick={openSidebar}>
+                            <FolderSpecialRoundedIcon className={`pointer-events-none w-8 h-8 ${toggleMeets ? "text-white" : isDarkMode ? "text-white" : "text-black"}`} />
                         </button>
 
-                        <aside className={`absolute top-14 right-1/2 transform translate-x-1/2 px-6 ${toggleMeets ? 'opacity-100 h-[32rem] z-50' : 'opacity-0 h-0 -z-10'} w-80 bg-white shadow-md shadow-gray-400 flex flex-col rounded-2xl overflow-hidden transition-all duration-500`}>
+                        <aside className={`${isDarkMode ? "bg-gray-800 shadow-none" : "bg-white shadow-sm shadow-gray-400 "} absolute top-14 right-1/2 transform translate-x-1/2 px-6 ${toggleMeets ? 'opacity-100 h-[32rem] z-50' : 'opacity-0 h-0 -z-10'} w-80 flex flex-col rounded-2xl overflow-hidden transition-all duration-500`}>
                             <div className='flex justify-between items-center h-[12%]'>
-                                <p className='text-gray-700 font-medium text-xl'> Saved Meetings </p>
+                                <p className={`${isDarkMode ? "text-white" : "text-gray-700"} text-gray-700 font-medium text-xl`}> Saved Meetings </p>
                                 <button onClick={closeSidebar}>
-                                    <CloseOutlinedIcon className='text-gray-800' />
+                                    <CloseOutlinedIcon className={`${isDarkMode ? "text-white" : "text-gray-800"}`} />
                                 </button>
                             </div>
                             {
@@ -244,12 +255,12 @@ export default function Navbar() {
                                             </div>
                                         ))
                                     )
-                                    : <p className='m-auto text-gray-500 text-xl font-bold'> No Saved Whiteboard data </p>
+                                    : <p className='m-auto text-gray-500 text-xl font-bold'> No saved whiteboard data </p>
                             }
                         </aside>
                     </div>
 
-                    <p className='text-gray-600 text-xl'> {time} </p>
+                    <p className={`${isDarkMode ? "text-white" : "text-gray-600"} text-xl`}> {time} </p>
                     <button className={`box rounded-full cursor-pointer w-16 h-16 ${color} flex justify-center items-center text-2xl text-white`} onClick={handleBoxVisible}>
                         {username.toUpperCase().charAt(0)}
                     </button>

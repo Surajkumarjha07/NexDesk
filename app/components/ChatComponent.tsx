@@ -38,7 +38,8 @@ export default function ChatComponent() {
     const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
     const cookie = targetCookie ? targetCookie.split("=")[1] : null;
     const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
-    const [color, setColor] = useState("")
+    const [color, setColor] = useState("");
+    const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
 
     const colors = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
@@ -165,11 +166,11 @@ export default function ChatComponent() {
 
     return (
         <>
-            <aside className={`${toggle ? 'opacity-100 h-[32rem] z-50' : 'opacity-0 h-0 -z-10'} w-80 bg-white shadow-md shadow-gray-400 absolute top-28 left-5 flex flex-col rounded-2xl overflow-hidden transition-all duration-500`}>
+            <aside className={`${isDarkMode ? "bg-gray-800 shadow-none" : "bg-white shadow-sm shadow-gray-400"} ${toggle ? 'opacity-100 h-[32rem] z-50' : 'opacity-0 h-0 -z-10'} w-80 absolute top-28 left-5 flex flex-col rounded-2xl overflow-hidden transition-all duration-500`}>
                 <div className='flex justify-between items-center h-[12%] px-4'>
-                    <p className='text-gray-700 font-medium text-xl'> {users ? "People" : saves ? "Saved Meetings" : "Messages"} </p>
+                    <p className={`${isDarkMode? "text-white" : "text-gray-700"} font-medium text-xl`}> {users ? "People" : saves ? "Saved Meetings" : "Messages"} </p>
                     <button onClick={closeSidebar}>
-                        <CloseOutlinedIcon className='text-gray-800' />
+                        <CloseOutlinedIcon className={`${isDarkMode ? "text-white" : "text-gray-800"}`} />
                     </button>
                 </div>
 
@@ -207,12 +208,12 @@ export default function ChatComponent() {
                     {
                         chat &&
                         <div className="relative w-full h-fit overflow-hidden">
-                            <button className="absolute right-1 top-1/2 transform -translate-y-1/2 hover:bg-gray-300 w-12 h-4/5 rounded-full" onClick={sendMessage}>
-                                <SendIcon className={message ? "text-blue-600" : "text-gray-800"} />
+                            <button className={`absolute right-1 top-1/2 transform -translate-y-1/2 ${isDarkMode ? "hover:bg-gray-700" : "hover:bg-gray-300"} w-12 h-4/5 rounded-full`} onClick={sendMessage}>
+                                <SendIcon className={message ? !isDarkMode ? "text-blue-600" : "text-white" : !isDarkMode ? "text-gray-800" : "text-gray-400"} />
                             </button>
                             <input
                                 type="text" name='message' value={message}
-                                className={`w-full h-12 pr-14 pl-6 outline-none border-2 border-gray-500 text-black py-2 rounded-full placeholder:text-gray-600 placeholder:font-medium bg-gray-100`}
+                                className={`${isDarkMode? "text-white bg-gray-600 placeholder:text-white border-gray-400" : "text-black bg-gray-100 placeholder:text-gray-600 border-gray-500"} w-full h-12 pr-14 pl-6 outline-none border-2 py-2 rounded-full placeholder:font-medium`}
                                 placeholder="Enter message here" onChange={e => setMessage(e.target.value)}
                             />
                         </div>

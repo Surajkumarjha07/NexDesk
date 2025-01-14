@@ -7,7 +7,6 @@ import { useAppDispatch, useAppSelector } from '../Redux/hooks';
 import { setTextBrightness, setTextColor } from '../Redux/slices/textFeatures';
 import { setNoteBackgroundColor, setNoteTextBrightness } from '../Redux/slices/noteFeatures';
 import { setShapeColor, setShapeOpacity } from '../Redux/slices/shapes';
-import { setColor, setPencilThickness } from '../Redux/slices/pencil';
 import { setImageBrightness, setImageContrast, setImageSaturation } from '../Redux/slices/images';
 import { Box, Slider } from '@mui/material';
 
@@ -15,24 +14,22 @@ export default function Sidebar() {
     const dispatch = useAppDispatch();
     const functionality = useAppSelector(state => state.Functionality.functionality);
     const selectedItem = useAppSelector(state => state.SelectedItem.selectedItem);
+    const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
 
     const handleColorChange = (e: React.MouseEvent<HTMLButtonElement>) => {
         const target = e.target as HTMLButtonElement;
         dispatch(setTextColor(target.name));
         dispatch(setNoteBackgroundColor(target.name))
         dispatch(setShapeColor(target.name))
-        dispatch(setColor(target.name))
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const handleBrightness = (event: Event, value: number | number[], activeThumb: number) => {
         if (typeof value === "number") {
-            const PencilValue = value;
             const finalValue = value * 5;
             dispatch(setTextBrightness(finalValue));
             dispatch(setNoteTextBrightness(finalValue));
             dispatch(setShapeOpacity(finalValue));
-            dispatch(setPencilThickness(PencilValue));
         }
     }
 
@@ -62,7 +59,7 @@ export default function Sidebar() {
 
     return (
         <>
-            <aside className={`bg-white w-80 h-fit shadow-md shadow-gray-400 rounded-md absolute top-8 right-5 px-4 py-5 z-30 ${(functionality == "hand" || functionality == "eraser") ? 'hidden' : 'flex'} flex-col justify-evenly`}>
+            <aside className={`bg-white w-80 h-fit ${isDarkMode ? "shadow-none" : "shadow-gray-400 shadow-sm"} rounded-md absolute top-8 right-5 px-4 py-5 z-30 ${(functionality == "hand" || functionality == "eraser") ? 'hidden' : 'flex'} flex-col justify-evenly`}>
                 <div className='flex justify-center gap-8 flex-wrap'>
                     <button className='bg-black rounded-full w-7 h-7' name='black' onClick={handleColorChange} />
                     <button className='bg-gray-500 rounded-full w-7 h-7' name='gray-500' onClick={handleColorChange} />
@@ -105,9 +102,7 @@ export default function Sidebar() {
                             <Box sx={{ width: "auto" }}>
                                 <Slider
                                     aria-label="thickness"
-                                    defaultValue={
-                                        functionality === 'pencil' || functionality === "upRightArrow" ? 5 : 20
-                                    }
+                                    defaultValue={20}
                                     name='thickness'
                                     color="primary"
                                     min={1}

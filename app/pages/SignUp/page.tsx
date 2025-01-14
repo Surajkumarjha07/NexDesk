@@ -24,7 +24,6 @@ export default function SignUp() {
       })
 
       if (response.ok) {
-        console.log(response);
         router.push("/");
         toast.success("Great! You are Signed Up", {
           hideProgressBar: true,

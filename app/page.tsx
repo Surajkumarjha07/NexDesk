@@ -34,7 +34,7 @@ export default function Home() {
         }
         else {
           setVisibleContent(false);
-          router.push("./pages/Home");
+          router.push("/pages/Home");
         }
       } catch (error) {
         console.log("error: ", error);

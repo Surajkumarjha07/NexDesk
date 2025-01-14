@@ -3,8 +3,9 @@ import Logo from '@/app/components/Logo'
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
-import { useAppSelector } from '@/app/Redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/Redux/hooks';
 import { toast } from "react-toastify";
+import { setIsDarkMode } from '@/app/Redux/slices/darkMode';
 
 export default function UpdateUser() {
   const [newEmail, setNewEmail] = useState<string>('');
@@ -15,11 +16,13 @@ export default function UpdateUser() {
   const [visibleContent, setVisibleContent] = useState<boolean>(false);
   const username = useAppSelector(state => state.UserCredential.username);
   const userEmail = useAppSelector(state => state.UserCredential.userEmail);
+  const dispatch = useAppDispatch();
 
   useEffect(() => {
     const cookies = document.cookie.split("; ");
     const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
     const mainCookie = cookie ? cookie.split("=")[1] : null;
+    dispatch(setIsDarkMode(false));
 
     const authorized = async () => {
       if (!mainCookie) {
@@ -50,7 +53,7 @@ export default function UpdateUser() {
     };
 
     authorized();
-  }, [router]);
+  }, [router, dispatch]);
 
   const UpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

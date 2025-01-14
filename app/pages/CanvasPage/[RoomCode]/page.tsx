@@ -50,6 +50,7 @@ export default function CanvasPage() {
   const disconnectedUser = useAppSelector(state => state.UserCredential.disconnectedUser);
   const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
   const isNewMeeting = useAppSelector(state => state.MeetingCode.isNewMeeting);
+  const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
 
   useEffect(() => {
     const cookies = document.cookie.split(";");
@@ -190,10 +191,10 @@ export default function CanvasPage() {
 
         {
           isNewMeeting &&
-          <div ref={messageRef} className='bg-white w-fit h-fit rounded-md absolute top-4 left-1/2 transform -translate-x-1/2 z-30 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
-            <p className='text-gray-600 text-lg font-semibold'> Send this <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {meetingCode} </span> to your team, friends to collaborate </p>
+          <div ref={messageRef} className={`${isDarkMode ? "bg-gray-800 shadow-none" : "bg-white shadow-gray-400 shadow-sm"} w-fit h-fit rounded-md absolute top-4 left-1/2 transform -translate-x-1/2 z-30 py-3 px-4 flex justify-between items-center gap-4`}>
+            <p className={`${isDarkMode ? "text-white" : "text-gray-600"} text-lg font-semibold`}> Send this <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {meetingCode} </span> to your team, friends to collaborate </p>
             <button onClick={hideMessage}>
-              <CloseOutlinedIcon className='text-gray-600' />
+              <CloseOutlinedIcon className={`${isDarkMode ? "text-white" : "text-gray-600"}`} />
             </button>
           </div>
         }
@@ -210,10 +211,10 @@ export default function CanvasPage() {
           toggleBox &&
           <>
             <audio ref={audioRef} src="/sounds/notification.wav" autoPlay />
-            <div ref={userJoinedBox} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
-              <p className='text-gray-600 text-base font-semibold'> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {userJoined} </span> joined into your team </p>
+            <div ref={userJoinedBox} className={`${isDarkMode ? "bg-gray-800 shadow-none" : "bg-white shadow-sm shadow-gray-400"} w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 py-3 px-4 flex justify-between items-center gap-4`}>
+              <p className={`${isDarkMode ? "text-white" : "text-gray-600"} text-gray-600 text-base font-semibold`}> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {userJoined} </span> joined into your team </p>
               <button onClick={hideuserJoinedMessage}>
-                <CloseOutlinedIcon className='text-gray-600' />
+                <CloseOutlinedIcon className={`${isDarkMode ? "text-white" : "text-gray-600"}`} />
               </button>
             </div>
           </>
@@ -223,10 +224,10 @@ export default function CanvasPage() {
           toggleDisconnectBox &&
           <>
             <audio ref={audioRef} src="/sounds/notification.wav" autoPlay />
-            <div ref={userDisconnectRef} className='bg-white w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 shadow-md shadow-gray-400 py-3 px-4 flex justify-between items-center gap-4'>
-              <p className='text-gray-600 text-base font-semibold'> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {disconnectedUser} </span> has left the room </p>
+            <div ref={userDisconnectRef} className={`${isDarkMode ? "bg-gray-800 shadow-none" : "bg-white shadow-sm shadow-gray-400 "} w-fit h-fit rounded-md absolute bottom-20 left-4 z-50 py-3 px-4 flex justify-between items-center gap-4`}>
+              <p className={`${isDarkMode ? "text-white" : "text-gray-600"} text-gray-600 text-base font-semibold`}> <span className='text-lg text-blue-500 underline font-bold cursor-copy' onClick={copyToClipBoard}> {disconnectedUser} </span> has left the room </p>
               <button onClick={hideuserJoinedMessage}>
-                <CloseOutlinedIcon className='text-gray-600' />
+                <CloseOutlinedIcon className={`${isDarkMode ? "text-white" : "text-gray-600"}`} />
               </button>
             </div>
           </>
@@ -235,7 +236,7 @@ export default function CanvasPage() {
         <UserFeatures />
         <ChatComponent />
         <Sidebar />
-        <canvas className={`bg-white rounded-md shadow-md w-screen h-screen ${functionality === 'eraser' ? 'cursor-auto' : 'cursor-crosshair'}`} ref={canvasRef} >
+        <canvas className={`${isDarkMode ? "bg-gray-900" : "bg-white"} rounded-md w-screen h-screen ${functionality === 'eraser' ? 'cursor-auto' : 'cursor-crosshair'}`} ref={canvasRef} >
         </canvas>
 
         {
@@ -356,7 +357,7 @@ export default function CanvasPage() {
                 backgroundColor: 'transparent',
               }}
 
-              className={`rounded-lg ${textColorMap.get(input.textColor)} ${input.fontFamily} ${input.textAlign} ${input.textSize} ${textBrightnessMap.get(input.textBrightness)} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${functionality === "arrow" ? "cursor-default" : ''} ${input.modify ? "border-2 border-blue-500" : "border-2 border-gray-600"}`}
+              className={`rounded-lg ${textColorMap.get(input.textColor)} ${input.fontFamily} ${input.textAlign} ${input.textSize} ${textBrightnessMap.get(input.textBrightness)} ${functionality === 'hand' ? 'hover:cursor-grab' : 'cursor-auto'} ${functionality === "arrow" ? "cursor-default" : ''} ${input.modify ? "border-2 border-blue-500" : ""}`}
               value={input.text}
               autoFocus
               onChange={(e) => settingText(e, input.id)}

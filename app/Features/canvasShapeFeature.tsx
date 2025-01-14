@@ -4,6 +4,7 @@ import shapeFeature from '../Interfaces/shapeFeature'
 import { setSelectedItem } from '../Redux/slices/selectedItem'
 import { useSocket } from '../socketContext'
 import shape from '../Interfaces/shape'
+import { setBorderType, setPatternType, setShapeColor, setShapeOpacity, setShapeType } from '../Redux/slices/shapes'
 
 export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, patternType, borderType, opacity }: shapeFeature) {
   const [shapes, setShapes] = useState<shape[]>([])
@@ -53,6 +54,11 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
         }))
       )
       dispatch(setSelectedItem("shape"));
+      dispatch(setShapeType(shape?.shapeType));
+      dispatch(setShapeColor(shape?.shapeColor));
+      dispatch(setPatternType(shape?.patternType));
+      dispatch(setBorderType(shape?.borderType));
+      dispatch(setShapeOpacity(shape?.opacity));
       isModified.current = true;
       if (socket) {
         socket.emit("itemSelect", { meetingCode, id });
@@ -61,7 +67,7 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
   }
 
   const handleShapeModify = () => {
-    if (isModified.current) {
+    if (isModified.current && selectedItem === "shape") {
       setShapes(prevShapes =>
         prevShapes.map(shape =>
           (shape.id === shapeId.current && shape.modify) ?
@@ -227,13 +233,15 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleItemModify = (data: any) => {
       const { id, shapeColor, patternType, borderType, opacity } = data;
-      setShapes(prevShapes =>
-        prevShapes.map(shape => (
-          shape.id === id ? {
-            ...shape, shapeColor, patternType, borderType, opacity
-          } : shape
-        ))
-      )
+      if (selectedItem === "shape") {
+        setShapes(prevShapes =>
+          prevShapes.map(shape => (
+            shape.id === id ? {
+              ...shape, shapeColor, patternType, borderType, opacity
+            } : shape
+          ))
+        )
+      }
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -294,7 +302,7 @@ export default function CanvasShapeFeatures({ canvasRef, shapeType, shapeColor, 
         socket.off("itemWidthResized", handleItemWidthResize);
       }
     }
-  }, [socket, dispatch, shapes])
+  }, [socket, dispatch, shapes, selectedItem])
 
   useEffect(() => {
     if (isNewMeeting) {

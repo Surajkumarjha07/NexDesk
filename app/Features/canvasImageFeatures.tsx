@@ -1,6 +1,6 @@
 import React, { RefObject, useEffect, useRef } from 'react'
 import { useAppDispatch, useAppSelector } from '../Redux/hooks'
-import { deleteImage, setImages } from '../Redux/slices/images';
+import { deleteImage, setImageBrightness, setImageContrast, setImages, setImageSaturation } from '../Redux/slices/images';
 import { setSelectedItem } from '../Redux/slices/selectedItem';
 import { useSocket } from '../socketContext';
 import image from '../Interfaces/image';
@@ -57,6 +57,9 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
 
             dispatch(setImages(updatedArr));
             dispatch(setSelectedItem("image"))
+            dispatch(setImageBrightness(imageRef.current?.brightness));
+            dispatch(setImageContrast(imageRef.current?.contrast));
+            dispatch(setImageSaturation(imageRef.current?.saturation));
             isModifying.current = true;
             if (socket) {
                 socket.emit("imageSelect", { meetingCode, id });
@@ -65,7 +68,7 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
     };
 
     const handleImageModification = () => {
-        if (isModifying.current) {
+        if (isModifying.current && selectedItem === "image") {
             const updatedArr = images.map(image =>
                 ({ ...image, brightness: image.id === imageId.current ? imgBrightness : image.brightness, contrast: image.id === imageId.current ? imgContrast : image.contrast, saturation: image.id === imageId.current ? imgSaturation : image.saturation })
             )
@@ -202,10 +205,12 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleImageModified = (data: any) => {
             const { id, imgBrightness, imgContrast, imgSaturation } = data;
-            const updatedArr = images.map(image =>
-                ({ ...image, brightness: image.id === id ? imgBrightness : image.brightness, contrast: image.id === id ? imgContrast : image.contrast, saturation: image.id === id ? imgSaturation : image.saturation })
-            )
-            dispatch(setImages(updatedArr));
+            if (selectedItem === "image") {
+                const updatedArr = images.map(image =>
+                    ({ ...image, brightness: image.id === id ? imgBrightness : image.brightness, contrast: image.id === id ? imgContrast : image.contrast, saturation: image.id === id ? imgSaturation : image.saturation })
+                )
+                dispatch(setImages(updatedArr));
+            }
         }
 
         const handleImageUnSelected = () => {
@@ -273,7 +278,7 @@ export default function CanvasImageFeatures({ canvasRef }: imageDependencies) {
                 socket.off("imageErased", handleImageErased);
             }
         }
-    }, [socket, dispatch, images])
+    }, [socket, dispatch, images, selectedItem])
 
     useEffect(() => {
         if (isNewMeeting) {

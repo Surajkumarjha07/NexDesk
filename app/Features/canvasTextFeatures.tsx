@@ -4,6 +4,7 @@ import canvasTextFeature from '../Interfaces/canvasTextFeatures'
 import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import { setSelectedItem } from '../Redux/slices/selectedItem'
 import { useSocket } from '../socketContext'
+import { setFontFamily, setTextAlign, setTextBrightness, setTextColor, setTextSize } from '../Redux/slices/textFeatures'
 
 export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fontFamily, textBrightness, textAlign }: canvasTextFeature) {
   const [inputs, setInputs] = useState<input[]>([]);
@@ -56,6 +57,11 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
         )
       )
       dispatch(setSelectedItem("text"))
+      dispatch(setTextAlign(input?.textAlign));
+      dispatch(setTextBrightness(input?.textBrightness));
+      dispatch(setTextColor(input?.textColor));
+      dispatch(setTextSize(input?.textSize));
+      dispatch(setFontFamily(input?.fontFamily));
       if (socket) {
         socket.emit("inputSelect", { meetingCode, id })
       }
@@ -63,7 +69,7 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
   }
 
   const handleInputModification = () => {
-    if (isModified.current) {
+    if (isModified.current && selectedItem === "text") {
       setInputs(prevInputs =>
         prevInputs.map(input =>
           (input.id === inputId.current && input.modify) ?
@@ -186,12 +192,14 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const handleInputModify = (data: any) => {
       const { id, textColor, textSize, fontFamily, textBrightness, textAlign } = data;
-      setInputs(prevInputs =>
-        prevInputs.map(input =>
-          input.id === id ?
-            { ...input, textColor, textSize, fontFamily, textBrightness, textAlign } : input
+      if (selectedItem === "text") {
+        setInputs(prevInputs =>
+          prevInputs.map(input =>
+            input.id === id ?
+              { ...input, textColor, textSize, fontFamily, textBrightness, textAlign } : input
+          )
         )
-      )
+      }
     }
 
     const handleInputUnSelect = () => {
@@ -245,7 +253,7 @@ export default function CanvasTextFeatures({ canvasRef, textColor, textSize, fon
         socket.off("inputMoved", handleInputMoved);
       }
     }
-  }, [socket, dispatch, inputs])
+  }, [socket, dispatch, inputs, selectedItem])
 
   useEffect(() => {
     if (isNewMeeting) {

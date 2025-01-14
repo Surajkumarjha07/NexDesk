@@ -7,6 +7,7 @@ import { useSocket } from '@/app/socketContext';
 import { useAppDispatch, useAppSelector } from '@/app/Redux/hooks';
 import { setIsNewMeeting, setMeetingCode } from '@/app/Redux/slices/meetingCode';
 import { motion } from "framer-motion"
+import { setToggle } from '@/app/Redux/slices/ToggleMessage';
 
 export default function HomePage() {
     const router = useRouter();
@@ -17,12 +18,14 @@ export default function HomePage() {
     const divRef = useRef<HTMLDivElement>(null);
     const username = useAppSelector(state => state.UserCredential.username);
     const userEmail = useAppSelector(state => state.UserCredential.userEmail);
+    const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
 
     useEffect(() => {
         const cookies = document.cookie.split("; ");
         const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
         const mainCookie = cookie ? cookie.split("=")[1] : null;
         dispatch(setMeetingCode(""));
+        dispatch(setToggle(false));
 
         const authorized = async () => {
             if (!mainCookie) {
@@ -97,10 +100,10 @@ export default function HomePage() {
             <section className='w-screen h-screen absolute top-0 flex justify-center items-center'>
                 <div className='w-1/2 px-14'>
                     <div className='my-8'>
-                        <p className='text-4xl text-gray-900 my-2'>
+                        <p className={`${isDarkMode ? "text-white" : "text-gray-900"} text-4xl my-2`}>
                             Sketch, Share, and Solve Together in Real Time
                         </p>
-                        <p className='text-xl text-gray-600'>
+                        <p className={`${isDarkMode ? "text-white" : "text-gray-600"} text-xl`}>
                             Collaborate in Real Time, Create Without Limits
                         </p>
                     </div>
@@ -113,16 +116,16 @@ export default function HomePage() {
 
                         <input type="text" className='text-gray-700 px-3 py-3 w-64 border-2 border-gray-400 outline-none rounded-md placeholder:text-gray-500 placeholder:font-medium z-50' placeholder='Enter Code' onChange={e => dispatch(setMeetingCode(e.target.value))} />
 
-                        <button className={`${meetingCode ? 'text-blue-500' : 'text-gray-500 '} font-semibold z-50`} onClick={handleJoinRoom}>
+                        <button className={`${!meetingCode ? 'text-gray-500' : isDarkMode ? "text-white" : "text-blue-500"} font-semibold z-50`} onClick={handleJoinRoom}>
                             Join
                         </button>
                     </div>
                     <hr />
-                    <p className='text-gray-500 font-semibold'> NexDesk </p>
+                    <p className={`${isDarkMode ? "text-gray-200" : "text-gray-500"} text-gray-500 font-semibold`}> NexDesk </p>
                 </div>
 
                 <motion.div ref={divRef} className='w-1/2 h-screen flex justify-center items-center' initial={{ rotate: 0, scale: 1, opacity: 1 }} animate={{ rotate: 150, scale: 0, opacity: 0 }} transition={{ duration: 10, repeat: Infinity, repeatType: "mirror", repeatDelay: 4 }}>
-                    <div className='w-1/2 h-1/2 border-4 border-pink-600 bg-pink-200 bg-opacity-45 backdrop-blur-md rounded-lg relative'>
+                    <div className='w-1/2 h-1/2 border-4 border-pink-600 bg-opacity-45 backdrop-blur-md rounded-lg relative'>
                         <motion.div className='absolute top-0 left-1/2 -translate-y-1/2 -translate-x-1/2 w-44 h-44 shadow-inner shadow-orange-600 rounded-md bg-orange-500 flex justify-center items-center text-white text-3xl font-mono'>
                             <p>
                                 {

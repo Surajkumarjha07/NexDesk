@@ -4,6 +4,7 @@ import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import note from '../Interfaces/note';
 import { setSelectedItem } from '../Redux/slices/selectedItem';
 import { useSocket } from '../socketContext';
+import { setNoteBackgroundColor, setNoteFontFamily, setNoteTextAlign, setNoteTextBrightness, setNoteTextSize } from '../Redux/slices/noteFeatures';
 
 export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, noteTextAlign }: stickyNotesFeature) {
     const functionality = useAppSelector(state => state.Functionality.functionality);
@@ -55,6 +56,11 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
             )
             isModified.current = true;
             dispatch(setSelectedItem("note"))
+            dispatch(setNoteTextSize(note?.noteTextSize));
+            dispatch(setNoteFontFamily(note?.noteFontFamily));
+            dispatch(setNoteBackgroundColor(note?.noteBackgroundColor));
+            dispatch(setNoteTextBrightness(note?.noteTextBrightness));
+            dispatch(setNoteTextAlign(note?.noteTextAlign));
             if (socket) {
                 socket.emit("noteSelect", { meetingCode, id })
             }
@@ -62,7 +68,7 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
     }
 
     const handleNoteModify = () => {
-        if (isModified.current) {
+        if (isModified.current && selectedItem === "note") {
             setNotes(prevNotes =>
                 prevNotes.map(note =>
                     (note.id === noteId.current && note.modify) ?
@@ -183,12 +189,14 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleNoteModified = (data: any) => {
             const { id, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, noteTextAlign } = data;
-            setNotes(prevNotes =>
-                prevNotes.map(note =>
-                    note.id === id ?
-                        { ...note, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, noteTextAlign } : note
+            if (selectedItem === "note") {
+                setNotes(prevNotes =>
+                    prevNotes.map(note =>
+                        note.id === id ?
+                            { ...note, noteTextSize, noteFontFamily, noteBackgroundColor, noteTextBrightness, noteTextAlign } : note
+                    )
                 )
-            )
+            }
         }
 
         const handleNoteUnSelected = () => {
@@ -239,7 +247,7 @@ export default function StickyNotesFeatures({ canvasRef, noteTextSize, noteFontF
                 socket.off("noteMoved", handleNoteMoved);
             }
         }
-    }, [socket, dispatch, notes])
+    }, [socket, dispatch, notes, selectedItem])
 
     useEffect(() => {
         if (isNewMeeting) {

@@ -3,10 +3,11 @@ import input from '../Interfaces/input'
 import shape from '../Interfaces/shape'
 import note from '../Interfaces/note'
 import image from '../Interfaces/image'
-import { useAppDispatch } from '../Redux/hooks'
+import { useAppDispatch, useAppSelector } from '../Redux/hooks'
 import { toast } from "react-toastify";
 import { setConfirmSaveWhiteboard } from '../Redux/slices/user'
 import { useParams } from 'next/navigation'
+import { setFunctionality } from '../Redux/slices/functionality'
 
 type saveInterface = {
     texts: input[],
@@ -22,6 +23,7 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
     const dispatch = useAppDispatch();
     const params = useParams();
     const [whiteboardName, setWhiteboardName] = useState(params.RoomCode);
+    const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
 
     const save = async () => {
         try {
@@ -52,6 +54,7 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
                     position: 'top-center',
                 })
                 dispatch(setConfirmSaveWhiteboard(false));
+                dispatch(setFunctionality(""));
             }
         } catch (error) {
             console.log("error: ", error);
@@ -60,6 +63,7 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
 
     const donotSave = () => {
         dispatch(setConfirmSaveWhiteboard(false));
+        dispatch(setFunctionality(""));
     }
 
     const handleWhiteboardName = (e: React.ChangeEvent) => {
@@ -71,8 +75,8 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
 
     return (
         <>
-            <div className='absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white w-fit h-fit p-8 z-50 rounded-lg'>
-                <p className='text-gray-700 font-semibold'>
+            <div className={`${isDarkMode? "bg-gray-800" : "bg-white"} absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-fit h-fit p-8 z-50 rounded-lg`}>
+                <p className={`${isDarkMode ? "text-white" : "text-gray-700"} font-semibold`}>
                     Do you want to save it on cloud or in our database?
                 </p>
                 <input type="text" name="whiteboardName" className='border-2 border-gray-700 outline-none w-full px-4 py-2 mt-4 font-semibold text-gray-700 rounded-sm' placeholder='Enter whiteboard name' onChange={handleWhiteboardName} value={whiteboardName} />
