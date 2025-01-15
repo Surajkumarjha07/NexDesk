@@ -44,7 +44,8 @@ export default function Navbar() {
         const fetchedCookie = Cookies.get("authtoken");
         console.log(fetchedCookie);        
         dispatch(setCookie(fetchedCookie));
-        if (fetchedCookie || cookie) {
+        const validateCookie = fetchedCookie || cookie;
+        if (validateCookie) {
             try {
                 const payload = JSON.parse(atob(cookie.split(".")[1]));
                 dispatch(setUserEmail(payload.email));
