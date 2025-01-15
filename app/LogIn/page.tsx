@@ -63,15 +63,6 @@ export default function LogIn() {
             })
           }
         })
-        .catch(err => {
-          console.error("err: ", err);
-          toast.error("Something went wrong. Please try again later.", {
-            hideProgressBar: true,
-            autoClose: 1500,
-            type: 'error',
-            position: 'top-center',
-          });
-        })
 
     } catch (error) {
       console.error("Internal Server Error", error);
