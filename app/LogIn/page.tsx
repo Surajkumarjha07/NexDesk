@@ -24,48 +24,45 @@ export default function LogIn() {
     }
 
     try {
-      await fetch("https://nexdesk-backend.onrender.com/login", {
+      const response = await fetch("https://nexdesk-backend.onrender.com/login", {
         method: 'POST',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
-        credentials: "include"
-      })
-        .then(async (response) => {
-          const res = await response.json();
-          Cookies.set('authtoken', res.token, { maxAge: 3600, path: '' });
-          if (response.status === 200 || response.ok) {
-            toast.success("Congrats! You are Logged In", {
-              hideProgressBar: true,
-              autoClose: 1500,
-              type: 'success',
-              position: 'top-center',
-            })
-            router.push("/Home");
-          }
+        credentials: "include",
+      });
 
-          else if (response.status === 404) {
-            toast.error("Incorrect Email or password!", {
-              hideProgressBar: true,
-              autoClose: 1500,
-              type: 'error',
-              position: 'top-center',
-            })
-          }
+      if (!response.ok) {
+        const error = await response.json();
+        toast.error(error.message || "Login failed!", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'error',
+          position: 'top-center',
+        });
+        return;
+      }
 
-          else if (response.status === 500) {
-            toast.error("Internal server error!", {
-              hideProgressBar: true,
-              autoClose: 1500,
-              type: 'error',
-              position: 'top-center',
-            })
-          }
-        })
+      const res = await response.json();
+      Cookies.set('authtoken', res.token, { maxAge: 3600, path: '' });
 
-    } catch (error) {
-      console.error("Internal Server Error", error);
+      toast.success("Congrats! You are Logged In", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'success',
+        position: 'top-center',
+      });
+
+      router.push("/Home");
+    } catch (err) {
+      console.error("Error during login:", err);
+      toast.error("Something went wrong. Please try again later.", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'error',
+        position: 'top-center',
+      });
     }
   }
 
