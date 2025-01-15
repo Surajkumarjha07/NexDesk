@@ -71,7 +71,7 @@ export default function CanvasPage() {
           credentials: "include"
         })
           .then(response => {
-            if (response.status === 200) {
+            if (response.status === 200 || response.ok) {
               setVisibleContent(true);
             }
             else {

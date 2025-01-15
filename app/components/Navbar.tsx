@@ -92,7 +92,7 @@ export default function Navbar() {
             credentials: "include",
         })
             .then(response => {
-                if (response.status === 200) {
+                if (response.status === 200 || response.ok) {
                     Cookies.remove("authtoken");
                     window.location.reload();
                 }

@@ -43,7 +43,7 @@ export default function UpdateUser() {
           credentials: "include"
         })
           .then(response => {
-            if (response.status === 200) {
+            if (response.status === 200 || response.ok) {
               setVisibleContent(true);
             }
             else {
