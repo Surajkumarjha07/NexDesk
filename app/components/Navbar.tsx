@@ -16,6 +16,8 @@ import CloseOutlinedIcon from '@mui/icons-material/CloseOutlined';
 import OpenWithOutlinedIcon from '@mui/icons-material/OpenWithOutlined';
 import Brightness4OutlinedIcon from '@mui/icons-material/Brightness4Outlined';
 import { setIsDarkMode } from '../Redux/slices/darkMode';
+import Cookies from "js-cookie";
+import { setCookie } from '../Redux/slices/cookie';
 
 export default function Navbar() {
     const [time, setTime] = useState('');
@@ -39,6 +41,8 @@ export default function Navbar() {
     const colors2 = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
     useEffect(() => {
+        const fetchedCookie = Cookies.get("authToken");
+        dispatch(setCookie(fetchedCookie));
         if (cookie) {
             try {
                 const payload = JSON.parse(atob(cookie.split(".")[1]));
