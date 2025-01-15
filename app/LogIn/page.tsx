@@ -4,15 +4,12 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
-import { useAppDispatch } from '../Redux/hooks';
-import { setCookie } from '../Redux/slices/cookie';
 import Cookies from "js-cookie";
 
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
-  const dispatch = useAppDispatch();
 
   const LogInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,9 +34,7 @@ export default function LogIn() {
       })
         .then(async (response) => {
           const res = await response.json();
-          console.log(res);
-          dispatch(setCookie(res.token));
-          Cookies.set('authtoken', res.token, { expires: 1 / 1440, path: '' });
+          Cookies.set('authtoken', res.token, { expires: 1 / 24, path: '' });
           if (response.status === 200) {
             toast.success("Congrats! You are Logged In", {
               hideProgressBar: true,
@@ -47,7 +42,6 @@ export default function LogIn() {
               type: 'success',
               position: 'top-center',
             })
-            Cookies.set('authToken', 'your_token_value', { expires: 1, path: '' });
             router.push("/Home");
           }
 

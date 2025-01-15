@@ -33,13 +33,13 @@ export default function SignUp() {
       })
         .then(response => {
           if (response.status === 200) {
-            router.push("/");
             toast.success("Great! You are Signed Up", {
               hideProgressBar: true,
               autoClose: 1500,
               type: 'success',
               position: 'top-center',
             })
+            router.push("/");
           }
 
           else if (response.status === 409) {

@@ -17,7 +17,6 @@ import OpenWithOutlinedIcon from '@mui/icons-material/OpenWithOutlined';
 import Brightness4OutlinedIcon from '@mui/icons-material/Brightness4Outlined';
 import { setIsDarkMode } from '../Redux/slices/darkMode';
 import Cookies from "js-cookie";
-import { setCookie } from '../Redux/slices/cookie';
 
 export default function Navbar() {
     const [time, setTime] = useState('');
@@ -34,7 +33,7 @@ export default function Navbar() {
     const [toggleMeets, setToggleMeets] = useState(false);
     const [color2, setColor2] = useState("");
     const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
-    const cookie = useAppSelector(state => state.Cookie.cookie);
+    const [cookie, setCookie] = useState<string>("");
 
     const nowTime = new Date();
     const colors = ["bg-red-500", "bg-blue-500", "bg-yellow-500", "bg-green-500", "bg-orange-500", "bg-pink-500", "bg-violet-500"];
@@ -42,10 +41,11 @@ export default function Navbar() {
 
     useEffect(() => {
         const fetchedCookie = Cookies.get("authtoken");
-        console.log(fetchedCookie);        
-        dispatch(setCookie(fetchedCookie));
-        const validateCookie = fetchedCookie || cookie;
-        if (validateCookie) {
+        if (fetchedCookie) {
+            setCookie(fetchedCookie);
+        }
+        const validatedCookie = fetchedCookie || cookie;
+        if (validatedCookie) {
             try {
                 const payload = JSON.parse(atob(cookie.split(".")[1]));
                 dispatch(setUserEmail(payload.email));
@@ -93,6 +93,7 @@ export default function Navbar() {
         })
             .then(response => {
                 if (response.status === 200) {
+                    Cookies.remove("authtoken");
                     window.location.reload();
                 }
             })

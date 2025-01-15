@@ -5,6 +5,7 @@ import { useAppSelector, useAppDispatch } from '../Redux/hooks';
 import { useSocket } from '../socketContext';
 import { setToggle, setToggleChat, setToggleSaves, setToggleUsers } from '../Redux/slices/ToggleMessage';
 import CallIcon from '@mui/icons-material/Call';
+import Cookies from 'js-cookie';
 
 type message = {
     from: string,
@@ -37,7 +38,7 @@ export default function ChatComponent() {
     const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
     const [color, setColor] = useState("");
     const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
-    const cookie = useAppSelector(state => state.Cookie.cookie);
+    const [cookie, setCookie] = useState<string>("");
 
     const colors = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
@@ -51,6 +52,13 @@ export default function ChatComponent() {
             })
         }
     }
+
+    useEffect(() => {
+        const fetchedCookie = Cookies.get("authtoken");
+        if (fetchedCookie) {
+            setCookie(fetchedCookie);
+        }
+    }, [])
 
     useEffect(() => {
         if (socket) {

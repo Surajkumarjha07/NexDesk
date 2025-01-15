@@ -15,7 +15,6 @@ export const SocketProvider = ({ children }: {children: React.ReactNode}) => {
 
         return () => {
             socket.disconnect();
-            console.log("user disconnected");            
         }
     }, [])
 

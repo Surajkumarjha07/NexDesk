@@ -73,7 +73,6 @@ export default function BottomBar() {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const handleImageDrawed = (data: any) => {
             const { id, x, y, src, width, height, brightness, contrast, saturation, modify } = data;
-            console.log(data);
             dispatch(setImages({
                 id, x, y, src, width, height, brightness, contrast, saturation, modify
             })
