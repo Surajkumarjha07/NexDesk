@@ -42,8 +42,9 @@ export default function Navbar() {
 
     useEffect(() => {
         const fetchedCookie = Cookies.get("authToken");
+        console.log(fetchedCookie);        
         dispatch(setCookie(fetchedCookie));
-        if (cookie) {
+        if (fetchedCookie || cookie) {
             try {
                 const payload = JSON.parse(atob(cookie.split(".")[1]));
                 dispatch(setUserEmail(payload.email));
