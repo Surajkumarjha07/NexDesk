@@ -45,6 +45,7 @@ export default function Navbar() {
             const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
             const cookie = targetCookie && targetCookie.split("=")[1];
             setCookie(cookie);
+
             if (cookie) {
                 try {
                     const payload = JSON.parse(atob(cookie.split(".")[1]));
@@ -277,12 +278,12 @@ export default function Navbar() {
 
                     <p className={`${isDarkMode ? "text-white" : "text-gray-600"} text-xl`}> {time} </p>
                     <button className={`box rounded-full cursor-pointer w-16 h-16 ${color} flex justify-center items-center text-2xl text-white`} onClick={handleBoxVisible}>
-                        {username.toUpperCase().charAt(0)}
+                        {username?.toUpperCase().charAt(0)}
                     </button>
                     {
                         visible &&
                         <div className='box2 bg-white shadow-sm shadow-gray-300 flex justify-center items-center gap-4 rounded-md px-4 py-2 absolute top-20 right-0'>
-                            <div className={`box3 rounded-full w-14 h-14 ${color} flex justify-center items-center text-2xl text-white`}> {username.toUpperCase().charAt(0)} </div>
+                            <div className={`box3 rounded-full w-14 h-14 ${color} flex justify-center items-center text-2xl text-white`}> {username?.toUpperCase().charAt(0)} </div>
                             <div className='box4 flex flex-col justify-center items-start'>
                                 <p className='emailText text-gray-700 font-semibold'> {username} </p>
                                 <button className='signOut text-red-600 font-medium text-sm mt-1' onClick={signOut}> Sign Out </button>
