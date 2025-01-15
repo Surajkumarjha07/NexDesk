@@ -24,7 +24,6 @@ export default function Navbar() {
     const [visible, setVisible] = useState(false);
     const [color, setColor] = useState("");
     const [showOptions, setShowOptions] = useState(false);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [cookie, setCookie] = useState<string | null>(null);
     const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,81 +34,57 @@ export default function Navbar() {
     const [color2, setColor2] = useState("");
     const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
 
+    const nowTime = new Date();
     const colors = ["bg-red-500", "bg-blue-500", "bg-yellow-500", "bg-green-500", "bg-orange-500", "bg-pink-500", "bg-violet-500"];
     const colors2 = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
-
     useEffect(() => {
-        if (typeof document !== "undefined") {
-            // Read the cookies
-            const cookies = document.cookie.split("; ");
-            console.log("Cookies:", cookies);  // Log all cookies for debugging
-
-            // Find the authtoken cookie
-            const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
-
-            if (targetCookie) {
-                const cookieValue = targetCookie.split("=")[1];
-                console.log("authtoken:", cookieValue);
-                setCookie(cookieValue);
-
-                if (cookieValue) {
-                    try {
-                        // Decode the JWT payload from the cookie
-                        const payload = JSON.parse(atob(cookieValue.split(".")[1]));
-                        console.log("Decoded Payload:", payload); // Debug the payload
-
-                        // Dispatch the user info if it exists
-                        if (payload.email && payload.name) {
-                            dispatch(setUserEmail(payload.email));
-                            dispatch(setUserName(payload.name));
-                        }
-                    } catch (error) {
-                        console.error("Error parsing the cookie:", error);
-                    }
-                }
-            } else {
-                console.log("No 'authtoken' cookie found.");
+        const cookies = document.cookie.split(";");
+        console.log("cookies: ", cookies);        
+        const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
+        if (targetCookie) {
+            const cookie = targetCookie.split("=")[1];
+            console.log("cookie: ", cookie);            
+            if (cookie) {
+                setCookie(cookie);
             }
-
-            // Time and color setup (remains the same)
-            const nowTime = new Date();
-            const time = nowTime.toLocaleString('en-US', {
-                hour: 'numeric',
-                minute: 'numeric',
-                hour12: true,
-                day: 'numeric',
-                weekday: 'short',
-                month: 'short',
-            });
-            setTime(time);
-
-            setColor(colors[Math.floor(Math.random() * colors.length)]);
-            setColor2(colors2[Math.floor(Math.random() * colors2.length)]);
-
-            // Handle document click event listener
-            const handleClickOutside = (e: MouseEvent) => {
-                const target = e.target as HTMLElement;
-                if (
-                    !target.classList.contains("box") &&
-                    !target.classList.contains("box2") &&
-                    !target.classList.contains("box3") &&
-                    !target.classList.contains("box4") &&
-                    !target.classList.contains("emailText") &&
-                    !target.classList.contains("signOut")
-                ) {
-                    setVisible(false);
-                }
-            };
-            document.addEventListener("click", handleClickOutside);
-
-            // Cleanup the event listener
-            return () => {
-                document.removeEventListener("click", handleClickOutside);
-            };
         }
+        if (cookie) {
+            try {
+                const payload = JSON.parse(atob(cookie.split(".")[1]));
+                dispatch(setUserEmail(payload.email));
+                dispatch(setUserName(payload.name));
+            } catch (error) {
+                console.error("Error parsing the cookie: ", error);
+            }
+        }
+
+        const time = nowTime.toLocaleString('en-US', {
+            hour: 'numeric',
+            minute: 'numeric',
+            hour12: true,
+            day: 'numeric',
+            weekday: 'short',
+            month: 'short',
+        });
+        setTime(time);
+
+        setColor(colors[Math.floor(Math.random() * colors.length)]);
+        setColor2(colors2[Math.floor(Math.random() * colors2.length)]);
+
+        document.addEventListener("click", (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            if (!target.classList.contains("box") && !target.classList.contains("box2") && !target.classList.contains("box3") && !target.classList.contains("box4") && !target.classList.contains("emailText") && !target.classList.contains("signOut")) {
+                setVisible(false);
+            }
+        });
+
+        return () => {
+            document.removeEventListener("click", () => { });
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cookie, dispatch]);
+
 
     const handleBoxVisible = () => {
         setVisible(!visible);
@@ -303,12 +278,12 @@ export default function Navbar() {
 
                     <p className={`${isDarkMode ? "text-white" : "text-gray-600"} text-xl`}> {time} </p>
                     <button className={`box rounded-full cursor-pointer w-16 h-16 ${color} flex justify-center items-center text-2xl text-white`} onClick={handleBoxVisible}>
-                        {username?.toUpperCase().charAt(0)}
+                        {username.toUpperCase().charAt(0)}
                     </button>
                     {
                         visible &&
                         <div className='box2 bg-white shadow-sm shadow-gray-300 flex justify-center items-center gap-4 rounded-md px-4 py-2 absolute top-20 right-0'>
-                            <div className={`box3 rounded-full w-14 h-14 ${color} flex justify-center items-center text-2xl text-white`}> {username?.toUpperCase().charAt(0)} </div>
+                            <div className={`box3 rounded-full w-14 h-14 ${color} flex justify-center items-center text-2xl text-white`}> {username.toUpperCase().charAt(0)} </div>
                             <div className='box4 flex flex-col justify-center items-start'>
                                 <p className='emailText text-gray-700 font-semibold'> {username} </p>
                                 <button className='signOut text-red-600 font-medium text-sm mt-1' onClick={signOut}> Sign Out </button>
