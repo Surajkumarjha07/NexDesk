@@ -81,17 +81,15 @@ export default function Navbar() {
     }
 
     const signOut = async () => {
-        const response = await fetch("https://nexdesk-backend.onrender.com/signOut", {
+        await fetch("https://nexdesk-backend.onrender.com/signOut", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
             credentials: "include",
         })
-
-        if (response.ok) {
-            window.location.reload();
-        }
+            .then(response => {
+                if (response.status === 200) {
+                    window.location.reload();
+                }
+            })
     }
 
     const getWhiteboards = async () => {
