@@ -33,7 +33,18 @@ export default function LogIn() {
         credentials: "include",
       });
 
-      if (!response.ok) {
+      if (response.status === 200 || response.ok) {
+        const res = await response.json();
+        Cookies.set('authtoken', res.token, { maxAge: 3600, path: '' });
+        toast.success("Congrats! You are Logged In", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'success',
+          position: 'top-center',
+        });
+        router.push("/Home");
+      }
+      else {
         const error = await response.json();
         toast.error(error.message || "Login failed!", {
           hideProgressBar: true,
@@ -41,20 +52,8 @@ export default function LogIn() {
           type: 'error',
           position: 'top-center',
         });
-        return;
       }
 
-      const res = await response.json();
-      Cookies.set('authtoken', res.token, { maxAge: 3600, path: '' });
-
-      toast.success("Congrats! You are Logged In", {
-        hideProgressBar: true,
-        autoClose: 1500,
-        type: 'success',
-        position: 'top-center',
-      });
-
-      router.push("/Home");
     } catch (err) {
       console.error("Error during login:", err);
       toast.error("Something went wrong. Please try again later.", {
