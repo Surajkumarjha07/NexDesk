@@ -41,21 +41,28 @@ export default function Navbar() {
 
     useEffect(() => {
         if (typeof document !== "undefined") {
-            const cookies = document.cookie.split(";");
+            const cookies = document.cookie.split("; ");
+            console.log("Cookies:", cookies); // Log all cookies for debugging
             const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
-            const cookie = targetCookie && targetCookie.split("=")[1];
-            setCookie(cookie);
 
-            if (cookie) {
-                try {
-                    const payload = JSON.parse(atob(cookie.split(".")[1]));
-                    if (payload.email && payload.name) {
-                        dispatch(setUserEmail(payload.email));
-                        dispatch(setUserName(payload.name));
+            if (targetCookie) {
+                const cookieValue = targetCookie.split("=")[1];
+                console.log("authtoken:", cookieValue); // Check the actual cookie value
+                setCookie(cookieValue);
+
+                if (cookieValue) {
+                    try {
+                        const payload = JSON.parse(atob(cookieValue.split(".")[1]));
+                        if (payload.email && payload.name) {
+                            dispatch(setUserEmail(payload.email));
+                            dispatch(setUserName(payload.name));
+                        }
+                    } catch (error) {
+                        console.error("Error parsing the cookie: ", error);
                     }
-                } catch (error) {
-                    console.error("Error parsing the cookie: ", error);
                 }
+            } else {
+                console.log("No 'authtoken' cookie found.");
             }
 
             const time = nowTime.toLocaleString('en-US', {
@@ -84,6 +91,7 @@ export default function Navbar() {
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [cookie, dispatch]);
+
 
 
     const handleBoxVisible = () => {
