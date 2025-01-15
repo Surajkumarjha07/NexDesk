@@ -17,13 +17,11 @@ type saveInterface = {
 }
 
 export default function Save({ texts, shapes, notes, images }: saveInterface) {
-    const cookies = document.cookie.split(";");
-    const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
-    const cookie = targetCookie ? targetCookie.split("=")[1] : null;
     const dispatch = useAppDispatch();
     const params = useParams();
     const [whiteboardName, setWhiteboardName] = useState(params.RoomCode);
     const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
+    const cookie = useAppSelector(state => state.Cookie.cookie);
 
     const save = async () => {
         try {
@@ -43,7 +41,7 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
                     Authorization: `Bearer ${cookie}`
                 },
                 credentials: "include",
-                body: JSON.stringify({ meetingCode: whiteboardName || 123, texts, shapes, notes, images })
+                body: JSON.stringify({ meetingCode: whiteboardName, texts, shapes, notes, images })
             })
 
             if (response.ok) {
@@ -75,7 +73,7 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
 
     return (
         <>
-            <div className={`${isDarkMode? "bg-gray-800" : "bg-white"} absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-fit h-fit p-8 z-50 rounded-lg`}>
+            <div className={`${isDarkMode ? "bg-gray-800" : "bg-white"} absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-fit h-fit p-8 z-50 rounded-lg`}>
                 <p className={`${isDarkMode ? "text-white" : "text-gray-700"} font-semibold`}>
                     Do you want to save it on cloud or in our database?
                 </p>
