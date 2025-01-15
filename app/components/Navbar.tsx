@@ -41,7 +41,7 @@ export default function Navbar() {
     const colors2 = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
     useEffect(() => {
-        const fetchedCookie = Cookies.get("authToken");
+        const fetchedCookie = Cookies.get("authtoken");
         console.log(fetchedCookie);        
         dispatch(setCookie(fetchedCookie));
         if (fetchedCookie || cookie) {
