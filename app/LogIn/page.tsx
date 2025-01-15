@@ -4,11 +4,14 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
+import { useAppDispatch } from '../Redux/hooks';
+import { setCookie } from '../Redux/slices/cookie';
 
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
+  const dispatch = useAppDispatch();
 
   const LogInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -31,7 +34,10 @@ export default function LogIn() {
         body: JSON.stringify({ email, password }),
         credentials: "include"
       })
-        .then(response => {
+        .then(async (response) => {
+          const res = await response.json();
+          console.log(res);
+          dispatch(setCookie(res.token));
           if (response.status === 200) {
             toast.success("Congrats! You are Logged In", {
               hideProgressBar: true,
