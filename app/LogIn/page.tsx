@@ -12,8 +12,18 @@ export default function LogIn() {
 
   const LogInUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!email || !password) {
+      toast.error("Enter details correctly!", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'error',
+        position: 'top-center',
+      });
+      return;
+    }
+
     try {
-      const response = await fetch("https://nexdesk-backend.onrender.com/login", {
+      await fetch("https://nexdesk-backend.onrender.com/login", {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -21,50 +31,47 @@ export default function LogIn() {
         body: JSON.stringify({ email, password }),
         credentials: "include"
       })
+        .then(response => {
+          if (response.status === 200) {
+            toast.success("Congrats! You are Logged In", {
+              hideProgressBar: true,
+              autoClose: 1500,
+              type: 'success',
+              position: 'top-center',
+            })
+            router.push("/Home");
+          }
 
-      if (response.ok) {
-        const res = await response.json();
-        console.log(res);
-        toast.success("Congrats! You are Logged In", {
-          hideProgressBar: true,
-          autoClose: 1500,
-          type: 'success',
-          position: 'top-center',
+          else if (response.status === 404) {
+            toast.error("Incorrect Email or password!", {
+              hideProgressBar: true,
+              autoClose: 1500,
+              type: 'error',
+              position: 'top-center',
+            })
+          }
+
+          else if (response.status === 500) {
+            toast.error("Internal server error!", {
+              hideProgressBar: true,
+              autoClose: 1500,
+              type: 'error',
+              position: 'top-center',
+            })
+          }
         })
-        setTimeout(() => {
-          router.push("/Home");
-        }, 3000);
-      }
-      switch (response.status) {
-        case 404:
-          toast.error("Incorrect Email or password!", {
+        .catch(err => {
+          console.error("err: ", err);
+          toast.error("Something went wrong. Please try again later.", {
             hideProgressBar: true,
             autoClose: 1500,
             type: 'error',
             position: 'top-center',
-          })
-          break;
+          });
+        })
 
-        case 400:
-          toast.error("Enter details correctly!", {
-            hideProgressBar: true,
-            autoClose: 1500,
-            type: 'error',
-            position: 'top-center',
-          })
-          break;
-
-        case 500:
-          toast.error("Internal server error!", {
-            hideProgressBar: true,
-            autoClose: 1500,
-            type: 'error',
-            position: 'top-center',
-          })
-          break;
-      }
     } catch (error) {
-      console.log("Internal Server Error", error);
+      console.error("Internal Server Error", error);
     }
   }
 
