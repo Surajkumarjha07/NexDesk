@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import input from '../Interfaces/input'
 import shape from '../Interfaces/shape'
 import note from '../Interfaces/note'
@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 import { setConfirmSaveWhiteboard } from '../Redux/slices/user'
 import { useParams } from 'next/navigation'
 import { setFunctionality } from '../Redux/slices/functionality'
+import Cookies from 'js-cookie'
 
 type saveInterface = {
     texts: input[],
@@ -21,7 +22,14 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
     const params = useParams();
     const [whiteboardName, setWhiteboardName] = useState(params.RoomCode);
     const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
-    const cookie = useAppSelector(state => state.Cookie.cookie);
+    const [cookie, setCookie] = useState<string>("");
+
+    useEffect(() => {
+        const fetchedCookie = Cookies.get("authtoken");
+        if (fetchedCookie) {
+            setCookie(fetchedCookie);
+        }
+    }, [])
 
     const save = async () => {
         try {

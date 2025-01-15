@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAppDispatch, useAppSelector } from '@/app/Redux/hooks';
 import { toast } from "react-toastify";
 import { setIsDarkMode } from '@/app/Redux/slices/darkMode';
+import Cookies from 'js-cookie';
 
 export default function UpdateUser() {
   const [newEmail, setNewEmail] = useState<string>('');
@@ -17,9 +18,13 @@ export default function UpdateUser() {
   const username = useAppSelector(state => state.UserCredential.username);
   const userEmail = useAppSelector(state => state.UserCredential.userEmail);
   const dispatch = useAppDispatch();
-  const cookie = useAppSelector(state => state.Cookie.cookie);
+  const [cookie, setCookie] = useState<string>("");
 
   useEffect(() => {
+    const fetchedCookie = Cookies.get("authtoken");
+    if (fetchedCookie) {
+      setCookie(fetchedCookie);
+    }
     dispatch(setIsDarkMode(false));
 
     const authorized = async () => {
@@ -104,6 +109,7 @@ export default function UpdateUser() {
         })
 
         if (signOut.ok) {
+          Cookies.remove("authtoken");
           window.location.reload();
         }
       }

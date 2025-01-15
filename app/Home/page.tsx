@@ -9,6 +9,7 @@ import { setIsNewMeeting, setMeetingCode } from '@/app/Redux/slices/meetingCode'
 import { motion } from "framer-motion"
 import { setToggle } from '@/app/Redux/slices/ToggleMessage';
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 export default function HomePage() {
     const router = useRouter();
@@ -20,9 +21,13 @@ export default function HomePage() {
     const username = useAppSelector(state => state.UserCredential.username);
     const userEmail = useAppSelector(state => state.UserCredential.userEmail);
     const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
-    const cookie = useAppSelector(state => state.Cookie.cookie);
+    const [cookie, setCookie] = useState<string>("");
 
     useEffect(() => {
+        const fetchedCookie = Cookies.get("authtoken");
+        if (fetchedCookie) {
+            setCookie(fetchedCookie);
+        }
         dispatch(setMeetingCode(""));
         dispatch(setToggle(false));
 

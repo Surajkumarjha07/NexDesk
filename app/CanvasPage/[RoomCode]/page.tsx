@@ -17,6 +17,7 @@ import CanvasImageFeatures from '@/app/Features/canvasImageFeatures';
 import { setDisconnectedUser } from '@/app/Redux/slices/user';
 import Save from '@/app/components/save';
 import { toast } from "react-toastify";
+import Cookies from 'js-cookie';
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -52,9 +53,13 @@ export default function CanvasPage() {
   const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
   const isNewMeeting = useAppSelector(state => state.MeetingCode.isNewMeeting);
   const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
-  const cookie = useAppSelector(state => state.Cookie.cookie);
+  const [cookie, setCookie] = useState<string>("");
 
   useEffect(() => {
+    const fetchedCookie = Cookies.get("authtoken");
+    if (fetchedCookie) {
+      setCookie(fetchedCookie);
+    }
     const authorized = async () => {
       try {
         await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {

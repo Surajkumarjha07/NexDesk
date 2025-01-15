@@ -16,7 +16,7 @@ export default function ClientLayout({
     const [isSmall, setIsSmall] = useState(false);
 
     const handleSize = () => {
-        if (window.innerWidth < 768) {
+        if (window.innerWidth < 1024) {
             setIsSmall(true);
         }
         else {

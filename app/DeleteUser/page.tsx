@@ -5,16 +5,21 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
 import { setIsDarkMode } from '@/app/Redux/slices/darkMode';
-import { useAppDispatch, useAppSelector } from '@/app/Redux/hooks';
+import { useAppDispatch } from '@/app/Redux/hooks';
+import Cookies from "js-cookie";
 
 export default function DeleteUser() {
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
   const [visibleContent, setVisibleContent] = useState<boolean>(false);
   const dispatch = useAppDispatch();
-  const cookie = useAppSelector(state => state.Cookie.cookie);
+  const [cookie, setCookie] = useState<string>("");
 
   useEffect(() => {
+    const fetchedCookie = Cookies.get("authtoken");
+    if (fetchedCookie) {
+      setCookie(fetchedCookie);
+    }
     dispatch(setIsDarkMode(false));
 
     const authorized = async () => {
@@ -86,6 +91,7 @@ export default function DeleteUser() {
         })
 
         if (response.ok) {
+          Cookies.remove("authtoken");
           window.location.reload();
         }
       }

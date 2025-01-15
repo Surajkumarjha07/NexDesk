@@ -11,7 +11,6 @@ import ToggleMessageReducer from "./slices/ToggleMessage";
 import UserCredentialReducer from "./slices/user";
 import WhiteboardReducer from "./slices/whiteboard";
 import DarkModeReducer from "./slices/darkMode";
-import CookieReducer from "./slices/cookie";
 
 export const store = configureStore({
     reducer: {
@@ -27,7 +26,6 @@ export const store = configureStore({
         UserCredential: UserCredentialReducer,
         Whiteboard: WhiteboardReducer,
         DarkMode: DarkModeReducer,
-        Cookie: CookieReducer
     }
 });
 
