@@ -24,6 +24,7 @@ export default function Navbar() {
     const [visible, setVisible] = useState(false);
     const [color, setColor] = useState("");
     const [showOptions, setShowOptions] = useState(false);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [cookie, setCookie] = useState<any>(null);
     const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
