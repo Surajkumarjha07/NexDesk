@@ -24,9 +24,7 @@ export default function Navbar() {
     const [visible, setVisible] = useState(false);
     const [color, setColor] = useState("");
     const [showOptions, setShowOptions] = useState(false);
-    const cookies = document.cookie.split(";");
-    const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
-    const cookie = targetCookie && targetCookie.split("=")[1];
+    const [cookie, setCookie] = useState<any>(null);
     const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [whiteboards, setWhiteboards] = useState<any[]>([]);
@@ -41,38 +39,43 @@ export default function Navbar() {
     const colors2 = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
     useEffect(() => {
-        if (cookie) {
-            try {
-                const payload = JSON.parse(atob(cookie.split(".")[1]));
-
-                if (payload) {
-                    dispatch(setUserEmail(payload.email));
-                    dispatch(setUserName(payload.name));
+        if (typeof document !== "undefined") {
+            const cookies = document.cookie.split(";");
+            const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
+            const cookie = targetCookie && targetCookie.split("=")[1];
+            setCookie(cookie);
+            if (cookie) {
+                try {
+                    const payload = JSON.parse(atob(cookie.split(".")[1]));
+                    if (payload.email && payload.name) {
+                        dispatch(setUserEmail(payload.email));
+                        dispatch(setUserName(payload.name));
+                    }
+                } catch (error) {
+                    console.error("Error parsing the cookie: ", error);
                 }
-            } catch (error) {
-                console.error("Error parsing the cookie: ", error);
             }
+
+            const time = nowTime.toLocaleString('en-US', {
+                hour: 'numeric',
+                minute: 'numeric',
+                hour12: true,
+                day: 'numeric',
+                weekday: 'short',
+                month: 'short',
+            });
+            setTime(time);
+
+            setColor(colors[Math.floor(Math.random() * colors.length)]);
+            setColor2(colors2[Math.floor(Math.random() * colors2.length)]);
+
+            document.addEventListener("click", (e: MouseEvent) => {
+                const target = e.target as HTMLElement;
+                if (!target.classList.contains("box") && !target.classList.contains("box2") && !target.classList.contains("box3") && !target.classList.contains("box4") && !target.classList.contains("emailText") && !target.classList.contains("signOut")) {
+                    setVisible(false);
+                }
+            });
         }
-
-        const time = nowTime.toLocaleString('en-US', {
-            hour: 'numeric',
-            minute: 'numeric',
-            hour12: true,
-            day: 'numeric',
-            weekday: 'short',
-            month: 'short',
-        });
-        setTime(time);
-
-        setColor(colors[Math.floor(Math.random() * colors.length)]);
-        setColor2(colors2[Math.floor(Math.random() * colors2.length)]);
-
-        document.addEventListener("click", (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            if (!target.classList.contains("box") && !target.classList.contains("box2") && !target.classList.contains("box3") && !target.classList.contains("box4") && !target.classList.contains("emailText") && !target.classList.contains("signOut")) {
-                setVisible(false);
-            }
-        });
 
         return () => {
             document.removeEventListener("click", () => { });
