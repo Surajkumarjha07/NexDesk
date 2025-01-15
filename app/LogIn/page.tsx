@@ -35,7 +35,7 @@ export default function LogIn() {
         .then(async (response) => {
           const res = await response.json();
           Cookies.set('authtoken', res.token, { maxAge: 3600, path: '' });
-          if (response.status === 200) {
+          if (response.status === 200 || response.ok) {
             toast.success("Congrats! You are Logged In", {
               hideProgressBar: true,
               autoClose: 1500,

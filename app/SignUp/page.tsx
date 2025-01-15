@@ -32,7 +32,7 @@ export default function SignUp() {
         credentials: "include"
       })
         .then(response => {
-          if (response.status === 200) {
+          if (response.status === 200 || response.ok) {
             toast.success("Great! You are Signed Up", {
               hideProgressBar: true,
               autoClose: 1500,
