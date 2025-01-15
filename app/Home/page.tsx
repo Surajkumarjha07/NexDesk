@@ -20,51 +20,42 @@ export default function HomePage() {
     const username = useAppSelector(state => state.UserCredential.username);
     const userEmail = useAppSelector(state => state.UserCredential.userEmail);
     const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
+    const cookie = useAppSelector(state => state.Cookie.cookie);
 
     useEffect(() => {
-        if (typeof document !== "undefined") {
-            const cookies = document.cookie.split("; ");
-            const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            let mainCookie: any;
-            if (cookie) {
-                mainCookie = cookie.split("=")[1];
+        dispatch(setMeetingCode(""));
+        dispatch(setToggle(false));
+
+        const authorized = async () => {
+            try {
+                await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${cookie}`
+                    },
+                    credentials: "include"
+                }).then(response => {
+                    if (response.status === 200) {
+                        setVisibleContent(true);
+                    }
+                    else {
+                        router.push("/");
+                    }
+                })
+            } catch (error) {
+                console.error("error: ", error);
+                toast.error("Unable to authorize. Please try again later.", {
+                    hideProgressBar: true,
+                    autoClose: 2000,
+                    position: "top-center",
+                });
+                router.push("/")
             }
+        };
 
-            dispatch(setMeetingCode(""));
-            dispatch(setToggle(false));
-
-            const authorized = async () => {
-                try {
-                    await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
-                        method: "GET",
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${mainCookie}`
-                        },
-                        credentials: "include"
-                    }).then(response => {
-                        if (response.status === 200) {
-                            setVisibleContent(true);
-                        }
-                        else {
-                            router.push("/");
-                        }
-                    })
-                } catch (error) {
-                    console.error("error: ", error);
-                    toast.error("Unable to authorize. Please try again later.", {
-                        hideProgressBar: true,
-                        autoClose: 2000,
-                        position: "top-center",
-                    });
-                    router.push("/")
-                }
-            };
-
-            authorized();
-        }
-    }, [router, dispatch]);
+        authorized();
+    }, [router, dispatch, cookie]);
 
     useEffect(() => {
         if (socket) {

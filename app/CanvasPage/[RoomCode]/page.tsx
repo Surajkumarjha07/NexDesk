@@ -16,6 +16,7 @@ import CanvasTextFeatures from '@/app/Features/canvasTextFeatures';
 import CanvasImageFeatures from '@/app/Features/canvasImageFeatures';
 import { setDisconnectedUser } from '@/app/Redux/slices/user';
 import Save from '@/app/components/save';
+import { toast } from "react-toastify";
 
 export default function CanvasPage() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -51,42 +52,40 @@ export default function CanvasPage() {
   const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
   const isNewMeeting = useAppSelector(state => state.MeetingCode.isNewMeeting);
   const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
+  const cookie = useAppSelector(state => state.Cookie.cookie);
 
   useEffect(() => {
-    const cookies = document.cookie.split(";");
-    const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
-    const mainCookie = cookie ? cookie.split("=")[1] : null;
-
     const authorized = async () => {
-      if (!mainCookie) {
-        router.push("/");
-        return;
-      }
-
       try {
-        const response = await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
+        await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${mainCookie}`
+            Authorization: `Bearer ${cookie}`
           },
           credentials: "include"
         })
-
-        if (!response.ok) {
-          router.push("/");
-        }
-        else {
-          setVisibleContent(true);
-        }
+          .then(response => {
+            if (response.status === 200) {
+              setVisibleContent(true);
+            }
+            else {
+              router.push("/");
+            }
+          })
       } catch (error) {
-        console.log("error: ", error);
+        console.error("error: ", error);
+        toast.error("Unable to authorize. Please try again later.", {
+          hideProgressBar: true,
+          autoClose: 2000,
+          position: "top-center",
+        });
         router.push("/")
       }
     };
 
     authorized();
-  }, [router]);
+  }, [router, cookie]);
 
   const { settingText, removeInput, inputs, handleTextClick, handleTextMove, handleTextStop, handleTextEraser, handleInputModify } = CanvasTextFeatures({
     canvasRef,

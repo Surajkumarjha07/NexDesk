@@ -5,51 +5,54 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
 import { setIsDarkMode } from '@/app/Redux/slices/darkMode';
-import { useAppDispatch } from '@/app/Redux/hooks';
+import { useAppDispatch, useAppSelector } from '@/app/Redux/hooks';
 
 export default function DeleteUser() {
   const [password, setPassword] = useState<string>('');
   const router = useRouter();
   const [visibleContent, setVisibleContent] = useState<boolean>(false);
   const dispatch = useAppDispatch();
+  const cookie = useAppSelector(state => state.Cookie.cookie);
 
   useEffect(() => {
-    const cookies = document.cookie.split(";");
-    const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
-    const mainCookie = cookie ? cookie.split("=")[1] : null;
     dispatch(setIsDarkMode(false));
 
     const authorized = async () => {
-      if (!mainCookie) {
+      if (!cookie) {
         router.push("/");
         return;
       }
 
       try {
-        const response = await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
+        await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${mainCookie}`
+            Authorization: `Bearer ${cookie}`
           },
           credentials: "include"
         })
-
-        if (!response.ok) {
-          router.push("/");
-
-        }
-        else {
-          setVisibleContent(true);
-        }
+          .then(response => {
+            if (response.status === 200) {
+              setVisibleContent(true);
+            }
+            else {
+              router.push("/");
+            }
+          })
       } catch (error) {
-        console.log("error: ", error);
+        console.error("error: ", error);
+        toast.error("Unable to authorize. Please try again later.", {
+          hideProgressBar: true,
+          autoClose: 2000,
+          position: "top-center",
+        });
         router.push("/")
       }
     };
 
     authorized();
-  }, [router, dispatch]);
+  }, [router, dispatch, cookie]);
 
   const DeleteUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -64,10 +67,6 @@ export default function DeleteUser() {
     }
 
     try {
-      const cookies = document.cookie.split(";");
-      const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
-      const cookie = targetCookie ? targetCookie.split("=")[1] : null;
-
       const response = await fetch("https://nexdesk-backend.onrender.com/deleteUser", {
         method: 'DELETE',
         headers: {

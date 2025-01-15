@@ -17,43 +17,48 @@ export default function UpdateUser() {
   const username = useAppSelector(state => state.UserCredential.username);
   const userEmail = useAppSelector(state => state.UserCredential.userEmail);
   const dispatch = useAppDispatch();
+  const cookie = useAppSelector(state => state.Cookie.cookie);
 
   useEffect(() => {
-    const cookies = document.cookie.split("; ");
-    const cookie = cookies.find((cookie) => cookie.startsWith("authtoken="));
-    const mainCookie = cookie ? cookie.split("=")[1] : null;
     dispatch(setIsDarkMode(false));
 
     const authorized = async () => {
-      if (!mainCookie) {
+      if (!cookie) {
         router.push("/");
         return;
       }
 
       try {
-        const response = await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
+        await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${mainCookie}`
+            Authorization: `Bearer ${cookie}`
           },
           credentials: "include"
         })
+          .then(response => {
+            if (response.status === 200) {
+              setVisibleContent(true);
+            }
+            else {
+              router.push("/");
+            }
+          })
 
-        if (!response.ok) {
-          router.push("/");
-        }
-        else {
-          setVisibleContent(true);
-        }
       } catch (error) {
-        console.log("error: ", error);
+        console.error("error: ", error);
+        toast.error("Unable to authorize. Please try again later.", {
+          hideProgressBar: true,
+          autoClose: 2000,
+          position: "top-center",
+        });
         router.push("/")
       }
     };
 
     authorized();
-  }, [router, dispatch]);
+  }, [router, dispatch, cookie]);
 
   const UpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -78,10 +83,6 @@ export default function UpdateUser() {
     }
 
     try {
-      const cookies = document.cookie.split(";");
-      const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
-      const cookie = targetCookie ? targetCookie.split("=")[1] : null;
-
       const response = await fetch("https://nexdesk-backend.onrender.com/updateUser", {
         method: 'PUT',
         headers: {
