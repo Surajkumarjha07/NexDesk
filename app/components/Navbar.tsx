@@ -24,7 +24,6 @@ export default function Navbar() {
     const [visible, setVisible] = useState(false);
     const [color, setColor] = useState("");
     const [showOptions, setShowOptions] = useState(false);
-    const [cookie, setCookie] = useState<string | null>(null);
     const confirmSaveWhiteboard = useAppSelector(state => state.UserCredential.confirmSaveWhiteboard);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [whiteboards, setWhiteboards] = useState<any[]>([]);
@@ -33,22 +32,13 @@ export default function Navbar() {
     const [toggleMeets, setToggleMeets] = useState(false);
     const [color2, setColor2] = useState("");
     const isDarkMode = useAppSelector(state => state.DarkMode.isDarkMode);
+    const cookie = useAppSelector(state => state.Cookie.cookie);
 
     const nowTime = new Date();
     const colors = ["bg-red-500", "bg-blue-500", "bg-yellow-500", "bg-green-500", "bg-orange-500", "bg-pink-500", "bg-violet-500"];
     const colors2 = ["bg-red-200", "bg-blue-200", "bg-yellow-200", "bg-green-200", "bg-orange-200", "bg-pink-200", "bg-violet-200"];
 
     useEffect(() => {
-        const cookies = document.cookie.split(";");
-        console.log("cookies: ", cookies);        
-        const targetCookie = cookies.find(cookie => cookie.startsWith("authtoken="));
-        if (targetCookie) {
-            const cookie = targetCookie.split("=")[1];
-            console.log("cookie: ", cookie);            
-            if (cookie) {
-                setCookie(cookie);
-            }
-        }
         if (cookie) {
             try {
                 const payload = JSON.parse(atob(cookie.split(".")[1]));
