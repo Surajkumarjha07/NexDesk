@@ -23,7 +23,7 @@ export default function SignUp() {
       return;
     }
     try {
-      await fetch("https://nexdesk-backend.onrender.com/signUp", {
+      const response = await fetch("https://nexdesk-backend.onrender.com/signUp", {
         method: 'POST',
         headers: {
           "Content-Type": "application/json"
@@ -31,47 +31,43 @@ export default function SignUp() {
         body: JSON.stringify({ email, name, password }),
         credentials: "include"
       })
-        .then(response => {
-          if (response.status === 200 || response.ok) {
-            toast.success("Great! You are Signed Up", {
-              hideProgressBar: true,
-              autoClose: 1500,
-              type: 'success',
-              position: 'top-center',
-            })
-            router.push("/");
-          }
 
-          else if (response.status === 409) {
-            toast.error("Email already in use!", {
-              hideProgressBar: true,
-              autoClose: 1500,
-              type: 'error',
-              position: 'top-center',
-            })
-          }
+      if (response.status === 200 || response.ok) {
+        toast.success("Great! You are registered", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'success',
+          position: 'top-center',
+        })
+        router.push("/");
+      }
 
-          else if (response.status === 500) {
-            toast.error("Internal server error!", {
-              hideProgressBar: true,
-              autoClose: 1500,
-              type: 'error',
-              position: 'top-center',
-            })
-          }
+      else if (response.status === 409) {
+        toast.error("Email already in use!", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'error',
+          position: 'top-center',
         })
-        .catch(err => {
-          console.error("err: ", err);
-          toast.error("Something went wrong. Please try again later.", {
-            hideProgressBar: true,
-            autoClose: 1500,
-            type: 'error',
-            position: 'top-center',
-          });
+      }
+
+      else {
+        toast.error("Internal server error!", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'error',
+          position: 'top-center',
         })
+      }
 
     } catch (error) {
       console.error("Internal Server Error", error);
+      toast.error("Something went wrong! Try again later", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'error',
+        position: 'top-center',
+      })
     }
   }
 

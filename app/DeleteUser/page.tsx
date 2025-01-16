@@ -80,19 +80,21 @@ export default function DeleteUser() {
           "Content-Type": "application/json",
           Authorization: `Bearer ${cookie}`
         },
-        body: JSON.stringify({ password })
+        body: JSON.stringify({ password }),
+        credentials: "include"
       })
 
       if (response.ok) {
         const response = await fetch("https://nexdesk-backend.onrender.com/signOut", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookie}`
           },
           credentials: "include",
         })
 
-        if (response.ok) {
+        if (response.status === 200 || response.ok) {
           Cookies.remove("authtoken");
           window.location.reload();
         }
@@ -108,7 +110,7 @@ export default function DeleteUser() {
           })
           break;
 
-        case 500:
+        default:
           toast.error("Internal server error!", {
             hideProgressBar: true,
             autoClose: 1500,
@@ -119,7 +121,13 @@ export default function DeleteUser() {
       }
 
     } catch (error) {
-      console.log("Internal Server Error", error);
+      console.error("Internal Server Error", error);
+      toast.error("Something went wrong! Try again later", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'error',
+        position: 'top-center',
+      })
     }
   }
 
