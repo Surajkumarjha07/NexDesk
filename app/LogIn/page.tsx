@@ -23,45 +23,34 @@ export default function LogIn() {
       return;
     }
 
-    try {
-      const response = await fetch("https://nexdesk-backend.onrender.com/login", {
-        method: 'POST',
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, password }),
-        credentials: "include",
+    const response = await fetch("https://nexdesk-backend.onrender.com/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    })
+
+    if (response.status === 200 || response.ok) {
+      const res = await response.json();
+      Cookies.set("authtoken", res.token, { maxAge: 3600, path: "" });
+      toast.success("Congrats! You are logged in", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'success',
+        position: 'top-center',
       });
-
-      if (response.status === 200 || response.ok) {
-        const res = await response.json();
-        Cookies.set('authtoken', res.token, { maxAge: 3600, path: '' });
-        toast.success("Congrats! You are Logged In", {
-          hideProgressBar: true,
-          autoClose: 1500,
-          type: 'success',
-          position: 'top-center',
-        });
-        router.push("/Home");
-      }
-      else {
-        toast.error("Login failed!", {
-          hideProgressBar: true,
-          autoClose: 1500,
-          type: 'error',
-          position: 'top-center',
-        });
-      }
-
-    } catch (err) {
-      console.error("Error during login:", err);
-      toast.error("Something went wrong. Please try again later.", {
+      router.push("/Home");
+    }
+    else {
+      toast.error("Login Failed!", {
         hideProgressBar: true,
         autoClose: 1500,
         type: 'error',
         position: 'top-center',
       });
     }
+
   }
 
   return (
