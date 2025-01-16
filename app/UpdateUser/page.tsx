@@ -119,7 +119,7 @@ export default function UpdateUser() {
         }
       }
 
-      switch (response.status) {
+      switch (Number(response.status)) {
         case 401:
           toast.error("Password not matched!", {
             hideProgressBar: true,
