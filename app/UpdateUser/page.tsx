@@ -65,7 +65,9 @@ export default function UpdateUser() {
       }
     };
 
-    authorized();
+    if (cookie) {
+      authorized();
+    }
   }, [router, cookie]);
 
   const UpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
