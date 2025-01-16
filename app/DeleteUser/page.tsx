@@ -21,7 +21,9 @@ export default function DeleteUser() {
       setCookie(fetchedCookie);
     }
     dispatch(setIsDarkMode(false));
+  }, [dispatch])
 
+  useEffect(() => {
     const authorized = async () => {
       if (!cookie) {
         router.push("/");
@@ -57,7 +59,7 @@ export default function DeleteUser() {
     };
 
     authorized();
-  }, [router, dispatch, cookie]);
+  }, [router, cookie]);
 
   const DeleteUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

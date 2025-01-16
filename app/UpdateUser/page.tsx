@@ -20,13 +20,16 @@ export default function UpdateUser() {
   const dispatch = useAppDispatch();
   const [cookie, setCookie] = useState<string>("");
 
+
   useEffect(() => {
     const fetchedCookie = Cookies.get("authtoken");
     if (fetchedCookie) {
       setCookie(fetchedCookie);
     }
     dispatch(setIsDarkMode(false));
+  }, [dispatch])
 
+  useEffect(() => {
     const authorized = async () => {
       if (!cookie) {
         router.push("/");
@@ -63,7 +66,7 @@ export default function UpdateUser() {
     };
 
     authorized();
-  }, [router, dispatch, cookie]);
+  }, [router, cookie]);
 
   const UpdateUser = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -103,7 +106,8 @@ export default function UpdateUser() {
         const signOut = await fetch("https://nexdesk-backend.onrender.com/signOut", {
           method: "POST",
           headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${cookie}`
           },
           credentials: "include",
         })

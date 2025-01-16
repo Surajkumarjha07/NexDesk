@@ -35,12 +35,7 @@ export default function LogIn() {
 
       if (response.status === 200 || response.ok) {
         const res = await response.json();
-
-        if (res.token) {
-          console.log(res);
-          Cookies.set("authtoken", res.token, { expires: 1 / 1440, path: "/" });
-        }
-        console.log(Cookies.get("authtoken"));
+        Cookies.set("authtoken", res.token, { expires: 1 / 24, path: "/" });
         toast.success("Congrats! You are logged in", {
           hideProgressBar: true,
           autoClose: 1500,
@@ -51,7 +46,7 @@ export default function LogIn() {
       }
       else {
         const err = await response.json();
-        console.log(err);
+        console.error(err);
         toast.error("Login Failed!", {
           hideProgressBar: true,
           autoClose: 1500,
