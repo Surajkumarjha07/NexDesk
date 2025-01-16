@@ -35,9 +35,10 @@ export default function LogIn() {
 
       if (response.status === 200 || response.ok) {
         const res = await response.json();
+
         if (res.token) {
           console.log(res);
-          Cookies.set("authtoken", res.token, { maxAge: 60, path: "/" });
+          Cookies.set("authtoken", res.token, { expires: 1 / 1440, path: "/" });
         }
         console.log(Cookies.get("authtoken"));
         toast.success("Congrats! You are logged in", {
