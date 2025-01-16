@@ -6,6 +6,11 @@ import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
+type ResponseType = {
+  message: string,
+  token: string
+}
+
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -32,7 +37,7 @@ export default function LogIn() {
     })
 
     if (response.status === 200 || response.ok) {
-      const res = await response.json();
+      const res: ResponseType = await response.json();
       Cookies.set("authtoken", res.token, { maxAge: 3600, path: "" });
       toast.success("Congrats! You are logged in", {
         hideProgressBar: true,
