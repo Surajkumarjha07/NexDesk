@@ -100,7 +100,7 @@ export default function DeleteUser() {
         }
       }
 
-      switch (response.status) {
+      switch (Number(response.status)) {
         case 404:
           toast.error("Password not matched!", {
             hideProgressBar: true,
@@ -110,7 +110,7 @@ export default function DeleteUser() {
           })
           break;
 
-        default:
+        case 500:
           toast.error("Internal server error!", {
             hideProgressBar: true,
             autoClose: 1500,
