@@ -41,6 +41,7 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
             });
             return;
         }
+        
         try {
             const response = await fetch("https://nexdesk-backend.onrender.com/saveWhiteBoard", {
                 method: "POST",

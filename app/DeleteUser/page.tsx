@@ -58,7 +58,9 @@ export default function DeleteUser() {
       }
     };
 
-    authorized();
+    if (cookie) {
+      authorized();
+    }
   }, [router, cookie]);
 
   const DeleteUser = async (e: React.FormEvent<HTMLFormElement>) => {
