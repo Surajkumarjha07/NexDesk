@@ -35,9 +35,7 @@ export default function LogIn() {
 
       if (response.status === 200 || response.ok) {
         const res = await response.json();
-        if (res.token) {
-          Cookies.set("authtoken", res.token, { expires: 1 / 24, path: "/" });
-        }
+        Cookies.set("authtoken", res.token, { expires: 1 / 24, path: "/" });
         toast.success("Congrats! You are logged in", {
           hideProgressBar: true,
           autoClose: 1500,
