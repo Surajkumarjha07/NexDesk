@@ -87,16 +87,29 @@ export default function Navbar() {
     }
 
     const signOut = async () => {
-        await fetch("https://nexdesk-backend.onrender.com/signOut", {
-            method: "POST",
-            credentials: "include",
-        })
-            .then(response => {
-                if (response.status === 200 || response.ok) {
-                    Cookies.remove("authtoken");
-                    window.location.reload();
-                }
+        try {
+            await fetch("https://nexdesk-backend.onrender.com/signOut", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${cookie}`
+                },
+                credentials: "include",
             })
+                .then(response => {
+                    if (response.status === 200 || response.ok) {
+                        Cookies.remove("authtoken");
+                        window.location.reload();
+                    }
+                })
+        } catch (error) {
+            console.error("err: ", error);
+            toast.error("Something went wrong! Try again later", {
+                hideProgressBar: true,
+                autoClose: 1500,
+                type: 'error',
+                position: 'top-center',
+            })
+        }
     }
 
     const getWhiteboards = async () => {
@@ -116,7 +129,13 @@ export default function Navbar() {
             }
 
         } catch (error) {
-            console.error("error: ", error);
+            console.error("Internal Server Error", error);
+            toast.error("Something went wrong! Try again later", {
+                hideProgressBar: true,
+                autoClose: 1500,
+                type: 'error',
+                position: 'top-center',
+            })
         }
     }
 
@@ -169,7 +188,13 @@ export default function Navbar() {
                 router.push(`./CanvasPage/${meetCode?.trim()}`);
             }
         } catch (error) {
-            console.log("error: ", error);
+            console.error("error: ", error);
+            toast.error("Something went wrong! Try again later", {
+                hideProgressBar: true,
+                autoClose: 1500,
+                type: 'error',
+                position: 'top-center',
+            })
         }
     }
 
@@ -177,32 +202,42 @@ export default function Navbar() {
         const target = e.target as HTMLDivElement;
         const meetCode = target.parentElement?.parentElement?.childNodes[0].textContent;
 
-        const response = await fetch("https://nexdesk-backend.onrender.com/deleteWhiteboard", {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${cookie}`
-            },
-            body: JSON.stringify({ meetingCode: meetCode }),
-            credentials: "include"
-        })
+        try {
+            const response = await fetch("https://nexdesk-backend.onrender.com/deleteWhiteboard", {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${cookie}`
+                },
+                body: JSON.stringify({ meetingCode: meetCode }),
+                credentials: "include"
+            })
 
-        if (response.ok) {
-            toast.success("Whiteboard deleted!", {
-                hideProgressBar: true,
-                autoClose: 1500,
-                type: 'success',
-                position: 'top-center',
-            });
-            getWhiteboards();
-        }
-        else {
-            toast.error("Failed to delete!", {
+            if (response.ok) {
+                toast.success("Whiteboard deleted!", {
+                    hideProgressBar: true,
+                    autoClose: 1500,
+                    type: 'success',
+                    position: 'top-center',
+                });
+                getWhiteboards();
+            }
+            else {
+                toast.error("Failed to delete!", {
+                    hideProgressBar: true,
+                    autoClose: 1500,
+                    type: 'error',
+                    position: 'top-center',
+                });
+            }
+        } catch (error) {
+            console.error("Internal Server Error", error);
+            toast.error("Something went wrong! Try again later", {
                 hideProgressBar: true,
                 autoClose: 1500,
                 type: 'error',
                 position: 'top-center',
-            });
+            })
         }
     }
 

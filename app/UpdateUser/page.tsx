@@ -148,7 +148,13 @@ export default function UpdateUser() {
       }
 
     } catch (error) {
-      console.log("Internal Server Error", error);
+      console.error("Internal Server Error", error);
+      toast.error("Something went wrong! Try again later", {
+        hideProgressBar: true,
+        autoClose: 1500,
+        type: 'error',
+        position: 'top-center',
+      })
     }
   }
 

@@ -32,28 +32,28 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
     }, [])
 
     const save = async () => {
+        if (!whiteboardName) {
+            toast.error("Enter whiteBoard name", {
+                hideProgressBar: true,
+                autoClose: 1500,
+                type: 'error',
+                position: 'top-center',
+            });
+            return;
+        }
         try {
-            if (!whiteboardName) {
-                toast.error("Enter whiteBoard name", {
-                    hideProgressBar: true,
-                    autoClose: 1500,
-                    type: 'error',
-                    position: 'top-center',
-                });
-                return;
-            }
             const response = await fetch("https://nexdesk-backend.onrender.com/saveWhiteBoard", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${cookie}`
                 },
-                credentials: "include",
-                body: JSON.stringify({ meetingCode: whiteboardName, texts, shapes, notes, images })
+                body: JSON.stringify({ meetingCode: whiteboardName, texts, shapes, notes, images }),
+                credentials: "include"
             })
 
-            if (response.ok) {
-                toast.success("WhiteBoard Saved", {
+            if (response.status === 200 || response.ok) {
+                toast.success("Whiteboard saved!", {
                     hideProgressBar: true,
                     autoClose: 1500,
                     type: 'success',
@@ -62,8 +62,22 @@ export default function Save({ texts, shapes, notes, images }: saveInterface) {
                 dispatch(setConfirmSaveWhiteboard(false));
                 dispatch(setFunctionality(""));
             }
+            else {
+                toast.error("Whiteboard not saved!", {
+                    hideProgressBar: true,
+                    autoClose: 1500,
+                    type: 'error',
+                    position: 'top-center',
+                })
+            }
         } catch (error) {
-            console.log("error: ", error);
+            console.error("error: ", error);
+            toast.error("Something went wrong! Try again later", {
+                hideProgressBar: true,
+                autoClose: 1500,
+                type: 'error',
+                position: 'top-center',
+            })
         }
     }
 
