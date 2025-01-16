@@ -33,7 +33,7 @@ export default function HomePage() {
         }
         dispatch(setMeetingCode(""));
         dispatch(setToggle(false));
-    }, [dispatch])
+    }, [dispatch, router])
 
     useEffect(() => {
         const authorized = async () => {

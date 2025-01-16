@@ -30,7 +30,7 @@ export default function UpdateUser() {
       router.push("/");
     }
     dispatch(setIsDarkMode(false));
-  }, [dispatch])
+  }, [dispatch, router])
 
   useEffect(() => {
     const authorized = async () => {

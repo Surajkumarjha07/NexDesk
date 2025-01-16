@@ -24,7 +24,7 @@ export default function DeleteUser() {
       router.push("/");
     }
     dispatch(setIsDarkMode(false));
-  }, [dispatch])
+  }, [dispatch, router])
 
   useEffect(() => {
     const authorized = async () => {
