@@ -6,11 +6,6 @@ import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
 import Cookies from "js-cookie";
 
-type ResponseType = {
-  message: string,
-  token: string
-}
-
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
@@ -28,27 +23,41 @@ export default function LogIn() {
       return;
     }
 
-    const response = await fetch("https://nexdesk-backend.onrender.com/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, password })
-    })
+    try {
+      const response = await fetch("https://nexdesk-backend.onrender.com/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      })
 
-    if (response.status === 200 || response.ok) {
-      const res: ResponseType = await response.json();
-      Cookies.set("authtoken", res.token, { maxAge: 3600, path: "" });
-      toast.success("Congrats! You are logged in", {
-        hideProgressBar: true,
-        autoClose: 1500,
-        type: 'success',
-        position: 'top-center',
-      });
-      router.push("/Home");
-    }
-    else {
-      toast.error("Login Failed!", {
+      if (response.status === 200 || response.ok) {
+        const res = await response.json();
+        console.log(res);
+        Cookies.set("authtoken", res.token, { maxAge: 3600, path: "", secure: true, sameSite: 'None' });
+        toast.success("Congrats! You are logged in", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'success',
+          position: 'top-center',
+        });
+        router.push("/Home");
+      }
+      else {
+        const err = await response.json();
+        console.log(err);
+        toast.error("Login Failed!", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'error',
+          position: 'top-center',
+        });
+      }
+
+    } catch (error) {
+      console.error("error: ", error);
+      toast.error("Internal server error!", {
         hideProgressBar: true,
         autoClose: 1500,
         type: 'error',
