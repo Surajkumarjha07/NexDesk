@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
-import Cookies from "js-cookie";
+// import Cookies from "js-cookie";
 
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
