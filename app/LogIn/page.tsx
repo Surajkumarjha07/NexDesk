@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation';
 import { toast } from "react-toastify";
-// import Cookies from "js-cookie";
+import Cookies from "js-cookie";
 
 export default function LogIn() {
   const [email, setEmail] = useState<string>('');
@@ -36,7 +36,7 @@ export default function LogIn() {
       if (response.status === 200 || response.ok) {
         const res = await response.json();
         console.log(res);
-        // Cookies.set("authtoken", res.token, { maxAge: 3600, path: "/", secure: true, httpOnly: true, sameSite: "None" });
+        Cookies.set("authtoken", res.token, { maxAge: 60, path: "/", secure: true, httpOnly: true, sameSite: "None" });
         toast.success("Congrats! You are logged in", {
           hideProgressBar: true,
           autoClose: 1500,
