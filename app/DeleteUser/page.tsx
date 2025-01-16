@@ -20,16 +20,14 @@ export default function DeleteUser() {
     if (fetchedCookie) {
       setCookie(fetchedCookie);
     }
+    else {
+      router.push("/");
+    }
     dispatch(setIsDarkMode(false));
   }, [dispatch])
 
   useEffect(() => {
     const authorized = async () => {
-      if (!cookie) {
-        router.push("/");
-        return;
-      }
-
       try {
         await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
           method: "GET",

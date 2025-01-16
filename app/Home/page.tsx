@@ -28,9 +28,14 @@ export default function HomePage() {
         if (fetchedCookie) {
             setCookie(fetchedCookie);
         }
+        else {
+            router.push("/");
+        }
         dispatch(setMeetingCode(""));
         dispatch(setToggle(false));
+    }, [dispatch])
 
+    useEffect(() => {
         const authorized = async () => {
             try {
                 await fetch("https://nexdesk-backend.onrender.com/userAuthenticated", {
@@ -59,8 +64,10 @@ export default function HomePage() {
             }
         };
 
-        authorized();
-    }, [router, dispatch, cookie]);
+        if (cookie) {
+            authorized();
+        }
+    }, [router, cookie]);
 
     useEffect(() => {
         if (socket) {

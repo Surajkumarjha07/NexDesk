@@ -57,7 +57,10 @@ export default function CanvasPage() {
 
   useEffect(() => {
     const fetchedCookie = Cookies.get("authtoken");
-    if (fetchedCookie) {
+    if (!fetchedCookie) {
+      router.push("/");
+    }
+    else {
       setCookie(fetchedCookie);
     }
     const authorized = async () => {
@@ -89,7 +92,9 @@ export default function CanvasPage() {
       }
     };
 
-    authorized();
+    if (cookie) {
+      authorized();
+    }
   }, [router, cookie]);
 
   const { settingText, removeInput, inputs, handleTextClick, handleTextMove, handleTextStop, handleTextEraser, handleInputModify } = CanvasTextFeatures({

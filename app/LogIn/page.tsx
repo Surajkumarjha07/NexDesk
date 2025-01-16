@@ -44,10 +44,18 @@ export default function LogIn() {
         });
         router.push("/Home");
       }
+      else if (response.status === 404) {
+        toast.error("Incorrect email or password!", {
+          hideProgressBar: true,
+          autoClose: 1500,
+          type: 'error',
+          position: 'top-center',
+        });
+      }
       else {
         const err = await response.json();
         console.error(err);
-        toast.error("Login Failed!", {
+        toast.error("Login failed!", {
           hideProgressBar: true,
           autoClose: 1500,
           type: 'error',
