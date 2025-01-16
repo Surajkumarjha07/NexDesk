@@ -45,8 +45,7 @@ export default function LogIn() {
         router.push("/Home");
       }
       else {
-        const error = await response.json();
-        toast.error(error.message || "Login failed!", {
+        toast.error("Login failed!", {
           hideProgressBar: true,
           autoClose: 1500,
           type: 'error',
