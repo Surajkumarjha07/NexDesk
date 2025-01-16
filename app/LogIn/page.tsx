@@ -29,7 +29,8 @@ export default function LogIn() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
+        credentials: "include"
       })
 
       if (response.status === 200 || response.ok) {
